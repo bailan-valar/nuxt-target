@@ -1,0 +1,35 @@
+generator client {
+  provider   = "prisma-client"
+  output     = "./main"
+  engineType = "client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  goals     Goal[]
+
+  @@map("users")
+}
+
+model Goal {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  group       String?
+  title       String
+  description String?
+  status      String   @default("active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("goals")
+}

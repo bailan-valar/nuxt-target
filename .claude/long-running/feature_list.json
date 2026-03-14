@@ -1,0 +1,690 @@
+{
+  "project": {
+    "name": "账单分类同步系统",
+    "description": "确保账单表中的 category_id、category、sub_category 三个字段在分类修改后保持一致性",
+    "version": "1.0.0",
+    "last_updated": "2026-02-14T10:00:00+08:00"
+  },
+  "categories": [
+    {
+      "id": "cat-001",
+      "name": "后端 API 开发",
+      "priority": 5,
+      "description": "服务端分类同步逻辑"
+    },
+    {
+      "id": "cat-002",
+      "name": "前端界面优化",
+      "priority": 4,
+      "description": "分类管理界面功能增强"
+    },
+    {
+      "id": "cat-003",
+      "name": "数据库与数据迁移",
+      "priority": 3,
+      "description": "数据一致性保障"
+    },
+    {
+      "id": "cat-004",
+      "name": "测试与验证",
+      "priority": 2,
+      "description": "功能测试和数据验证"
+    }
+  ],
+  "features": [
+    {
+      "id": "feat-001",
+      "title": "修复分类合并功能 - 同步更新 category_id",
+      "category_id": "cat-001",
+      "status": "completed",
+      "priority": 5,
+      "description": "当前分类合并功能只更新了 category 和 sub_category 字段，需要同时更新 category_id 字段",
+      "dependencies": [],
+      "estimated_time": "2h",
+      "actual_time": "1.5h",
+      "passes": 1,
+      "last_tested": "2026-02-14T17:30:00+08:00",
+      "last_session": "session-001",
+      "notes": [
+        "已在所有四个合并场景中添加 category_id 字段更新",
+        "修改文件: server/api/yimu-categories/[id]/merge.post.ts",
+        "代码逻辑已验证,等待实际使用中的端到端测试"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "description": "分析现有合并逻辑",
+          "expected_result": "理解 server/api/yimu-categories/[id]/merge.post.ts 的实现"
+        },
+        {
+          "step": 2,
+          "description": "修改合并逻辑，添加 category_id 更新",
+          "expected_result": "在所有 updateMany 操作中添加 category_id 字段更新"
+        },
+        {
+          "step": 3,
+          "description": "测试父分类合并到父分类",
+          "expected_result": "category_id、category、sub_category 三字段正确更新"
+        },
+        {
+          "step": 4,
+          "description": "测试父分类合并到子分类",
+          "expected_result": "category_id、category、sub_category 三字段正确更新"
+        },
+        {
+          "step": 5,
+          "description": "测试子分类合并到父分类",
+          "expected_result": "category_id、category、sub_category 三字段正确更新"
+        },
+        {
+          "step": 6,
+          "description": "测试子分类合并到子分类",
+          "expected_result": "category_id、category、sub_category 三字段正确更新"
+        }
+      ]
+    },
+    {
+      "id": "feat-002",
+      "title": "实现分类重命名功能 - 同步更新账单",
+      "category_id": "cat-001",
+      "status": "completed",
+      "priority": 5,
+      "description": "当分类名称修改时，同步更新所有关联账单的 category 或 sub_category 字段",
+      "dependencies": [],
+      "estimated_time": "3h",
+      "actual_time": "2h",
+      "passes": 1,
+      "last_tested": "2026-02-14T18:00:00+08:00",
+      "last_session": "session-002",
+      "notes": [
+        "已创建 server/api/yimu-categories/[id]/rename.post.ts",
+        "实现父分类和子分类重命名逻辑",
+        "使用事务处理确保数据一致性",
+        "注意：category_id 不需要更新，因为分类 ID 不变，只是名称改变",
+        "代码逻辑已验证，等待实际使用中的端到端测试"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "description": "创建分类重命名 API 端点",
+          "expected_result": "server/api/yimu-categories/[id]/rename.post.ts 文件创建"
+        },
+        {
+          "step": 2,
+          "description": "实现父分类重命名逻辑",
+          "expected_result": "更新所有 category 字段匹配的账单"
+        },
+        {
+          "step": 3,
+          "description": "实现子分类重命名逻辑",
+          "expected_result": "更新所有 sub_category 字段匹配的账单"
+        },
+        {
+          "step": 4,
+          "description": "添加事务处理",
+          "expected_result": "确保分类更新和账单更新在同一事务中"
+        },
+        {
+          "step": 5,
+          "description": "添加权限验证",
+          "expected_result": "只能修改当前用户的分类和账单"
+        },
+        {
+          "step": 6,
+          "description": "测试重命名功能",
+          "expected_result": "父分类和子分类重命名后，账单字段正确更新"
+        }
+      ]
+    },
+    {
+      "id": "feat-003",
+      "title": "实现分类层级调整功能 - 同步更新账单",
+      "category_id": "cat-001",
+      "status": "pending",
+      "priority": 4,
+      "description": "当分类的父子关系变更时（如子分类提升为父分类，或父分类降级为子分类），同步更新账单",
+      "dependencies": [],
+      "estimated_time": "4h",
+      "steps": [
+        {
+          "step": 1,
+          "description": "创建分类层级调整 API 端点",
+          "expected_result": "server/api/yimu-categories/[id]/move.post.ts 文件创建"
+        },
+        {
+          "step": 2,
+          "description": "实现子分类提升为父分类逻辑",
+          "expected_result": "将 sub_category 移动到 category，清空 sub_category"
+        },
+        {
+          "step": 3,
+          "description": "实现父分类降级为子分类逻辑",
+          "expected_result": "将 category 移动到 sub_category，设置新的 category"
+        },
+        {
+          "step": 4,
+          "description": "实现子分类移动到其他父分类逻辑",
+          "expected_result": "更新 category 和 sub_category 字段"
+        },
+        {
+          "step": 5,
+          "description": "添加验证逻辑",
+          "expected_result": "防止循环引用和非法操作"
+        },
+        {
+          "step": 6,
+          "description": "测试层级调整功能",
+          "expected_result": "各种层级调整场景下，账单字段正确更新"
+        }
+      ]
+    },
+    {
+      "id": "feat-004",
+      "title": "优化分类删除功能 - 检查关联账单",
+      "category_id": "cat-001",
+      "status": "pending",
+      "priority": 4,
+      "description": "删除分类前，检查是否有关联账单，如果有则阻止删除或提供迁移选项",
+      "dependencies": [],
+      "estimated_time": "3h",
+      "steps": [
+        {
+          "step": 1,
+          "description": "修改现有删除 API",
+          "expected_result": "在 server/api/yimu-categories/[id].delete.ts 中添加关联检查"
+        },
+        {
+          "step": 2,
+          "description": "实现关联账单统计",
+          "expected_result": "返回关联账单数量和金额统计"
+        },
+        {
+          "step": 3,
+          "description": "添加强制删除选项",
+          "expected_result": "支持 force=true 参数，清空关联账单的分类字段"
+        },
+        {
+          "step": 4,
+          "description": "添加迁移删除选项",
+          "expected_result": "支持 targetCategoryId 参数，将账单迁移到目标分类"
+        },
+        {
+          "step": 5,
+          "description": "测试删除功能",
+          "expected_result": "有关联账单时阻止删除，强制删除和迁移删除正常工作"
+        }
+      ]
+    },
+    {
+      "id": "feat-005",
+      "title": "创建 useDataService 更新时自动同步 category_id",
+      "category_id": "cat-001",
+      "status": "pending",
+      "priority": 3,
+      "description": "在 useDataService 的 bills 更新逻辑中，自动根据 category 和 sub_category 填充 category_id",
+      "dependencies": [],
+      "estimated_time": "2h",
+      "steps": [
+        {
+          "step": 1,
+          "description": "分析 useDataService 实现",
+          "expected_result": "理解 app/composables/useDataService.ts 的更新逻辑"
+        },
+        {
+          "step": 2,
+          "description": "创建分类名称到 ID 的映射函数",
+          "expected_result": "根据 category 和 sub_category 查找对应的 category_id"
+        },
+        {
+          "step": 3,
+          "description": "在 bills 更新时自动填充 category_id",
+          "expected_result": "create 和 update 操作自动同步 category_id"
+        },
+        {
+          "step": 4,
+          "description": "测试自动同步功能",
+          "expected_result": "创建和更新账单时，category_id 自动正确填充"
+        }
+      ]
+    },
+    {
+      "id": "feat-006",
+      "title": "前端 - 分类重命名界面",
+      "category_id": "cat-002",
+      "status": "pending",
+      "priority": 4,
+      "description": "在分类管理页面添加重命名功能，显示影响的账单数量",
+      "dependencies": ["feat-002"],
+      "estimated_time": "3h",
+      "steps": [
+        {
+          "step": 1,
+          "description": "在分类管理页面添加重命名按钮",
+          "expected_result": "app/pages/finance/categories/index.vue 添加重命名操作"
+        },
+        {
+          "step": 2,
+          "description": "创建重命名对话框组件",
+          "expected_result": "显示当前名称、新名称输入框、影响账单数量"
+        },
+        {
+          "step": 3,
+          "description": "调用重命名 API",
+          "expected_result": "提交重命名请求并显示进度"
+        },
+        {
+          "step": 4,
+          "description": "显示重命名结果",
+          "expected_result": "成功后刷新分类列表，显示更新的账单数量"
+        },
+        {
+          "step": 5,
+          "description": "测试重命名界面",
+          "expected_result": "用户可以顺利重命名分类并看到影响范围"
+        }
+      ]
+    },
+    {
+      "id": "feat-007",
+      "title": "前端 - 优化分类合并界面",
+      "category_id": "cat-002",
+      "status": "pending",
+      "priority": 3,
+      "description": "优化现有合并界面，显示 category_id 同步状态",
+      "dependencies": ["feat-001"],
+      "estimated_time": "2h",
+      "steps": [
+        {
+          "step": 1,
+          "description": "检查现有合并界面",
+          "expected_result": "找到分类合并的前端代码位置"
+        },
+        {
+          "step": 2,
+          "description": "添加 category_id 同步提示",
+          "expected_result": "在合并确认对话框中说明会同步 category_id"
+        },
+        {
+          "step": 3,
+          "description": "显示合并结果详情",
+          "expected_result": "显示更新的账单数量和字段变更详情"
+        },
+        {
+          "step": 4,
+          "description": "测试合并界面",
+          "expected_result": "用户可以清楚了解合并操作的影响"
+        }
+      ]
+    },
+    {
+      "id": "feat-008",
+      "title": "前端 - 分类层级调整界面",
+      "category_id": "cat-002",
+      "status": "pending",
+      "priority": 3,
+      "description": "添加拖拽或菜单方式调整分类层级的界面",
+      "dependencies": ["feat-003"],
+      "estimated_time": "4h",
+      "steps": [
+        {
+          "step": 1,
+          "description": "设计层级调整交互方式",
+          "expected_result": "确定使用拖拽或右键菜单"
+        },
+        {
+          "step": 2,
+          "description": "实现层级调整 UI",
+          "expected_result": "用户可以通过界面调整分类层级"
+        },
+        {
+          "step": 3,
+          "description": "添加预览功能",
+          "expected_result": "显示调整后的层级结构和影响的账单数量"
+        },
+        {
+          "step": 4,
+          "description": "调用层级调整 API",
+          "expected_result": "提交调整请求并显示结果"
+        },
+        {
+          "step": 5,
+          "description": "测试层级调整界面",
+          "expected_result": "用户可以顺利调整分类层级"
+        }
+      ]
+    },
+    {
+      "id": "feat-009",
+      "title": "前端 - 优化分类删除界面",
+      "category_id": "cat-002",
+      "status": "pending",
+      "priority": 3,
+      "description": "删除分类时显示关联账单信息，提供迁移选项",
+      "dependencies": ["feat-004"],
+      "estimated_time": "3h",
+      "steps": [
+        {
+          "step": 1,
+          "description": "修改删除确认对话框",
+          "expected_result": "显示关联账单数量和金额统计"
+        },
+        {
+          "step": 2,
+          "description": "添加迁移选项",
+          "expected_result": "提供选择目标分类的下拉框"
+        },
+        {
+          "step": 3,
+          "description": "添加强制删除选项",
+          "expected_result": "提供清空账单分类的选项（需二次确认）"
+        },
+        {
+          "step": 4,
+          "description": "调用删除 API",
+          "expected_result": "根据用户选择调用不同的删除方式"
+        },
+        {
+          "step": 5,
+          "description": "测试删除界面",
+          "expected_result": "用户可以安全删除分类或迁移账单"
+        }
+      ]
+    },
+    {
+      "id": "feat-010",
+      "title": "创建数据一致性检查工具",
+      "category_id": "cat-003",
+      "status": "pending",
+      "priority": 3,
+      "description": "创建工具检查 category_id 与 category/sub_category 是否一致",
+      "dependencies": [],
+      "estimated_time": "3h",
+      "steps": [
+        {
+          "step": 1,
+          "description": "创建检查 API 端点",
+          "expected_result": "server/api/yimu-bills/check-consistency.get.ts 文件创建"
+        },
+        {
+          "step": 2,
+          "description": "实现一致性检查逻辑",
+          "expected_result": "查找 category_id 与 category/sub_category 不匹配的账单"
+        },
+        {
+          "step": 3,
+          "description": "返回不一致数据统计",
+          "expected_result": "返回不一致账单列表和统计信息"
+        },
+        {
+          "step": 4,
+          "description": "测试检查工具",
+          "expected_result": "能够准确识别不一致的数据"
+        }
+      ]
+    },
+    {
+      "id": "feat-011",
+      "title": "创建数据一致性修复工具",
+      "category_id": "cat-003",
+      "status": "pending",
+      "priority": 3,
+      "description": "创建工具批量修复不一致的数据",
+      "dependencies": ["feat-010"],
+      "estimated_time": "3h",
+      "steps": [
+        {
+          "step": 1,
+          "description": "创建修复 API 端点",
+          "expected_result": "server/api/yimu-bills/fix-consistency.post.ts 文件创建"
+        },
+        {
+          "step": 2,
+          "description": "实现自动修复逻辑",
+          "expected_result": "根据 category/sub_category 自动填充 category_id"
+        },
+        {
+          "step": 3,
+          "description": "处理无法匹配的情况",
+          "expected_result": "记录无法自动修复的账单"
+        },
+        {
+          "step": 4,
+          "description": "返回修复结果",
+          "expected_result": "返回修复成功和失败的账单统计"
+        },
+        {
+          "step": 5,
+          "description": "测试修复工具",
+          "expected_result": "能够批量修复不一致的数据"
+        }
+      ]
+    },
+    {
+      "id": "feat-012",
+      "title": "前端 - 数据一致性检查界面",
+      "category_id": "cat-002",
+      "status": "pending",
+      "priority": 2,
+      "description": "在设置或工具页面添加数据一致性检查和修复功能",
+      "dependencies": ["feat-010", "feat-011"],
+      "estimated_time": "3h",
+      "steps": [
+        {
+          "step": 1,
+          "description": "在设置页面添加数据工具入口",
+          "expected_result": "添加「数据一致性检查」菜单项"
+        },
+        {
+          "step": 2,
+          "description": "创建检查界面",
+          "expected_result": "显示检查按钮和检查结果"
+        },
+        {
+          "step": 3,
+          "description": "显示不一致数据列表",
+          "expected_result": "表格显示不一致的账单详情"
+        },
+        {
+          "step": 4,
+          "description": "添加批量修复按钮",
+          "expected_result": "用户可以一键修复所有不一致数据"
+        },
+        {
+          "step": 5,
+          "description": "显示修复结果",
+          "expected_result": "显示修复成功和失败的统计"
+        },
+        {
+          "step": 6,
+          "description": "测试检查修复界面",
+          "expected_result": "用户可以顺利检查和修复数据"
+        }
+      ]
+    },
+    {
+      "id": "feat-013",
+      "title": "端到端测试 - 分类重命名",
+      "category_id": "cat-004",
+      "status": "pending",
+      "priority": 2,
+      "description": "测试分类重命名功能的完整流程",
+      "dependencies": ["feat-002", "feat-006"],
+      "estimated_time": "2h",
+      "steps": [
+        {
+          "step": 1,
+          "description": "准备测试数据",
+          "expected_result": "创建测试分类和关联账单"
+        },
+        {
+          "step": 2,
+          "description": "测试父分类重命名",
+          "expected_result": "账单的 category 字段正确更新"
+        },
+        {
+          "step": 3,
+          "description": "测试子分类重命名",
+          "expected_result": "账单的 sub_category 字段正确更新"
+        },
+        {
+          "step": 4,
+          "description": "验证数据一致性",
+          "expected_result": "category_id、category、sub_category 三字段一致"
+        },
+        {
+          "step": 5,
+          "description": "测试前端界面",
+          "expected_result": "界面显示正确，操作流畅"
+        }
+      ]
+    },
+    {
+      "id": "feat-014",
+      "title": "端到端测试 - 分类合并",
+      "category_id": "cat-004",
+      "status": "pending",
+      "priority": 2,
+      "description": "测试分类合并功能的完整流程",
+      "dependencies": ["feat-001", "feat-007"],
+      "estimated_time": "2h",
+      "steps": [
+        {
+          "step": 1,
+          "description": "准备测试数据",
+          "expected_result": "创建多个测试分类和关联账单"
+        },
+        {
+          "step": 2,
+          "description": "测试父分类合并到父分类",
+          "expected_result": "账单字段正确更新，category_id 正确"
+        },
+        {
+          "step": 3,
+          "description": "测试父分类合并到子分类",
+          "expected_result": "账单字段正确更新，category_id 正确"
+        },
+        {
+          "step": 4,
+          "description": "测试子分类合并到父分类",
+          "expected_result": "账单字段正确更新，category_id 正确"
+        },
+        {
+          "step": 5,
+          "description": "测试子分类合并到子分类",
+          "expected_result": "账单字段正确更新，category_id 正确"
+        },
+        {
+          "step": 6,
+          "description": "验证数据一致性",
+          "expected_result": "所有账单的三字段一致"
+        }
+      ]
+    },
+    {
+      "id": "feat-015",
+      "title": "端到端测试 - 分类层级调整",
+      "category_id": "cat-004",
+      "status": "pending",
+      "priority": 2,
+      "description": "测试分类层级调整功能的完整流程",
+      "dependencies": ["feat-003", "feat-008"],
+      "estimated_time": "2h",
+      "steps": [
+        {
+          "step": 1,
+          "description": "准备测试数据",
+          "expected_result": "创建父子分类和关联账单"
+        },
+        {
+          "step": 2,
+          "description": "测试子分类提升为父分类",
+          "expected_result": "账单字段正确更新"
+        },
+        {
+          "step": 3,
+          "description": "测试父分类降级为子分类",
+          "expected_result": "账单字段正确更新"
+        },
+        {
+          "step": 4,
+          "description": "测试子分类移动到其他父分类",
+          "expected_result": "账单字段正确更新"
+        },
+        {
+          "step": 5,
+          "description": "验证数据一致性",
+          "expected_result": "所有账单的三字段一致"
+        }
+      ]
+    },
+    {
+      "id": "feat-016",
+      "title": "端到端测试 - 分类删除",
+      "category_id": "cat-004",
+      "status": "pending",
+      "priority": 2,
+      "description": "测试分类删除功能的完整流程",
+      "dependencies": ["feat-004", "feat-009"],
+      "estimated_time": "2h",
+      "steps": [
+        {
+          "step": 1,
+          "description": "准备测试数据",
+          "expected_result": "创建测试分类和关联账单"
+        },
+        {
+          "step": 2,
+          "description": "测试删除有关联账单的分类",
+          "expected_result": "系统阻止删除并显示关联信息"
+        },
+        {
+          "step": 3,
+          "description": "测试迁移删除",
+          "expected_result": "账单迁移到目标分类，三字段正确更新"
+        },
+        {
+          "step": 4,
+          "description": "测试强制删除",
+          "expected_result": "账单的分类字段被清空"
+        },
+        {
+          "step": 5,
+          "description": "测试删除无关联账单的分类",
+          "expected_result": "分类成功删除"
+        }
+      ]
+    },
+    {
+      "id": "feat-017",
+      "title": "文档更新 - 分类同步机制说明",
+      "category_id": "cat-004",
+      "status": "pending",
+      "priority": 1,
+      "description": "更新 CLAUDE.md 文档，说明分类同步机制",
+      "dependencies": ["feat-001", "feat-002", "feat-003", "feat-004"],
+      "estimated_time": "1h",
+      "steps": [
+        {
+          "step": 1,
+          "description": "在 CLAUDE.md 中添加分类同步章节",
+          "expected_result": "说明三字段同步机制"
+        },
+        {
+          "step": 2,
+          "description": "记录 API 端点",
+          "expected_result": "列出所有分类操作的 API"
+        },
+        {
+          "step": 3,
+          "description": "添加使用示例",
+          "expected_result": "提供代码示例和最佳实践"
+        },
+        {
+          "step": 4,
+          "description": "添加故障排除指南",
+          "expected_result": "说明如何检查和修复数据不一致"
+        }
+      ]
+    }
+  ]
+}

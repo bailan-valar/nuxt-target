@@ -1,0 +1,284 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "project": {
+    "name": "nuxt-rich-book",
+    "version": "1.0.0",
+    "last_updated": "2026-02-14T16:30:00+08:00"
+  },
+  "categories": [
+    {
+      "id": "cat-001",
+      "name": "财务管理",
+      "description": "账单、预算、分类管理功能",
+      "priority": 5
+    },
+    {
+      "id": "cat-002",
+      "name": "任务管理",
+      "description": "任务、项目、时间块功能",
+      "priority": 4
+    },
+    {
+      "id": "cat-003",
+      "name": "数据同步",
+      "description": "CRDT 同步、离线优先架构",
+      "priority": 5
+    },
+    {
+      "id": "cat-004",
+      "name": "UI/UX 优化",
+      "description": "iOS 18 风格、响应式设计",
+      "priority": 3
+    }
+  ],
+  "features": [
+    {
+      "id": "feat-001",
+      "category_id": "cat-001",
+      "title": "账单批量导入功能",
+      "description": "支持从 CSV/Excel 批量导入账单数据,自动映射账户和分类",
+      "priority": 4,
+      "status": "pending",
+      "locked": false,
+      "steps": [
+        {
+          "step_number": 1,
+          "description": "创建文件上传组件 (BaseFileUploader.vue)",
+          "files_to_modify": ["app/components/base/FileUploader.vue"],
+          "test_command": "npm run dev",
+          "expected_result": "组件可以选择并预览 CSV/Excel 文件"
+        },
+        {
+          "step_number": 2,
+          "description": "实现 CSV 解析逻辑 (使用 papaparse)",
+          "files_to_modify": ["app/composables/useCsvParser.ts"],
+          "test_command": "npm run dev",
+          "expected_result": "可以正确解析 CSV 文件并返回 JSON 数据"
+        },
+        {
+          "step_number": 3,
+          "description": "创建字段映射界面",
+          "files_to_modify": ["app/components/bills/ImportMappingDialog.vue"],
+          "test_command": "npm run dev",
+          "expected_result": "用户可以将 CSV 列映射到账单字段"
+        },
+        {
+          "step_number": 4,
+          "description": "实现批量导入 API",
+          "files_to_modify": ["server/api/yimu-bills/import.post.ts"],
+          "test_command": "curl -X POST http://localhost:3000/api/yimu-bills/import",
+          "expected_result": "API 返回成功,数据库中有新记录"
+        },
+        {
+          "step_number": 5,
+          "description": "端到端测试:上传文件 → 映射 → 导入 → 验证",
+          "files_to_modify": [],
+          "test_command": "手动测试完整流程",
+          "expected_result": "导入的账单在账单列表中正确显示"
+        }
+      ],
+      "passes": 0,
+      "last_tested": null,
+      "last_session": null,
+      "notes": [],
+      "dependencies": [],
+      "estimated_time": "4h",
+      "actual_time": null
+    },
+    {
+      "id": "feat-002",
+      "category_id": "cat-003",
+      "title": "优化 CRDT 冲突解决逻辑",
+      "description": "改进 HLC 时间戳生成和冲突解决算法,减少数据丢失",
+      "priority": 5,
+      "status": "pending",
+      "locked": true,
+      "steps": [
+        {
+          "step_number": 1,
+          "description": "审查现有 useCRDT.ts 实现",
+          "files_to_modify": [],
+          "test_command": "阅读代码",
+          "expected_result": "理解当前 HLC 生成和冲突解决逻辑"
+        },
+        {
+          "step_number": 2,
+          "description": "添加单元测试覆盖冲突场景",
+          "files_to_modify": ["tests/unit/useCRDT.spec.ts"],
+          "test_command": "npm run test",
+          "expected_result": "测试覆盖率 > 80%"
+        },
+        {
+          "step_number": 3,
+          "description": "实现改进的 HLC 算法 (考虑时钟漂移)",
+          "files_to_modify": ["app/composables/useCRDT.ts"],
+          "test_command": "npm run test",
+          "expected_result": "所有测试通过"
+        },
+        {
+          "step_number": 4,
+          "description": "添加冲突日志记录",
+          "files_to_modify": ["app/composables/useCRDT.ts"],
+          "test_command": "npm run dev",
+          "expected_result": "冲突发生时在控制台输出详细日志"
+        },
+        {
+          "step_number": 5,
+          "description": "多设备同步测试",
+          "files_to_modify": [],
+          "test_command": "手动测试:两个浏览器同时编辑同一记录",
+          "expected_result": "冲突正确解决,数据一致"
+        }
+      ],
+      "passes": 0,
+      "last_tested": null,
+      "last_session": null,
+      "notes": [
+        "这是核心功能,locked=true 防止误删",
+        "需要参考 Anthropic CRDT 最佳实践"
+      ],
+      "dependencies": [],
+      "estimated_time": "6h",
+      "actual_time": null
+    },
+    {
+      "id": "feat-003",
+      "category_id": "cat-002",
+      "title": "任务拖拽排序功能",
+      "description": "支持通过拖拽调整任务顺序和层级关系",
+      "priority": 3,
+      "status": "completed",
+      "locked": false,
+      "steps": [
+        {
+          "step_number": 1,
+          "description": "集成 Vue Draggable 库",
+          "files_to_modify": ["package.json"],
+          "test_command": "npm install",
+          "expected_result": "依赖安装成功"
+        },
+        {
+          "step_number": 2,
+          "description": "实现拖拽逻辑",
+          "files_to_modify": ["app/components/task/TaskItem.vue"],
+          "test_command": "npm run dev",
+          "expected_result": "任务可以拖拽移动"
+        },
+        {
+          "step_number": 3,
+          "description": "更新任务顺序 API",
+          "files_to_modify": ["server/api/yimu-tasks/reorder.post.ts"],
+          "test_command": "curl -X POST http://localhost:3000/api/yimu-tasks/reorder",
+          "expected_result": "API 返回成功,顺序已更新"
+        },
+        {
+          "step_number": 4,
+          "description": "端到端测试",
+          "files_to_modify": [],
+          "test_command": "手动测试拖拽功能",
+          "expected_result": "拖拽后顺序保存,刷新页面顺序不变"
+        }
+      ],
+      "passes": 3,
+      "last_tested": "2026-02-10T14:20:00+08:00",
+      "last_session": "session-005",
+      "notes": [
+        "已完成并测试通过",
+        "考虑添加拖拽动画效果"
+      ],
+      "dependencies": [],
+      "estimated_time": "3h",
+      "actual_time": "2.5h"
+    },
+    {
+      "id": "feat-004",
+      "category_id": "cat-004",
+      "title": "移动端虚拟键盘适配",
+      "description": "优化移动端输入体验,处理虚拟键盘遮挡问题",
+      "priority": 4,
+      "status": "in_progress",
+      "locked": false,
+      "steps": [
+        {
+          "step_number": 1,
+          "description": "实现 visualViewport 监听",
+          "files_to_modify": ["app/composables/useKeyboardDetection.ts"],
+          "test_command": "npm run dev",
+          "expected_result": "可以检测键盘打开/关闭状态"
+        },
+        {
+          "step_number": 2,
+          "description": "调整表单容器高度",
+          "files_to_modify": ["app/components/bills/BillForm.vue"],
+          "test_command": "手动测试:移动端打开表单",
+          "expected_result": "键盘打开时表单高度自动调整"
+        },
+        {
+          "step_number": 3,
+          "description": "实现输入框自动滚动",
+          "files_to_modify": ["app/composables/useKeyboardDetection.ts"],
+          "test_command": "手动测试:聚焦输入框",
+          "expected_result": "输入框自动滚动到可见区域"
+        },
+        {
+          "step_number": 4,
+          "description": "处理固定底部按钮",
+          "files_to_modify": ["app/components/bills/BillForm.vue"],
+          "test_command": "手动测试:键盘打开时点击保存按钮",
+          "expected_result": "保存按钮移动到键盘上方或隐藏"
+        }
+      ],
+      "passes": 0,
+      "last_tested": null,
+      "last_session": "session-007",
+      "notes": [
+        "当前完成步骤 1-2",
+        "步骤 3-4 待下次会话继续"
+      ],
+      "dependencies": [],
+      "estimated_time": "3h",
+      "actual_time": null
+    },
+    {
+      "id": "feat-005",
+      "category_id": "cat-001",
+      "title": "账单分类统计图表",
+      "description": "显示月度/年度支出分类统计,支持饼图和柱状图",
+      "priority": 3,
+      "status": "blocked",
+      "locked": false,
+      "steps": [
+        {
+          "step_number": 1,
+          "description": "集成 Chart.js 或 ECharts",
+          "files_to_modify": ["package.json"],
+          "test_command": "npm install",
+          "expected_result": "图表库安装成功"
+        },
+        {
+          "step_number": 2,
+          "description": "实现统计数据 API",
+          "files_to_modify": ["server/api/yimu-bills/statistics.get.ts"],
+          "test_command": "curl http://localhost:3000/api/yimu-bills/statistics",
+          "expected_result": "返回分类统计数据"
+        },
+        {
+          "step_number": 3,
+          "description": "创建图表组件",
+          "files_to_modify": ["app/components/bills/StatisticsChart.vue"],
+          "test_command": "npm run dev",
+          "expected_result": "图表正确显示统计数据"
+        }
+      ],
+      "passes": 0,
+      "last_tested": null,
+      "last_session": null,
+      "notes": [
+        "BLOCKED: 需要先完成 feat-001 (账单导入) 以获得足够测试数据"
+      ],
+      "dependencies": ["feat-001"],
+      "estimated_time": "4h",
+      "actual_time": null
+    }
+  ]
+}
