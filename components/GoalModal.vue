@@ -11,10 +11,21 @@
           <label>项目 *</label>
           <input v-model="form.title" required />
         </div>
+
+        <ParentGoalSelector
+          v-model="form.parentGoal"
+          :exclude-goal-id="goal?.id"
+        />
         <div class="field">
           <label>年目标</label>
           <textarea v-model="form.description" rows="3"></textarea>
         </div>
+
+        <PeriodSelector
+          v-model:period-type="form.periodType"
+          v-model:period-value="form.periodValue"
+        />
+
         <div class="actions">
           <button type="button" @click="$emit('close')">取消</button>
           <button type="submit" :disabled="loading">{{ loading ? '保存中...' : '保存' }}</button>
@@ -25,9 +36,23 @@
 </template>
 
 <script setup lang="ts">
+type PeriodType = 'YEAR' | 'MONTH' | 'WEEK' | ''
+
+interface Goal {
+  id: string
+  group: string | null
+  title: string
+  description: string | null
+  status: string
+  periodType: PeriodType | null
+  periodValue: string | null
+  parent?: Goal | null
+  children?: Goal[]
+}
+
 const props = defineProps<{
   show: boolean
-  goal?: any
+  goal?: Goal
 }>()
 
 const emit = defineEmits<{
@@ -38,7 +63,10 @@ const emit = defineEmits<{
 const form = reactive({
   group: '',
   title: '',
-  description: ''
+  description: '',
+  periodType: '' as PeriodType,
+  periodValue: '',
+  parentGoal: null as Goal | null
 })
 
 const loading = ref(false)
@@ -48,10 +76,16 @@ watch(() => props.goal, (g) => {
     form.group = g.group || ''
     form.title = g.title
     form.description = g.description || ''
+    form.periodType = g.periodType || ''
+    form.periodValue = g.periodValue || ''
+    form.parentGoal = g.parent || null
   } else {
     form.group = ''
     form.title = ''
     form.description = ''
+    form.periodType = ''
+    form.periodValue = ''
+    form.parentGoal = null
   }
 }, { immediate: true })
 
@@ -59,9 +93,23 @@ const handleSubmit = async () => {
   loading.value = true
   try {
     const url = props.goal?.id ? `/api/goals/${props.goal.id}` : '/api/goals'
-    const method = props.goal?.id ? 'PUT' : 'POST'
+    const method = props.goal?.id ? 'PATCH' : 'POST'
 
-    await $fetch(url, { method, body: form })
+    // 只发送非空字段
+    const body: any = {
+      group: form.group || undefined,
+      title: form.title,
+      description: form.description || undefined,
+      parentId: form.parentGoal?.id || null
+    }
+
+    // 只有在有周期类型时才添加周期字段
+    if (form.periodType) {
+      body.periodType = form.periodType
+      body.periodValue = form.periodValue
+    }
+
+    await $fetch(url, { method, body })
     emit('saved')
     emit('close')
   } catch (e: any) {

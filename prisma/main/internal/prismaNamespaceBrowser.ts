@@ -83,10 +83,13 @@ export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof User
 export const GoalScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+  parentId: 'parentId',
   group: 'group',
   title: 'title',
   description: 'description',
   status: 'status',
+  periodType: 'periodType',
+  periodValue: 'periodValue',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

@@ -9,7 +9,10 @@
 * 🟢 You can import this file directly.
 */
 
+export const PeriodType = {
+  YEAR: 'YEAR',
+  MONTH: 'MONTH',
+  WEEK: 'WEEK'
+} as const
 
-
-// This file is empty because there are no enums in the schema.
-export {}
+export type PeriodType = (typeof PeriodType)[keyof typeof PeriodType]

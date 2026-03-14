@@ -27,10 +27,13 @@ export type AggregateGoal = {
 export type GoalMinAggregateOutputType = {
   id: string | null
   userId: string | null
+  parentId: string | null
   group: string | null
   title: string | null
   description: string | null
   status: string | null
+  periodType: $Enums.PeriodType | null
+  periodValue: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -38,10 +41,13 @@ export type GoalMinAggregateOutputType = {
 export type GoalMaxAggregateOutputType = {
   id: string | null
   userId: string | null
+  parentId: string | null
   group: string | null
   title: string | null
   description: string | null
   status: string | null
+  periodType: $Enums.PeriodType | null
+  periodValue: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -49,10 +55,13 @@ export type GoalMaxAggregateOutputType = {
 export type GoalCountAggregateOutputType = {
   id: number
   userId: number
+  parentId: number
   group: number
   title: number
   description: number
   status: number
+  periodType: number
+  periodValue: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -62,10 +71,13 @@ export type GoalCountAggregateOutputType = {
 export type GoalMinAggregateInputType = {
   id?: true
   userId?: true
+  parentId?: true
   group?: true
   title?: true
   description?: true
   status?: true
+  periodType?: true
+  periodValue?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -73,10 +85,13 @@ export type GoalMinAggregateInputType = {
 export type GoalMaxAggregateInputType = {
   id?: true
   userId?: true
+  parentId?: true
   group?: true
   title?: true
   description?: true
   status?: true
+  periodType?: true
+  periodValue?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -84,10 +99,13 @@ export type GoalMaxAggregateInputType = {
 export type GoalCountAggregateInputType = {
   id?: true
   userId?: true
+  parentId?: true
   group?: true
   title?: true
   description?: true
   status?: true
+  periodType?: true
+  periodValue?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -168,10 +186,13 @@ export type GoalGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type GoalGroupByOutputType = {
   id: string
   userId: string
+  parentId: string | null
   group: string | null
   title: string
   description: string | null
   status: string
+  periodType: $Enums.PeriodType | null
+  periodValue: string | null
   createdAt: Date
   updatedAt: Date
   _count: GoalCountAggregateOutputType | null
@@ -200,25 +221,35 @@ export type GoalWhereInput = {
   NOT?: Prisma.GoalWhereInput | Prisma.GoalWhereInput[]
   id?: Prisma.StringFilter<"Goal"> | string
   userId?: Prisma.StringFilter<"Goal"> | string
+  parentId?: Prisma.StringNullableFilter<"Goal"> | string | null
   group?: Prisma.StringNullableFilter<"Goal"> | string | null
   title?: Prisma.StringFilter<"Goal"> | string
   description?: Prisma.StringNullableFilter<"Goal"> | string | null
   status?: Prisma.StringFilter<"Goal"> | string
+  periodType?: Prisma.EnumPeriodTypeNullableFilter<"Goal"> | $Enums.PeriodType | null
+  periodValue?: Prisma.StringNullableFilter<"Goal"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Goal"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Goal"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  parent?: Prisma.XOR<Prisma.GoalNullableScalarRelationFilter, Prisma.GoalWhereInput> | null
+  children?: Prisma.GoalListRelationFilter
 }
 
 export type GoalOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  parentId?: Prisma.SortOrderInput | Prisma.SortOrder
   group?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  periodType?: Prisma.SortOrderInput | Prisma.SortOrder
+  periodValue?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
+  parent?: Prisma.GoalOrderByWithRelationInput
+  children?: Prisma.GoalOrderByRelationAggregateInput
 }
 
 export type GoalWhereUniqueInput = Prisma.AtLeast<{
@@ -227,22 +258,30 @@ export type GoalWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.GoalWhereInput[]
   NOT?: Prisma.GoalWhereInput | Prisma.GoalWhereInput[]
   userId?: Prisma.StringFilter<"Goal"> | string
+  parentId?: Prisma.StringNullableFilter<"Goal"> | string | null
   group?: Prisma.StringNullableFilter<"Goal"> | string | null
   title?: Prisma.StringFilter<"Goal"> | string
   description?: Prisma.StringNullableFilter<"Goal"> | string | null
   status?: Prisma.StringFilter<"Goal"> | string
+  periodType?: Prisma.EnumPeriodTypeNullableFilter<"Goal"> | $Enums.PeriodType | null
+  periodValue?: Prisma.StringNullableFilter<"Goal"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Goal"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Goal"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  parent?: Prisma.XOR<Prisma.GoalNullableScalarRelationFilter, Prisma.GoalWhereInput> | null
+  children?: Prisma.GoalListRelationFilter
 }, "id">
 
 export type GoalOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  parentId?: Prisma.SortOrderInput | Prisma.SortOrder
   group?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  periodType?: Prisma.SortOrderInput | Prisma.SortOrder
+  periodValue?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.GoalCountOrderByAggregateInput
@@ -256,10 +295,13 @@ export type GoalScalarWhereWithAggregatesInput = {
   NOT?: Prisma.GoalScalarWhereWithAggregatesInput | Prisma.GoalScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Goal"> | string
   userId?: Prisma.StringWithAggregatesFilter<"Goal"> | string
+  parentId?: Prisma.StringNullableWithAggregatesFilter<"Goal"> | string | null
   group?: Prisma.StringNullableWithAggregatesFilter<"Goal"> | string | null
   title?: Prisma.StringWithAggregatesFilter<"Goal"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Goal"> | string | null
   status?: Prisma.StringWithAggregatesFilter<"Goal"> | string
+  periodType?: Prisma.EnumPeriodTypeNullableWithAggregatesFilter<"Goal"> | $Enums.PeriodType | null
+  periodValue?: Prisma.StringNullableWithAggregatesFilter<"Goal"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Goal"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Goal"> | Date | string
 }
@@ -270,20 +312,28 @@ export type GoalCreateInput = {
   title: string
   description?: string | null
   status?: string
+  periodType?: $Enums.PeriodType | null
+  periodValue?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutGoalsInput
+  parent?: Prisma.GoalCreateNestedOneWithoutChildrenInput
+  children?: Prisma.GoalCreateNestedManyWithoutParentInput
 }
 
 export type GoalUncheckedCreateInput = {
   id?: string
   userId: string
+  parentId?: string | null
   group?: string | null
   title: string
   description?: string | null
   status?: string
+  periodType?: $Enums.PeriodType | null
+  periodValue?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  children?: Prisma.GoalUncheckedCreateNestedManyWithoutParentInput
 }
 
 export type GoalUpdateInput = {
@@ -292,29 +342,40 @@ export type GoalUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
+  periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutGoalsNestedInput
+  parent?: Prisma.GoalUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.GoalUpdateManyWithoutParentNestedInput
 }
 
 export type GoalUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
+  periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.GoalUncheckedUpdateManyWithoutParentNestedInput
 }
 
 export type GoalCreateManyInput = {
   id?: string
   userId: string
+  parentId?: string | null
   group?: string | null
   title: string
   description?: string | null
   status?: string
+  periodType?: $Enums.PeriodType | null
+  periodValue?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -325,6 +386,8 @@ export type GoalUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
+  periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -332,10 +395,13 @@ export type GoalUpdateManyMutationInput = {
 export type GoalUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
+  periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -350,13 +416,21 @@ export type GoalOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type GoalNullableScalarRelationFilter = {
+  is?: Prisma.GoalWhereInput | null
+  isNot?: Prisma.GoalWhereInput | null
+}
+
 export type GoalCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  parentId?: Prisma.SortOrder
   group?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  periodType?: Prisma.SortOrder
+  periodValue?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -364,10 +438,13 @@ export type GoalCountOrderByAggregateInput = {
 export type GoalMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  parentId?: Prisma.SortOrder
   group?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  periodType?: Prisma.SortOrder
+  periodValue?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -375,10 +452,13 @@ export type GoalMaxOrderByAggregateInput = {
 export type GoalMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  parentId?: Prisma.SortOrder
   group?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  periodType?: Prisma.SortOrder
+  periodValue?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -425,8 +505,70 @@ export type GoalUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.GoalScalarWhereInput | Prisma.GoalScalarWhereInput[]
 }
 
+export type GoalCreateNestedOneWithoutChildrenInput = {
+  create?: Prisma.XOR<Prisma.GoalCreateWithoutChildrenInput, Prisma.GoalUncheckedCreateWithoutChildrenInput>
+  connectOrCreate?: Prisma.GoalCreateOrConnectWithoutChildrenInput
+  connect?: Prisma.GoalWhereUniqueInput
+}
+
+export type GoalCreateNestedManyWithoutParentInput = {
+  create?: Prisma.XOR<Prisma.GoalCreateWithoutParentInput, Prisma.GoalUncheckedCreateWithoutParentInput> | Prisma.GoalCreateWithoutParentInput[] | Prisma.GoalUncheckedCreateWithoutParentInput[]
+  connectOrCreate?: Prisma.GoalCreateOrConnectWithoutParentInput | Prisma.GoalCreateOrConnectWithoutParentInput[]
+  createMany?: Prisma.GoalCreateManyParentInputEnvelope
+  connect?: Prisma.GoalWhereUniqueInput | Prisma.GoalWhereUniqueInput[]
+}
+
+export type GoalUncheckedCreateNestedManyWithoutParentInput = {
+  create?: Prisma.XOR<Prisma.GoalCreateWithoutParentInput, Prisma.GoalUncheckedCreateWithoutParentInput> | Prisma.GoalCreateWithoutParentInput[] | Prisma.GoalUncheckedCreateWithoutParentInput[]
+  connectOrCreate?: Prisma.GoalCreateOrConnectWithoutParentInput | Prisma.GoalCreateOrConnectWithoutParentInput[]
+  createMany?: Prisma.GoalCreateManyParentInputEnvelope
+  connect?: Prisma.GoalWhereUniqueInput | Prisma.GoalWhereUniqueInput[]
+}
+
 export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
+}
+
+export type NullableEnumPeriodTypeFieldUpdateOperationsInput = {
+  set?: $Enums.PeriodType | null
+}
+
+export type GoalUpdateOneWithoutChildrenNestedInput = {
+  create?: Prisma.XOR<Prisma.GoalCreateWithoutChildrenInput, Prisma.GoalUncheckedCreateWithoutChildrenInput>
+  connectOrCreate?: Prisma.GoalCreateOrConnectWithoutChildrenInput
+  upsert?: Prisma.GoalUpsertWithoutChildrenInput
+  disconnect?: Prisma.GoalWhereInput | boolean
+  delete?: Prisma.GoalWhereInput | boolean
+  connect?: Prisma.GoalWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.GoalUpdateToOneWithWhereWithoutChildrenInput, Prisma.GoalUpdateWithoutChildrenInput>, Prisma.GoalUncheckedUpdateWithoutChildrenInput>
+}
+
+export type GoalUpdateManyWithoutParentNestedInput = {
+  create?: Prisma.XOR<Prisma.GoalCreateWithoutParentInput, Prisma.GoalUncheckedCreateWithoutParentInput> | Prisma.GoalCreateWithoutParentInput[] | Prisma.GoalUncheckedCreateWithoutParentInput[]
+  connectOrCreate?: Prisma.GoalCreateOrConnectWithoutParentInput | Prisma.GoalCreateOrConnectWithoutParentInput[]
+  upsert?: Prisma.GoalUpsertWithWhereUniqueWithoutParentInput | Prisma.GoalUpsertWithWhereUniqueWithoutParentInput[]
+  createMany?: Prisma.GoalCreateManyParentInputEnvelope
+  set?: Prisma.GoalWhereUniqueInput | Prisma.GoalWhereUniqueInput[]
+  disconnect?: Prisma.GoalWhereUniqueInput | Prisma.GoalWhereUniqueInput[]
+  delete?: Prisma.GoalWhereUniqueInput | Prisma.GoalWhereUniqueInput[]
+  connect?: Prisma.GoalWhereUniqueInput | Prisma.GoalWhereUniqueInput[]
+  update?: Prisma.GoalUpdateWithWhereUniqueWithoutParentInput | Prisma.GoalUpdateWithWhereUniqueWithoutParentInput[]
+  updateMany?: Prisma.GoalUpdateManyWithWhereWithoutParentInput | Prisma.GoalUpdateManyWithWhereWithoutParentInput[]
+  deleteMany?: Prisma.GoalScalarWhereInput | Prisma.GoalScalarWhereInput[]
+}
+
+export type GoalUncheckedUpdateManyWithoutParentNestedInput = {
+  create?: Prisma.XOR<Prisma.GoalCreateWithoutParentInput, Prisma.GoalUncheckedCreateWithoutParentInput> | Prisma.GoalCreateWithoutParentInput[] | Prisma.GoalUncheckedCreateWithoutParentInput[]
+  connectOrCreate?: Prisma.GoalCreateOrConnectWithoutParentInput | Prisma.GoalCreateOrConnectWithoutParentInput[]
+  upsert?: Prisma.GoalUpsertWithWhereUniqueWithoutParentInput | Prisma.GoalUpsertWithWhereUniqueWithoutParentInput[]
+  createMany?: Prisma.GoalCreateManyParentInputEnvelope
+  set?: Prisma.GoalWhereUniqueInput | Prisma.GoalWhereUniqueInput[]
+  disconnect?: Prisma.GoalWhereUniqueInput | Prisma.GoalWhereUniqueInput[]
+  delete?: Prisma.GoalWhereUniqueInput | Prisma.GoalWhereUniqueInput[]
+  connect?: Prisma.GoalWhereUniqueInput | Prisma.GoalWhereUniqueInput[]
+  update?: Prisma.GoalUpdateWithWhereUniqueWithoutParentInput | Prisma.GoalUpdateWithWhereUniqueWithoutParentInput[]
+  updateMany?: Prisma.GoalUpdateManyWithWhereWithoutParentInput | Prisma.GoalUpdateManyWithWhereWithoutParentInput[]
+  deleteMany?: Prisma.GoalScalarWhereInput | Prisma.GoalScalarWhereInput[]
 }
 
 export type GoalCreateWithoutUserInput = {
@@ -435,18 +577,26 @@ export type GoalCreateWithoutUserInput = {
   title: string
   description?: string | null
   status?: string
+  periodType?: $Enums.PeriodType | null
+  periodValue?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  parent?: Prisma.GoalCreateNestedOneWithoutChildrenInput
+  children?: Prisma.GoalCreateNestedManyWithoutParentInput
 }
 
 export type GoalUncheckedCreateWithoutUserInput = {
   id?: string
+  parentId?: string | null
   group?: string | null
   title: string
   description?: string | null
   status?: string
+  periodType?: $Enums.PeriodType | null
+  periodValue?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  children?: Prisma.GoalUncheckedCreateNestedManyWithoutParentInput
 }
 
 export type GoalCreateOrConnectWithoutUserInput = {
@@ -481,20 +631,152 @@ export type GoalScalarWhereInput = {
   NOT?: Prisma.GoalScalarWhereInput | Prisma.GoalScalarWhereInput[]
   id?: Prisma.StringFilter<"Goal"> | string
   userId?: Prisma.StringFilter<"Goal"> | string
+  parentId?: Prisma.StringNullableFilter<"Goal"> | string | null
   group?: Prisma.StringNullableFilter<"Goal"> | string | null
   title?: Prisma.StringFilter<"Goal"> | string
   description?: Prisma.StringNullableFilter<"Goal"> | string | null
   status?: Prisma.StringFilter<"Goal"> | string
+  periodType?: Prisma.EnumPeriodTypeNullableFilter<"Goal"> | $Enums.PeriodType | null
+  periodValue?: Prisma.StringNullableFilter<"Goal"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Goal"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Goal"> | Date | string
 }
 
-export type GoalCreateManyUserInput = {
+export type GoalCreateWithoutChildrenInput = {
   id?: string
   group?: string | null
   title: string
   description?: string | null
   status?: string
+  periodType?: $Enums.PeriodType | null
+  periodValue?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutGoalsInput
+  parent?: Prisma.GoalCreateNestedOneWithoutChildrenInput
+}
+
+export type GoalUncheckedCreateWithoutChildrenInput = {
+  id?: string
+  userId: string
+  parentId?: string | null
+  group?: string | null
+  title: string
+  description?: string | null
+  status?: string
+  periodType?: $Enums.PeriodType | null
+  periodValue?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type GoalCreateOrConnectWithoutChildrenInput = {
+  where: Prisma.GoalWhereUniqueInput
+  create: Prisma.XOR<Prisma.GoalCreateWithoutChildrenInput, Prisma.GoalUncheckedCreateWithoutChildrenInput>
+}
+
+export type GoalCreateWithoutParentInput = {
+  id?: string
+  group?: string | null
+  title: string
+  description?: string | null
+  status?: string
+  periodType?: $Enums.PeriodType | null
+  periodValue?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutGoalsInput
+  children?: Prisma.GoalCreateNestedManyWithoutParentInput
+}
+
+export type GoalUncheckedCreateWithoutParentInput = {
+  id?: string
+  userId: string
+  group?: string | null
+  title: string
+  description?: string | null
+  status?: string
+  periodType?: $Enums.PeriodType | null
+  periodValue?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.GoalUncheckedCreateNestedManyWithoutParentInput
+}
+
+export type GoalCreateOrConnectWithoutParentInput = {
+  where: Prisma.GoalWhereUniqueInput
+  create: Prisma.XOR<Prisma.GoalCreateWithoutParentInput, Prisma.GoalUncheckedCreateWithoutParentInput>
+}
+
+export type GoalCreateManyParentInputEnvelope = {
+  data: Prisma.GoalCreateManyParentInput | Prisma.GoalCreateManyParentInput[]
+  skipDuplicates?: boolean
+}
+
+export type GoalUpsertWithoutChildrenInput = {
+  update: Prisma.XOR<Prisma.GoalUpdateWithoutChildrenInput, Prisma.GoalUncheckedUpdateWithoutChildrenInput>
+  create: Prisma.XOR<Prisma.GoalCreateWithoutChildrenInput, Prisma.GoalUncheckedCreateWithoutChildrenInput>
+  where?: Prisma.GoalWhereInput
+}
+
+export type GoalUpdateToOneWithWhereWithoutChildrenInput = {
+  where?: Prisma.GoalWhereInput
+  data: Prisma.XOR<Prisma.GoalUpdateWithoutChildrenInput, Prisma.GoalUncheckedUpdateWithoutChildrenInput>
+}
+
+export type GoalUpdateWithoutChildrenInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
+  periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutGoalsNestedInput
+  parent?: Prisma.GoalUpdateOneWithoutChildrenNestedInput
+}
+
+export type GoalUncheckedUpdateWithoutChildrenInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
+  periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type GoalUpsertWithWhereUniqueWithoutParentInput = {
+  where: Prisma.GoalWhereUniqueInput
+  update: Prisma.XOR<Prisma.GoalUpdateWithoutParentInput, Prisma.GoalUncheckedUpdateWithoutParentInput>
+  create: Prisma.XOR<Prisma.GoalCreateWithoutParentInput, Prisma.GoalUncheckedCreateWithoutParentInput>
+}
+
+export type GoalUpdateWithWhereUniqueWithoutParentInput = {
+  where: Prisma.GoalWhereUniqueInput
+  data: Prisma.XOR<Prisma.GoalUpdateWithoutParentInput, Prisma.GoalUncheckedUpdateWithoutParentInput>
+}
+
+export type GoalUpdateManyWithWhereWithoutParentInput = {
+  where: Prisma.GoalScalarWhereInput
+  data: Prisma.XOR<Prisma.GoalUpdateManyMutationInput, Prisma.GoalUncheckedUpdateManyWithoutParentInput>
+}
+
+export type GoalCreateManyUserInput = {
+  id?: string
+  parentId?: string | null
+  group?: string | null
+  title: string
+  description?: string | null
+  status?: string
+  periodType?: $Enums.PeriodType | null
+  periodValue?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -505,102 +787,223 @@ export type GoalUpdateWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
+  periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  parent?: Prisma.GoalUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.GoalUpdateManyWithoutParentNestedInput
 }
 
 export type GoalUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
+  periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.GoalUncheckedUpdateManyWithoutParentNestedInput
+}
+
+export type GoalUncheckedUpdateManyWithoutUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
+  periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type GoalUncheckedUpdateManyWithoutUserInput = {
+export type GoalCreateManyParentInput = {
+  id?: string
+  userId: string
+  group?: string | null
+  title: string
+  description?: string | null
+  status?: string
+  periodType?: $Enums.PeriodType | null
+  periodValue?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type GoalUpdateWithoutParentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
+  periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutGoalsNestedInput
+  children?: Prisma.GoalUpdateManyWithoutParentNestedInput
+}
+
+export type GoalUncheckedUpdateWithoutParentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
+  periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.GoalUncheckedUpdateManyWithoutParentNestedInput
+}
+
+export type GoalUncheckedUpdateManyWithoutParentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
+  periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+
+/**
+ * Count Type GoalCountOutputType
+ */
+
+export type GoalCountOutputType = {
+  children: number
+}
+
+export type GoalCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  children?: boolean | GoalCountOutputTypeCountChildrenArgs
+}
+
+/**
+ * GoalCountOutputType without action
+ */
+export type GoalCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the GoalCountOutputType
+   */
+  select?: Prisma.GoalCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * GoalCountOutputType without action
+ */
+export type GoalCountOutputTypeCountChildrenArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.GoalWhereInput
+}
 
 
 export type GoalSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
+  parentId?: boolean
   group?: boolean
   title?: boolean
   description?: boolean
   status?: boolean
+  periodType?: boolean
+  periodValue?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  parent?: boolean | Prisma.Goal$parentArgs<ExtArgs>
+  children?: boolean | Prisma.Goal$childrenArgs<ExtArgs>
+  _count?: boolean | Prisma.GoalCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["goal"]>
 
 export type GoalSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
+  parentId?: boolean
   group?: boolean
   title?: boolean
   description?: boolean
   status?: boolean
+  periodType?: boolean
+  periodValue?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  parent?: boolean | Prisma.Goal$parentArgs<ExtArgs>
 }, ExtArgs["result"]["goal"]>
 
 export type GoalSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
+  parentId?: boolean
   group?: boolean
   title?: boolean
   description?: boolean
   status?: boolean
+  periodType?: boolean
+  periodValue?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  parent?: boolean | Prisma.Goal$parentArgs<ExtArgs>
 }, ExtArgs["result"]["goal"]>
 
 export type GoalSelectScalar = {
   id?: boolean
   userId?: boolean
+  parentId?: boolean
   group?: boolean
   title?: boolean
   description?: boolean
   status?: boolean
+  periodType?: boolean
+  periodValue?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type GoalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "group" | "title" | "description" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["goal"]>
+export type GoalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "parentId" | "group" | "title" | "description" | "status" | "periodType" | "periodValue" | "createdAt" | "updatedAt", ExtArgs["result"]["goal"]>
 export type GoalInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  parent?: boolean | Prisma.Goal$parentArgs<ExtArgs>
+  children?: boolean | Prisma.Goal$childrenArgs<ExtArgs>
+  _count?: boolean | Prisma.GoalCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type GoalIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  parent?: boolean | Prisma.Goal$parentArgs<ExtArgs>
 }
 export type GoalIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  parent?: boolean | Prisma.Goal$parentArgs<ExtArgs>
 }
 
 export type $GoalPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Goal"
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
+    parent: Prisma.$GoalPayload<ExtArgs> | null
+    children: Prisma.$GoalPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     userId: string
+    parentId: string | null
     group: string | null
     title: string
     description: string | null
     status: string
+    periodType: $Enums.PeriodType | null
+    periodValue: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["goal"]>
@@ -998,6 +1401,8 @@ readonly fields: GoalFieldRefs;
 export interface Prisma__GoalClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  parent<T extends Prisma.Goal$parentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Goal$parentArgs<ExtArgs>>): Prisma.Prisma__GoalClient<runtime.Types.Result.GetResult<Prisma.$GoalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  children<T extends Prisma.Goal$childrenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Goal$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GoalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1029,10 +1434,13 @@ export interface Prisma__GoalClient<T, Null = never, ExtArgs extends runtime.Typ
 export interface GoalFieldRefs {
   readonly id: Prisma.FieldRef<"Goal", 'String'>
   readonly userId: Prisma.FieldRef<"Goal", 'String'>
+  readonly parentId: Prisma.FieldRef<"Goal", 'String'>
   readonly group: Prisma.FieldRef<"Goal", 'String'>
   readonly title: Prisma.FieldRef<"Goal", 'String'>
   readonly description: Prisma.FieldRef<"Goal", 'String'>
   readonly status: Prisma.FieldRef<"Goal", 'String'>
+  readonly periodType: Prisma.FieldRef<"Goal", 'PeriodType'>
+  readonly periodValue: Prisma.FieldRef<"Goal", 'String'>
   readonly createdAt: Prisma.FieldRef<"Goal", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Goal", 'DateTime'>
 }
@@ -1428,6 +1836,49 @@ export type GoalDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Limit how many Goals to delete.
    */
   limit?: number
+}
+
+/**
+ * Goal.parent
+ */
+export type Goal$parentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Goal
+   */
+  select?: Prisma.GoalSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Goal
+   */
+  omit?: Prisma.GoalOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.GoalInclude<ExtArgs> | null
+  where?: Prisma.GoalWhereInput
+}
+
+/**
+ * Goal.children
+ */
+export type Goal$childrenArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Goal
+   */
+  select?: Prisma.GoalSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Goal
+   */
+  omit?: Prisma.GoalOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.GoalInclude<ExtArgs> | null
+  where?: Prisma.GoalWhereInput
+  orderBy?: Prisma.GoalOrderByWithRelationInput | Prisma.GoalOrderByWithRelationInput[]
+  cursor?: Prisma.GoalWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.GoalScalarFieldEnum | Prisma.GoalScalarFieldEnum[]
 }
 
 /**

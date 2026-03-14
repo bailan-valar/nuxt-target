@@ -4,16 +4,20 @@ export const useLayout = () => {
 
   const toggleMobileMenu = () => {
     isMobileMenuOpen.value = !isMobileMenuOpen.value
-    if (isMobileMenuOpen.value) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
+    if (import.meta.client) {
+      if (isMobileMenuOpen.value) {
+        document.body.style.overflow = 'hidden'
+      } else {
+        document.body.style.overflow = ''
+      }
     }
   }
 
   const closeMobileMenu = () => {
     isMobileMenuOpen.value = false
-    document.body.style.overflow = ''
+    if (import.meta.client) {
+      document.body.style.overflow = ''
+    }
   }
 
   const toggleSidebar = () => {

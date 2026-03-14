@@ -1,14 +1,14 @@
 <template>
   <aside
-    class="fixed left-0 top-16 bottom-0 bg-white border-r border-gray-200 transition-all duration-300 z-40 overflow-y-auto hidden lg:block"
-    :class="collapsed ? 'w-20' : 'w-64'"
+    class="fixed left-0 top-14 bottom-0 bg-white border-r border-gray-200 transition-all duration-300 z-40 overflow-y-auto hidden lg:block"
+    :class="collapsed ? 'w-16' : 'w-56'"
   >
-    <nav class="p-4 space-y-1">
+    <nav class="p-3 space-y-0.5">
       <template v-for="item in menuItems" :key="item.path || item.section">
         <!-- Section Header -->
         <div
           v-if="item.section"
-          class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mt-4 first:mt-0"
+          class="px-2.5 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider mt-3 first:mt-0"
           :class="{ 'hidden': collapsed }"
         >
           {{ item.section }}
@@ -18,13 +18,13 @@
         <NuxtLink
           v-if="!item.section"
           :to="item.path"
-          class="flex items-center px-3 py-2 rounded-lg transition-colors group"
+          class="flex items-center px-2.5 py-1.5 rounded-md transition-colors group"
           :class="isActive(item.path) ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100'"
           :title="collapsed ? item.label : ''"
         >
-          <component :is="item.icon" class="w-5 h-5 flex-shrink-0" />
+          <component :is="item.icon" class="w-4 h-4 flex-shrink-0" />
           <span
-            class="ml-3 font-medium transition-opacity whitespace-nowrap overflow-hidden"
+            class="ml-2 text-sm font-medium transition-opacity whitespace-nowrap overflow-hidden"
             :class="{ 'opacity-0 w-0': collapsed, 'opacity-100 w-auto': !collapsed }"
           >
             {{ item.label }}
@@ -33,7 +33,7 @@
           <!-- Badge -->
           <span
             v-if="item.badge && !collapsed"
-            class="ml-auto bg-blue-100 text-blue-700 text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0"
+            class="ml-auto bg-blue-100 text-blue-700 text-xs font-medium px-1.5 py-0.5 rounded-full flex-shrink-0"
           >
             {{ item.badge }}
           </span>
@@ -44,12 +44,12 @@
     <!-- Collapse Button -->
     <button
       @click="toggleSidebar"
-      class="absolute bottom-4 p-2 rounded-lg hover:bg-gray-100 transition-colors"
-      :class="collapsed ? 'left-1/2 -translate-x-1/2' : 'right-4'"
+      class="absolute bottom-3 p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+      :class="collapsed ? 'left-1/2 -translate-x-1/2' : 'right-3'"
       :title="collapsed ? '展开侧边栏' : '收起侧边栏'"
     >
       <svg
-        class="w-5 h-5 text-gray-600 transition-transform"
+        class="w-4 h-4 text-gray-600 transition-transform"
         :class="{ 'rotate-180': !collapsed }"
         fill="none"
         stroke="currentColor"

@@ -612,10 +612,13 @@ export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof User
 export const GoalScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+  parentId: 'parentId',
   group: 'group',
   title: 'title',
   description: 'description',
   status: 'status',
+  periodType: 'periodType',
+  periodValue: 'periodValue',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -678,6 +681,20 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'PeriodType'
+ */
+export type EnumPeriodTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PeriodType'>
+    
+
+
+/**
+ * Reference to a field of type 'PeriodType[]'
+ */
+export type ListEnumPeriodTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PeriodType[]'>
     
 
 

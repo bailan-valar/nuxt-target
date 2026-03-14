@@ -1,8 +1,11 @@
 import { z } from 'zod'
 import { getPrisma } from '~/server/utils/db'
+import { periodTypeSchema } from '../../validations/period'
 
 const querySchema = z.object({
-  status: z.enum(['active', 'completed', 'archived']).optional()
+  status: z.enum(['active', 'completed', 'archived']).optional(),
+  periodType: periodTypeSchema.optional(),
+  periodValue: z.string().optional()
 })
 
 export default defineEventHandler(async (event) => {
@@ -13,12 +16,30 @@ export default defineEventHandler(async (event) => {
 
   const prisma = getPrisma()
   const query = getQuery(event)
-  const { status } = querySchema.parse(query)
+  const { status, periodType, periodValue } = querySchema.parse(query)
 
   const goals = await prisma.goal.findMany({
     where: {
       userId,
-      ...(status && { status })
+      ...(status && { status }),
+      ...(periodType && { periodType }),
+      ...(periodValue && { periodValue })
+    },
+    include: {
+      parent: {
+        select: {
+          id: true,
+          title: true,
+          status: true
+        }
+      },
+      children: {
+        select: {
+          id: true,
+          title: true,
+          status: true
+        }
+      }
     },
     orderBy: { createdAt: 'desc' }
   })
