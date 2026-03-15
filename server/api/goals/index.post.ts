@@ -38,12 +38,12 @@ export default defineEventHandler(async (event) => {
 
   const goal = await prisma.goal.create({
     data: {
-      group: data.group,
       title: data.title,
       description: data.description,
       periodType: data.periodType,
       periodValue: data.periodValue,
       parentId: data.parentId,
+      folderId: data.folderId,
       userId
     }
   })

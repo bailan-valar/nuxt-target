@@ -39,12 +39,15 @@
         />
       </Teleport>
     </ClientOnly>
+
+    <!-- Toast通知 -->
+    <ClientOnly>
+      <ToastContainer />
+    </ClientOnly>
   </div>
 </template>
 
 <script setup lang="ts">
-console.log('Default 布局已加载')
-
 const {
   isMobileMenuOpen,
   isSidebarCollapsed,
@@ -56,14 +59,5 @@ const {
 const route = useRoute()
 watch(() => route.path, () => {
   closeMobileMenu()
-})
-
-// Debug: 输出布局状态
-onMounted(() => {
-  console.log('布局已挂载', {
-    路由: route.path,
-    侧边栏折叠: isSidebarCollapsed.value,
-    移动菜单打开: isMobileMenuOpen.value
-  })
 })
 </script>

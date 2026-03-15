@@ -9,5 +9,6 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/User.ts'
+export type * from './models/Folder.ts'
 export type * from './models/Goal.ts'
 export type * from './commonInputTypes.ts'

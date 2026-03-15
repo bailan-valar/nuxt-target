@@ -16,3 +16,13 @@ export const PeriodType = {
 } as const
 
 export type PeriodType = (typeof PeriodType)[keyof typeof PeriodType]
+
+
+export const FolderType = {
+  SCENE: 'SCENE',
+  GROUP: 'GROUP',
+  PROJECT: 'PROJECT',
+  SUBPROJECT: 'SUBPROJECT'
+} as const
+
+export type FolderType = (typeof FolderType)[keyof typeof FolderType]

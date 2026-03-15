@@ -23,7 +23,7 @@ const config: runtime.GetPrismaClientConfig = {
       "value": "prisma-client"
     },
     "output": {
-      "value": "F:\\wcj\\nuxt-target\\prisma\\main",
+      "value": "f:\\wcj\\nuxt-target\\prisma\\main",
       "fromEnvVar": null
     },
     "config": {
@@ -37,7 +37,7 @@ const config: runtime.GetPrismaClientConfig = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "F:\\wcj\\nuxt-target\\prisma\\schema.prisma",
+    "sourceFilePath": "f:\\wcj\\nuxt-target\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativePath": "..",
@@ -47,6 +47,7 @@ const config: runtime.GetPrismaClientConfig = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -55,8 +56,8 @@ const config: runtime.GetPrismaClientConfig = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider   = \"prisma-client\"\n  output     = \"./main\"\n  engineType = \"client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id        String   @id @default(cuid())\n  email     String   @unique\n  password  String\n  createdAt DateTime @default(now()) @map(\"created_at\")\n  updatedAt DateTime @updatedAt @map(\"updated_at\")\n  goals     Goal[]\n\n  @@map(\"users\")\n}\n\nenum PeriodType {\n  YEAR\n  MONTH\n  WEEK\n}\n\nmodel Goal {\n  id          String      @id @default(cuid())\n  userId      String      @map(\"user_id\")\n  parentId    String?     @map(\"parent_id\")\n  group       String?\n  title       String\n  description String?\n  status      String      @default(\"active\")\n  periodType  PeriodType? @map(\"period_type\")\n  periodValue String?     @map(\"period_value\")\n  createdAt   DateTime    @default(now()) @map(\"created_at\")\n  updatedAt   DateTime    @updatedAt @map(\"updated_at\")\n  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)\n  parent      Goal?       @relation(\"GoalHierarchy\", fields: [parentId], references: [id], onDelete: Restrict)\n  children    Goal[]      @relation(\"GoalHierarchy\")\n\n  @@map(\"goals\")\n}\n",
-  "inlineSchemaHash": "a63a81d3befb0b3f8eecdec2a11517ff5c00bcd72a3b4e3a572dd4da14243ea1",
+  "inlineSchema": "generator client {\n  provider   = \"prisma-client\"\n  output     = \"./main\"\n  engineType = \"client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id        String   @id @default(cuid())\n  email     String   @unique\n  password  String\n  createdAt DateTime @default(now()) @map(\"created_at\")\n  updatedAt DateTime @updatedAt @map(\"updated_at\")\n  goals     Goal[]\n  folders   Folder[]\n\n  @@map(\"users\")\n}\n\nenum PeriodType {\n  YEAR\n  MONTH\n  WEEK\n}\n\nenum FolderType {\n  SCENE\n  GROUP\n  PROJECT\n  SUBPROJECT\n}\n\nmodel Folder {\n  id          String     @id @default(cuid())\n  userId      String     @map(\"user_id\")\n  parentId    String?    @map(\"parent_id\")\n  name        String\n  type        FolderType\n  description String?    @db.Text\n  icon        String?\n  color       String?\n  sortOrder   Int        @default(0) @map(\"sort_order\")\n  createdAt   DateTime   @default(now()) @map(\"created_at\")\n  updatedAt   DateTime   @updatedAt @map(\"updated_at\")\n\n  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n  parent   Folder?  @relation(\"FolderHierarchy\", fields: [parentId], references: [id], onDelete: Restrict)\n  children Folder[] @relation(\"FolderHierarchy\")\n  goals    Goal[]\n\n  @@index([userId])\n  @@index([parentId])\n  @@map(\"folders\")\n}\n\nmodel Goal {\n  id          String      @id @default(cuid())\n  userId      String      @map(\"user_id\")\n  parentId    String?     @map(\"parent_id\")\n  folderId    String?     @map(\"folder_id\")\n  title       String\n  description String?\n  status      String      @default(\"active\")\n  periodType  PeriodType? @map(\"period_type\")\n  periodValue String?     @map(\"period_value\")\n  createdAt   DateTime    @default(now()) @map(\"created_at\")\n  updatedAt   DateTime    @updatedAt @map(\"updated_at\")\n  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)\n  folder      Folder?     @relation(fields: [folderId], references: [id], onDelete: SetNull)\n  parent      Goal?       @relation(\"GoalHierarchy\", fields: [parentId], references: [id], onDelete: Restrict)\n  children    Goal[]      @relation(\"GoalHierarchy\")\n\n  @@index([folderId])\n  @@map(\"goals\")\n}\n",
+  "inlineSchemaHash": "d3a3efcfd5b4aded3ab8027c91022d08214bc7dadfd0f6e1137d4a12d8ebd27f",
   "copyEngine": true,
   "runtimeDataModel": {
     "models": {},
@@ -66,7 +67,7 @@ const config: runtime.GetPrismaClientConfig = {
   "dirname": ""
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"},{\"name\":\"goals\",\"kind\":\"object\",\"type\":\"Goal\",\"relationName\":\"GoalToUser\"}],\"dbName\":\"users\"},\"Goal\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"user_id\"},{\"name\":\"parentId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"parent_id\"},{\"name\":\"group\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"periodType\",\"kind\":\"enum\",\"type\":\"PeriodType\",\"dbName\":\"period_type\"},{\"name\":\"periodValue\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"period_value\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"GoalToUser\"},{\"name\":\"parent\",\"kind\":\"object\",\"type\":\"Goal\",\"relationName\":\"GoalHierarchy\"},{\"name\":\"children\",\"kind\":\"object\",\"type\":\"Goal\",\"relationName\":\"GoalHierarchy\"}],\"dbName\":\"goals\"}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"},{\"name\":\"goals\",\"kind\":\"object\",\"type\":\"Goal\",\"relationName\":\"GoalToUser\"},{\"name\":\"folders\",\"kind\":\"object\",\"type\":\"Folder\",\"relationName\":\"FolderToUser\"}],\"dbName\":\"users\"},\"Folder\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"user_id\"},{\"name\":\"parentId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"parent_id\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"enum\",\"type\":\"FolderType\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"icon\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"color\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sortOrder\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"sort_order\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"FolderToUser\"},{\"name\":\"parent\",\"kind\":\"object\",\"type\":\"Folder\",\"relationName\":\"FolderHierarchy\"},{\"name\":\"children\",\"kind\":\"object\",\"type\":\"Folder\",\"relationName\":\"FolderHierarchy\"},{\"name\":\"goals\",\"kind\":\"object\",\"type\":\"Goal\",\"relationName\":\"FolderToGoal\"}],\"dbName\":\"folders\"},\"Goal\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"user_id\"},{\"name\":\"parentId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"parent_id\"},{\"name\":\"folderId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"folder_id\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"periodType\",\"kind\":\"enum\",\"type\":\"PeriodType\",\"dbName\":\"period_type\"},{\"name\":\"periodValue\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"period_value\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"GoalToUser\"},{\"name\":\"folder\",\"kind\":\"object\",\"type\":\"Folder\",\"relationName\":\"FolderToGoal\"},{\"name\":\"parent\",\"kind\":\"object\",\"type\":\"Goal\",\"relationName\":\"GoalHierarchy\"},{\"name\":\"children\",\"kind\":\"object\",\"type\":\"Goal\",\"relationName\":\"GoalHierarchy\"}],\"dbName\":\"goals\"}},\"enums\":{},\"types\":{}}")
 config.engineWasm = undefined
 
 async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
@@ -224,6 +225,16 @@ export interface PrismaClient<
     * ```
     */
   get user(): Prisma.UserDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.folder`: Exposes CRUD operations for the **Folder** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Folders
+    * const folders = await prisma.folder.findMany()
+    * ```
+    */
+  get folder(): Prisma.FolderDelegate<ExtArgs, { omit: OmitOpts }>;
 
   /**
    * `prisma.goal`: Exposes CRUD operations for the **Goal** model.

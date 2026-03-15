@@ -4,18 +4,22 @@ import { z } from 'zod'
  * 目标基础验证 Schema
  */
 export const goalBaseSchema = z.object({
-  group: z.string().optional(),
   title: z.string().min(1, '标题不能为空'),
   description: z.string().optional()
 })
 
 /**
- * 周期验证 Schema
+ * 周期基础验证 Schema
  */
-export const periodSchema = z.object({
+export const periodBaseSchema = z.object({
   periodType: z.enum(['YEAR', 'MONTH', 'WEEK']).optional(),
   periodValue: z.string().optional()
-}).refine(
+})
+
+/**
+ * 周期验证（带关联检查）
+ */
+export const periodSchema = periodBaseSchema.refine(
   (data) => {
     // 如果有 periodType，必须有 periodValue
     if (data.periodType && !data.periodValue) {
@@ -49,19 +53,28 @@ export const parentGoalSchema = z.object({
 })
 
 /**
+ * 文件夹验证 Schema
+ */
+export const folderSchema = z.object({
+  folderId: z.string().cuid().nullable().optional()
+})
+
+/**
  * 创建目标验证 Schema
  */
 export const createGoalSchema = goalBaseSchema
   .and(periodSchema)
   .and(parentGoalSchema)
+  .and(folderSchema)
 
 /**
  * 更新目标验证 Schema
  */
 export const updateGoalSchema = goalBaseSchema
   .partial()
-  .and(periodSchema.partial())
+  .and(periodBaseSchema.partial())
   .and(parentGoalSchema)
+  .and(folderSchema.partial())
 
 /**
  * 目标状态验证 Schema

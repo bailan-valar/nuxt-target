@@ -16,6 +16,7 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   goals     Goal[]
+  folders   Folder[]
 
   @@map("users")
 }
@@ -26,11 +27,41 @@ enum PeriodType {
   WEEK
 }
 
+enum FolderType {
+  SCENE
+  GROUP
+  PROJECT
+  SUBPROJECT
+}
+
+model Folder {
+  id          String      @id @default(cuid())
+  userId      String      @map("user_id")
+  parentId    String?     @map("parent_id")
+  name        String
+  type        FolderType
+  description String?     @db.Text
+  icon        String?
+  color       String?
+  sortOrder   Int         @default(0) @map("sort_order")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent      Folder?     @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
+  children    Folder[]    @relation("FolderHierarchy")
+  goals       Goal[]
+
+  @@index([userId])
+  @@index([parentId])
+  @@map("folders")
+}
+
 model Goal {
   id          String      @id @default(cuid())
   userId      String      @map("user_id")
   parentId    String?     @map("parent_id")
-  group       String?
+  folderId    String?     @map("folder_id")
   title       String
   description String?
   status      String      @default("active")
@@ -39,8 +70,10 @@ model Goal {
   createdAt   DateTime    @default(now()) @map("created_at")
   updatedAt   DateTime    @updatedAt @map("updated_at")
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  folder      Folder?     @relation(fields: [folderId], references: [id], onDelete: SetNull)
   parent      Goal?       @relation("GoalHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
   children    Goal[]      @relation("GoalHierarchy")
 
+  @@index([folderId])
   @@map("goals")
 }

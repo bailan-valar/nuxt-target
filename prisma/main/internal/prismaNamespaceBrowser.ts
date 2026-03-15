@@ -50,6 +50,7 @@ export const AnyNull = runtime.objectEnumValues.instances.AnyNull
 
 export const ModelName = {
   User: 'User',
+  Folder: 'Folder',
   Goal: 'Goal'
 } as const
 
@@ -80,11 +81,28 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const FolderScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  parentId: 'parentId',
+  name: 'name',
+  type: 'type',
+  description: 'description',
+  icon: 'icon',
+  color: 'color',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FolderScalarFieldEnum = (typeof FolderScalarFieldEnum)[keyof typeof FolderScalarFieldEnum]
+
+
 export const GoalScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   parentId: 'parentId',
-  group: 'group',
+  folderId: 'folderId',
   title: 'title',
   description: 'description',
   status: 'status',

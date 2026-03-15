@@ -1,6 +1,6 @@
-import { MainDBPrismaClient } from '~~/lib/main-prisma-client'
+import { MainDBPrismaClient } from '~/lib/main-prisma-client'
 
-let prisma: MainDBPrismaClient
+let prisma: ReturnType<typeof MainDBPrismaClient> | undefined
 
 export function getPrisma() {
   if (!prisma) {

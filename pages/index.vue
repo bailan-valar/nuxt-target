@@ -183,7 +183,8 @@
             <div
               v-for="goal in recentGoals"
               :key="goal.id"
-              class="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+              class="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer"
+              @click="openEditGoal(goal)"
             >
               <div class="flex-1 min-w-0">
                 <div class="flex items-center space-x-2">
@@ -205,21 +206,23 @@
               </div>
               <div class="ml-3 flex items-center space-x-2">
                 <span class="text-xs text-gray-400">{{ formatDate(goal.createdAt) }}</span>
-                <NuxtLink
-                  :to="`/goals/${goal.id}`"
-                  class="p-1.5 rounded hover:bg-gray-200 transition-colors"
-                  title="查看详情"
-                >
-                  <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                  </svg>
-                </NuxtLink>
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- 目标弹框 -->
+    <GoalModal
+      v-if="showGoalModal"
+      :goal="editingGoal"
+      @close="showGoalModal = false; editingGoal = null"
+      @saved="handleGoalSaved"
+    />
   </div>
 </template>
 
@@ -228,6 +231,22 @@ definePageMeta({
   layout: 'default',
   middleware: 'auth'
 })
+
+// 目标弹框
+const showGoalModal = ref(false)
+const editingGoal = ref<any>(null)
+
+const openEditGoal = (goal: any) => {
+  editingGoal.value = goal
+  showGoalModal.value = true
+}
+
+const handleGoalSaved = () => {
+  showGoalModal.value = false
+  editingGoal.value = null
+  // 刷新数据
+  refresh()
+}
 
 // 当前日期
 const currentDate = computed(() => {
@@ -242,7 +261,7 @@ const currentDate = computed(() => {
 })
 
 // 获取目标数据
-const { data, pending } = await useFetch('/api/goals')
+const { data, pending, refresh } = await useFetch('/api/goals')
 const goals = computed(() => data.value?.data || [])
 
 // 统计数据

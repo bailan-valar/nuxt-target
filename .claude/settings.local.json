@@ -40,7 +40,9 @@
       "Bash(curl -X POST http://localhost:3000/api/auth/signup -H \"Content-Type: application/json\" -d '{\"\"email\"\":\"\"test2@example.com\"\",\"\"password\"\":\"\"password123\"\"}')",
       "Bash(curl -X POST http://localhost:3000/api/auth/signup -H \"Content-Type: application/json\" -d '{\"\"email\"\":\"\"test3@example.com\"\",\"\"password\"\":\"\"password123\"\"}')",
       "Bash(mkdir -p server/validations)",
-      "Bash(mv lib/validations/period.ts server/validations/period.ts)"
+      "Bash(mv lib/validations/period.ts server/validations/period.ts)",
+      "Bash(where pm2:*)",
+      "Bash(curl -s http://localhost:3333/api/auth/user)"
     ],
     "deny": [],
     "ask": []

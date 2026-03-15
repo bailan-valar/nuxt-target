@@ -30,14 +30,18 @@ export default defineEventHandler(async (event) => {
         select: {
           id: true,
           title: true,
-          status: true
+          status: true,
+          periodType: true,
+          periodValue: true
         }
       },
       children: {
         select: {
           id: true,
           title: true,
-          status: true
+          status: true,
+          periodType: true,
+          periodValue: true
         }
       }
     },

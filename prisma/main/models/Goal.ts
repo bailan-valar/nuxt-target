@@ -28,7 +28,7 @@ export type GoalMinAggregateOutputType = {
   id: string | null
   userId: string | null
   parentId: string | null
-  group: string | null
+  folderId: string | null
   title: string | null
   description: string | null
   status: string | null
@@ -42,7 +42,7 @@ export type GoalMaxAggregateOutputType = {
   id: string | null
   userId: string | null
   parentId: string | null
-  group: string | null
+  folderId: string | null
   title: string | null
   description: string | null
   status: string | null
@@ -56,7 +56,7 @@ export type GoalCountAggregateOutputType = {
   id: number
   userId: number
   parentId: number
-  group: number
+  folderId: number
   title: number
   description: number
   status: number
@@ -72,7 +72,7 @@ export type GoalMinAggregateInputType = {
   id?: true
   userId?: true
   parentId?: true
-  group?: true
+  folderId?: true
   title?: true
   description?: true
   status?: true
@@ -86,7 +86,7 @@ export type GoalMaxAggregateInputType = {
   id?: true
   userId?: true
   parentId?: true
-  group?: true
+  folderId?: true
   title?: true
   description?: true
   status?: true
@@ -100,7 +100,7 @@ export type GoalCountAggregateInputType = {
   id?: true
   userId?: true
   parentId?: true
-  group?: true
+  folderId?: true
   title?: true
   description?: true
   status?: true
@@ -187,7 +187,7 @@ export type GoalGroupByOutputType = {
   id: string
   userId: string
   parentId: string | null
-  group: string | null
+  folderId: string | null
   title: string
   description: string | null
   status: string
@@ -222,7 +222,7 @@ export type GoalWhereInput = {
   id?: Prisma.StringFilter<"Goal"> | string
   userId?: Prisma.StringFilter<"Goal"> | string
   parentId?: Prisma.StringNullableFilter<"Goal"> | string | null
-  group?: Prisma.StringNullableFilter<"Goal"> | string | null
+  folderId?: Prisma.StringNullableFilter<"Goal"> | string | null
   title?: Prisma.StringFilter<"Goal"> | string
   description?: Prisma.StringNullableFilter<"Goal"> | string | null
   status?: Prisma.StringFilter<"Goal"> | string
@@ -231,6 +231,7 @@ export type GoalWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Goal"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Goal"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  folder?: Prisma.XOR<Prisma.FolderNullableScalarRelationFilter, Prisma.FolderWhereInput> | null
   parent?: Prisma.XOR<Prisma.GoalNullableScalarRelationFilter, Prisma.GoalWhereInput> | null
   children?: Prisma.GoalListRelationFilter
 }
@@ -239,7 +240,7 @@ export type GoalOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   parentId?: Prisma.SortOrderInput | Prisma.SortOrder
-  group?: Prisma.SortOrderInput | Prisma.SortOrder
+  folderId?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -248,6 +249,7 @@ export type GoalOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
+  folder?: Prisma.FolderOrderByWithRelationInput
   parent?: Prisma.GoalOrderByWithRelationInput
   children?: Prisma.GoalOrderByRelationAggregateInput
 }
@@ -259,7 +261,7 @@ export type GoalWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.GoalWhereInput | Prisma.GoalWhereInput[]
   userId?: Prisma.StringFilter<"Goal"> | string
   parentId?: Prisma.StringNullableFilter<"Goal"> | string | null
-  group?: Prisma.StringNullableFilter<"Goal"> | string | null
+  folderId?: Prisma.StringNullableFilter<"Goal"> | string | null
   title?: Prisma.StringFilter<"Goal"> | string
   description?: Prisma.StringNullableFilter<"Goal"> | string | null
   status?: Prisma.StringFilter<"Goal"> | string
@@ -268,6 +270,7 @@ export type GoalWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Goal"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Goal"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  folder?: Prisma.XOR<Prisma.FolderNullableScalarRelationFilter, Prisma.FolderWhereInput> | null
   parent?: Prisma.XOR<Prisma.GoalNullableScalarRelationFilter, Prisma.GoalWhereInput> | null
   children?: Prisma.GoalListRelationFilter
 }, "id">
@@ -276,7 +279,7 @@ export type GoalOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   parentId?: Prisma.SortOrderInput | Prisma.SortOrder
-  group?: Prisma.SortOrderInput | Prisma.SortOrder
+  folderId?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -296,7 +299,7 @@ export type GoalScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Goal"> | string
   userId?: Prisma.StringWithAggregatesFilter<"Goal"> | string
   parentId?: Prisma.StringNullableWithAggregatesFilter<"Goal"> | string | null
-  group?: Prisma.StringNullableWithAggregatesFilter<"Goal"> | string | null
+  folderId?: Prisma.StringNullableWithAggregatesFilter<"Goal"> | string | null
   title?: Prisma.StringWithAggregatesFilter<"Goal"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Goal"> | string | null
   status?: Prisma.StringWithAggregatesFilter<"Goal"> | string
@@ -308,7 +311,6 @@ export type GoalScalarWhereWithAggregatesInput = {
 
 export type GoalCreateInput = {
   id?: string
-  group?: string | null
   title: string
   description?: string | null
   status?: string
@@ -317,6 +319,7 @@ export type GoalCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutGoalsInput
+  folder?: Prisma.FolderCreateNestedOneWithoutGoalsInput
   parent?: Prisma.GoalCreateNestedOneWithoutChildrenInput
   children?: Prisma.GoalCreateNestedManyWithoutParentInput
 }
@@ -325,7 +328,7 @@ export type GoalUncheckedCreateInput = {
   id?: string
   userId: string
   parentId?: string | null
-  group?: string | null
+  folderId?: string | null
   title: string
   description?: string | null
   status?: string
@@ -338,7 +341,6 @@ export type GoalUncheckedCreateInput = {
 
 export type GoalUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -347,6 +349,7 @@ export type GoalUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutGoalsNestedInput
+  folder?: Prisma.FolderUpdateOneWithoutGoalsNestedInput
   parent?: Prisma.GoalUpdateOneWithoutChildrenNestedInput
   children?: Prisma.GoalUpdateManyWithoutParentNestedInput
 }
@@ -355,7 +358,7 @@ export type GoalUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  folderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -370,7 +373,7 @@ export type GoalCreateManyInput = {
   id?: string
   userId: string
   parentId?: string | null
-  group?: string | null
+  folderId?: string | null
   title: string
   description?: string | null
   status?: string
@@ -382,7 +385,6 @@ export type GoalCreateManyInput = {
 
 export type GoalUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -396,7 +398,7 @@ export type GoalUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  folderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -425,7 +427,7 @@ export type GoalCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
-  group?: Prisma.SortOrder
+  folderId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -439,7 +441,7 @@ export type GoalMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
-  group?: Prisma.SortOrder
+  folderId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -453,7 +455,7 @@ export type GoalMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
-  group?: Prisma.SortOrder
+  folderId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -505,6 +507,48 @@ export type GoalUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.GoalScalarWhereInput | Prisma.GoalScalarWhereInput[]
 }
 
+export type GoalCreateNestedManyWithoutFolderInput = {
+  create?: Prisma.XOR<Prisma.GoalCreateWithoutFolderInput, Prisma.GoalUncheckedCreateWithoutFolderInput> | Prisma.GoalCreateWithoutFolderInput[] | Prisma.GoalUncheckedCreateWithoutFolderInput[]
+  connectOrCreate?: Prisma.GoalCreateOrConnectWithoutFolderInput | Prisma.GoalCreateOrConnectWithoutFolderInput[]
+  createMany?: Prisma.GoalCreateManyFolderInputEnvelope
+  connect?: Prisma.GoalWhereUniqueInput | Prisma.GoalWhereUniqueInput[]
+}
+
+export type GoalUncheckedCreateNestedManyWithoutFolderInput = {
+  create?: Prisma.XOR<Prisma.GoalCreateWithoutFolderInput, Prisma.GoalUncheckedCreateWithoutFolderInput> | Prisma.GoalCreateWithoutFolderInput[] | Prisma.GoalUncheckedCreateWithoutFolderInput[]
+  connectOrCreate?: Prisma.GoalCreateOrConnectWithoutFolderInput | Prisma.GoalCreateOrConnectWithoutFolderInput[]
+  createMany?: Prisma.GoalCreateManyFolderInputEnvelope
+  connect?: Prisma.GoalWhereUniqueInput | Prisma.GoalWhereUniqueInput[]
+}
+
+export type GoalUpdateManyWithoutFolderNestedInput = {
+  create?: Prisma.XOR<Prisma.GoalCreateWithoutFolderInput, Prisma.GoalUncheckedCreateWithoutFolderInput> | Prisma.GoalCreateWithoutFolderInput[] | Prisma.GoalUncheckedCreateWithoutFolderInput[]
+  connectOrCreate?: Prisma.GoalCreateOrConnectWithoutFolderInput | Prisma.GoalCreateOrConnectWithoutFolderInput[]
+  upsert?: Prisma.GoalUpsertWithWhereUniqueWithoutFolderInput | Prisma.GoalUpsertWithWhereUniqueWithoutFolderInput[]
+  createMany?: Prisma.GoalCreateManyFolderInputEnvelope
+  set?: Prisma.GoalWhereUniqueInput | Prisma.GoalWhereUniqueInput[]
+  disconnect?: Prisma.GoalWhereUniqueInput | Prisma.GoalWhereUniqueInput[]
+  delete?: Prisma.GoalWhereUniqueInput | Prisma.GoalWhereUniqueInput[]
+  connect?: Prisma.GoalWhereUniqueInput | Prisma.GoalWhereUniqueInput[]
+  update?: Prisma.GoalUpdateWithWhereUniqueWithoutFolderInput | Prisma.GoalUpdateWithWhereUniqueWithoutFolderInput[]
+  updateMany?: Prisma.GoalUpdateManyWithWhereWithoutFolderInput | Prisma.GoalUpdateManyWithWhereWithoutFolderInput[]
+  deleteMany?: Prisma.GoalScalarWhereInput | Prisma.GoalScalarWhereInput[]
+}
+
+export type GoalUncheckedUpdateManyWithoutFolderNestedInput = {
+  create?: Prisma.XOR<Prisma.GoalCreateWithoutFolderInput, Prisma.GoalUncheckedCreateWithoutFolderInput> | Prisma.GoalCreateWithoutFolderInput[] | Prisma.GoalUncheckedCreateWithoutFolderInput[]
+  connectOrCreate?: Prisma.GoalCreateOrConnectWithoutFolderInput | Prisma.GoalCreateOrConnectWithoutFolderInput[]
+  upsert?: Prisma.GoalUpsertWithWhereUniqueWithoutFolderInput | Prisma.GoalUpsertWithWhereUniqueWithoutFolderInput[]
+  createMany?: Prisma.GoalCreateManyFolderInputEnvelope
+  set?: Prisma.GoalWhereUniqueInput | Prisma.GoalWhereUniqueInput[]
+  disconnect?: Prisma.GoalWhereUniqueInput | Prisma.GoalWhereUniqueInput[]
+  delete?: Prisma.GoalWhereUniqueInput | Prisma.GoalWhereUniqueInput[]
+  connect?: Prisma.GoalWhereUniqueInput | Prisma.GoalWhereUniqueInput[]
+  update?: Prisma.GoalUpdateWithWhereUniqueWithoutFolderInput | Prisma.GoalUpdateWithWhereUniqueWithoutFolderInput[]
+  updateMany?: Prisma.GoalUpdateManyWithWhereWithoutFolderInput | Prisma.GoalUpdateManyWithWhereWithoutFolderInput[]
+  deleteMany?: Prisma.GoalScalarWhereInput | Prisma.GoalScalarWhereInput[]
+}
+
 export type GoalCreateNestedOneWithoutChildrenInput = {
   create?: Prisma.XOR<Prisma.GoalCreateWithoutChildrenInput, Prisma.GoalUncheckedCreateWithoutChildrenInput>
   connectOrCreate?: Prisma.GoalCreateOrConnectWithoutChildrenInput
@@ -523,10 +567,6 @@ export type GoalUncheckedCreateNestedManyWithoutParentInput = {
   connectOrCreate?: Prisma.GoalCreateOrConnectWithoutParentInput | Prisma.GoalCreateOrConnectWithoutParentInput[]
   createMany?: Prisma.GoalCreateManyParentInputEnvelope
   connect?: Prisma.GoalWhereUniqueInput | Prisma.GoalWhereUniqueInput[]
-}
-
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
 }
 
 export type NullableEnumPeriodTypeFieldUpdateOperationsInput = {
@@ -573,7 +613,6 @@ export type GoalUncheckedUpdateManyWithoutParentNestedInput = {
 
 export type GoalCreateWithoutUserInput = {
   id?: string
-  group?: string | null
   title: string
   description?: string | null
   status?: string
@@ -581,6 +620,7 @@ export type GoalCreateWithoutUserInput = {
   periodValue?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  folder?: Prisma.FolderCreateNestedOneWithoutGoalsInput
   parent?: Prisma.GoalCreateNestedOneWithoutChildrenInput
   children?: Prisma.GoalCreateNestedManyWithoutParentInput
 }
@@ -588,7 +628,7 @@ export type GoalCreateWithoutUserInput = {
 export type GoalUncheckedCreateWithoutUserInput = {
   id?: string
   parentId?: string | null
-  group?: string | null
+  folderId?: string | null
   title: string
   description?: string | null
   status?: string
@@ -632,7 +672,7 @@ export type GoalScalarWhereInput = {
   id?: Prisma.StringFilter<"Goal"> | string
   userId?: Prisma.StringFilter<"Goal"> | string
   parentId?: Prisma.StringNullableFilter<"Goal"> | string | null
-  group?: Prisma.StringNullableFilter<"Goal"> | string | null
+  folderId?: Prisma.StringNullableFilter<"Goal"> | string | null
   title?: Prisma.StringFilter<"Goal"> | string
   description?: Prisma.StringNullableFilter<"Goal"> | string | null
   status?: Prisma.StringFilter<"Goal"> | string
@@ -642,9 +682,8 @@ export type GoalScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Goal"> | Date | string
 }
 
-export type GoalCreateWithoutChildrenInput = {
+export type GoalCreateWithoutFolderInput = {
   id?: string
-  group?: string | null
   title: string
   description?: string | null
   status?: string
@@ -654,13 +693,68 @@ export type GoalCreateWithoutChildrenInput = {
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutGoalsInput
   parent?: Prisma.GoalCreateNestedOneWithoutChildrenInput
+  children?: Prisma.GoalCreateNestedManyWithoutParentInput
+}
+
+export type GoalUncheckedCreateWithoutFolderInput = {
+  id?: string
+  userId: string
+  parentId?: string | null
+  title: string
+  description?: string | null
+  status?: string
+  periodType?: $Enums.PeriodType | null
+  periodValue?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.GoalUncheckedCreateNestedManyWithoutParentInput
+}
+
+export type GoalCreateOrConnectWithoutFolderInput = {
+  where: Prisma.GoalWhereUniqueInput
+  create: Prisma.XOR<Prisma.GoalCreateWithoutFolderInput, Prisma.GoalUncheckedCreateWithoutFolderInput>
+}
+
+export type GoalCreateManyFolderInputEnvelope = {
+  data: Prisma.GoalCreateManyFolderInput | Prisma.GoalCreateManyFolderInput[]
+  skipDuplicates?: boolean
+}
+
+export type GoalUpsertWithWhereUniqueWithoutFolderInput = {
+  where: Prisma.GoalWhereUniqueInput
+  update: Prisma.XOR<Prisma.GoalUpdateWithoutFolderInput, Prisma.GoalUncheckedUpdateWithoutFolderInput>
+  create: Prisma.XOR<Prisma.GoalCreateWithoutFolderInput, Prisma.GoalUncheckedCreateWithoutFolderInput>
+}
+
+export type GoalUpdateWithWhereUniqueWithoutFolderInput = {
+  where: Prisma.GoalWhereUniqueInput
+  data: Prisma.XOR<Prisma.GoalUpdateWithoutFolderInput, Prisma.GoalUncheckedUpdateWithoutFolderInput>
+}
+
+export type GoalUpdateManyWithWhereWithoutFolderInput = {
+  where: Prisma.GoalScalarWhereInput
+  data: Prisma.XOR<Prisma.GoalUpdateManyMutationInput, Prisma.GoalUncheckedUpdateManyWithoutFolderInput>
+}
+
+export type GoalCreateWithoutChildrenInput = {
+  id?: string
+  title: string
+  description?: string | null
+  status?: string
+  periodType?: $Enums.PeriodType | null
+  periodValue?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutGoalsInput
+  folder?: Prisma.FolderCreateNestedOneWithoutGoalsInput
+  parent?: Prisma.GoalCreateNestedOneWithoutChildrenInput
 }
 
 export type GoalUncheckedCreateWithoutChildrenInput = {
   id?: string
   userId: string
   parentId?: string | null
-  group?: string | null
+  folderId?: string | null
   title: string
   description?: string | null
   status?: string
@@ -677,7 +771,6 @@ export type GoalCreateOrConnectWithoutChildrenInput = {
 
 export type GoalCreateWithoutParentInput = {
   id?: string
-  group?: string | null
   title: string
   description?: string | null
   status?: string
@@ -686,13 +779,14 @@ export type GoalCreateWithoutParentInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutGoalsInput
+  folder?: Prisma.FolderCreateNestedOneWithoutGoalsInput
   children?: Prisma.GoalCreateNestedManyWithoutParentInput
 }
 
 export type GoalUncheckedCreateWithoutParentInput = {
   id?: string
   userId: string
-  group?: string | null
+  folderId?: string | null
   title: string
   description?: string | null
   status?: string
@@ -726,7 +820,6 @@ export type GoalUpdateToOneWithWhereWithoutChildrenInput = {
 
 export type GoalUpdateWithoutChildrenInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -735,6 +828,7 @@ export type GoalUpdateWithoutChildrenInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutGoalsNestedInput
+  folder?: Prisma.FolderUpdateOneWithoutGoalsNestedInput
   parent?: Prisma.GoalUpdateOneWithoutChildrenNestedInput
 }
 
@@ -742,7 +836,7 @@ export type GoalUncheckedUpdateWithoutChildrenInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  folderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -771,7 +865,7 @@ export type GoalUpdateManyWithWhereWithoutParentInput = {
 export type GoalCreateManyUserInput = {
   id?: string
   parentId?: string | null
-  group?: string | null
+  folderId?: string | null
   title: string
   description?: string | null
   status?: string
@@ -783,7 +877,6 @@ export type GoalCreateManyUserInput = {
 
 export type GoalUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -791,6 +884,7 @@ export type GoalUpdateWithoutUserInput = {
   periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  folder?: Prisma.FolderUpdateOneWithoutGoalsNestedInput
   parent?: Prisma.GoalUpdateOneWithoutChildrenNestedInput
   children?: Prisma.GoalUpdateManyWithoutParentNestedInput
 }
@@ -798,7 +892,7 @@ export type GoalUpdateWithoutUserInput = {
 export type GoalUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  folderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -812,7 +906,61 @@ export type GoalUncheckedUpdateWithoutUserInput = {
 export type GoalUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  folderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
+  periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type GoalCreateManyFolderInput = {
+  id?: string
+  userId: string
+  parentId?: string | null
+  title: string
+  description?: string | null
+  status?: string
+  periodType?: $Enums.PeriodType | null
+  periodValue?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type GoalUpdateWithoutFolderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
+  periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutGoalsNestedInput
+  parent?: Prisma.GoalUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.GoalUpdateManyWithoutParentNestedInput
+}
+
+export type GoalUncheckedUpdateWithoutFolderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
+  periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.GoalUncheckedUpdateManyWithoutParentNestedInput
+}
+
+export type GoalUncheckedUpdateManyWithoutFolderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -825,7 +973,7 @@ export type GoalUncheckedUpdateManyWithoutUserInput = {
 export type GoalCreateManyParentInput = {
   id?: string
   userId: string
-  group?: string | null
+  folderId?: string | null
   title: string
   description?: string | null
   status?: string
@@ -837,7 +985,6 @@ export type GoalCreateManyParentInput = {
 
 export type GoalUpdateWithoutParentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -846,13 +993,14 @@ export type GoalUpdateWithoutParentInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutGoalsNestedInput
+  folder?: Prisma.FolderUpdateOneWithoutGoalsNestedInput
   children?: Prisma.GoalUpdateManyWithoutParentNestedInput
 }
 
 export type GoalUncheckedUpdateWithoutParentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  folderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -866,7 +1014,7 @@ export type GoalUncheckedUpdateWithoutParentInput = {
 export type GoalUncheckedUpdateManyWithoutParentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  group?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  folderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -911,7 +1059,7 @@ export type GoalSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   id?: boolean
   userId?: boolean
   parentId?: boolean
-  group?: boolean
+  folderId?: boolean
   title?: boolean
   description?: boolean
   status?: boolean
@@ -920,6 +1068,7 @@ export type GoalSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  folder?: boolean | Prisma.Goal$folderArgs<ExtArgs>
   parent?: boolean | Prisma.Goal$parentArgs<ExtArgs>
   children?: boolean | Prisma.Goal$childrenArgs<ExtArgs>
   _count?: boolean | Prisma.GoalCountOutputTypeDefaultArgs<ExtArgs>
@@ -929,7 +1078,7 @@ export type GoalSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   id?: boolean
   userId?: boolean
   parentId?: boolean
-  group?: boolean
+  folderId?: boolean
   title?: boolean
   description?: boolean
   status?: boolean
@@ -938,6 +1087,7 @@ export type GoalSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  folder?: boolean | Prisma.Goal$folderArgs<ExtArgs>
   parent?: boolean | Prisma.Goal$parentArgs<ExtArgs>
 }, ExtArgs["result"]["goal"]>
 
@@ -945,7 +1095,7 @@ export type GoalSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   id?: boolean
   userId?: boolean
   parentId?: boolean
-  group?: boolean
+  folderId?: boolean
   title?: boolean
   description?: boolean
   status?: boolean
@@ -954,6 +1104,7 @@ export type GoalSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  folder?: boolean | Prisma.Goal$folderArgs<ExtArgs>
   parent?: boolean | Prisma.Goal$parentArgs<ExtArgs>
 }, ExtArgs["result"]["goal"]>
 
@@ -961,7 +1112,7 @@ export type GoalSelectScalar = {
   id?: boolean
   userId?: boolean
   parentId?: boolean
-  group?: boolean
+  folderId?: boolean
   title?: boolean
   description?: boolean
   status?: boolean
@@ -971,19 +1122,22 @@ export type GoalSelectScalar = {
   updatedAt?: boolean
 }
 
-export type GoalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "parentId" | "group" | "title" | "description" | "status" | "periodType" | "periodValue" | "createdAt" | "updatedAt", ExtArgs["result"]["goal"]>
+export type GoalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "parentId" | "folderId" | "title" | "description" | "status" | "periodType" | "periodValue" | "createdAt" | "updatedAt", ExtArgs["result"]["goal"]>
 export type GoalInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  folder?: boolean | Prisma.Goal$folderArgs<ExtArgs>
   parent?: boolean | Prisma.Goal$parentArgs<ExtArgs>
   children?: boolean | Prisma.Goal$childrenArgs<ExtArgs>
   _count?: boolean | Prisma.GoalCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type GoalIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  folder?: boolean | Prisma.Goal$folderArgs<ExtArgs>
   parent?: boolean | Prisma.Goal$parentArgs<ExtArgs>
 }
 export type GoalIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  folder?: boolean | Prisma.Goal$folderArgs<ExtArgs>
   parent?: boolean | Prisma.Goal$parentArgs<ExtArgs>
 }
 
@@ -991,6 +1145,7 @@ export type $GoalPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name: "Goal"
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
+    folder: Prisma.$FolderPayload<ExtArgs> | null
     parent: Prisma.$GoalPayload<ExtArgs> | null
     children: Prisma.$GoalPayload<ExtArgs>[]
   }
@@ -998,7 +1153,7 @@ export type $GoalPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     id: string
     userId: string
     parentId: string | null
-    group: string | null
+    folderId: string | null
     title: string
     description: string | null
     status: string
@@ -1401,6 +1556,7 @@ readonly fields: GoalFieldRefs;
 export interface Prisma__GoalClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  folder<T extends Prisma.Goal$folderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Goal$folderArgs<ExtArgs>>): Prisma.Prisma__FolderClient<runtime.Types.Result.GetResult<Prisma.$FolderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   parent<T extends Prisma.Goal$parentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Goal$parentArgs<ExtArgs>>): Prisma.Prisma__GoalClient<runtime.Types.Result.GetResult<Prisma.$GoalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   children<T extends Prisma.Goal$childrenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Goal$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GoalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1435,7 +1591,7 @@ export interface GoalFieldRefs {
   readonly id: Prisma.FieldRef<"Goal", 'String'>
   readonly userId: Prisma.FieldRef<"Goal", 'String'>
   readonly parentId: Prisma.FieldRef<"Goal", 'String'>
-  readonly group: Prisma.FieldRef<"Goal", 'String'>
+  readonly folderId: Prisma.FieldRef<"Goal", 'String'>
   readonly title: Prisma.FieldRef<"Goal", 'String'>
   readonly description: Prisma.FieldRef<"Goal", 'String'>
   readonly status: Prisma.FieldRef<"Goal", 'String'>
@@ -1836,6 +1992,25 @@ export type GoalDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Limit how many Goals to delete.
    */
   limit?: number
+}
+
+/**
+ * Goal.folder
+ */
+export type Goal$folderArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Folder
+   */
+  select?: Prisma.FolderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Folder
+   */
+  omit?: Prisma.FolderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FolderInclude<ExtArgs> | null
+  where?: Prisma.FolderWhereInput
 }
 
 /**

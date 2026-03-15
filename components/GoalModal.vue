@@ -3,12 +3,14 @@
     <div class="modal">
       <h2>{{ goal?.id ? '编辑目标' : '新增目标' }}</h2>
       <form @submit.prevent="handleSubmit">
+        <FolderSelector
+          v-model="form.folderId"
+          label="所属文件夹"
+          :allow_create="true"
+        />
+
         <div class="field">
-          <label>项目组</label>
-          <input v-model="form.group" type="text" />
-        </div>
-        <div class="field">
-          <label>项目 *</label>
+          <label>标题 *</label>
           <input v-model="form.title" required />
         </div>
 
@@ -40,7 +42,6 @@ type PeriodType = 'YEAR' | 'MONTH' | 'WEEK' | ''
 
 interface Goal {
   id: string
-  group: string | null
   title: string
   description: string | null
   status: string
@@ -53,6 +54,11 @@ interface Goal {
 const props = defineProps<{
   show: boolean
   goal?: Goal
+  defaults?: {
+    folderId: string | null
+    periodType: string
+    periodValue: string
+  } | null
 }>()
 
 const emit = defineEmits<{
@@ -61,7 +67,7 @@ const emit = defineEmits<{
 }>()
 
 const form = reactive({
-  group: '',
+  folderId: null as string | null,
   title: '',
   description: '',
   periodType: '' as PeriodType,
@@ -73,14 +79,14 @@ const loading = ref(false)
 
 watch(() => props.goal, (g) => {
   if (g) {
-    form.group = g.group || ''
+    form.folderId = (g as any).folderId || null
     form.title = g.title
     form.description = g.description || ''
     form.periodType = g.periodType || ''
     form.periodValue = g.periodValue || ''
     form.parentGoal = g.parent || null
   } else {
-    form.group = ''
+    form.folderId = null
     form.title = ''
     form.description = ''
     form.periodType = ''
@@ -88,6 +94,15 @@ watch(() => props.goal, (g) => {
     form.parentGoal = null
   }
 }, { immediate: true })
+
+// 当模态框打开且有默认值时应用默认值
+watch(() => props.show, (isShow) => {
+  if (isShow && props.defaults && !props.goal) {
+    form.folderId = props.defaults.folderId
+    form.periodType = props.defaults.periodType as PeriodType
+    form.periodValue = props.defaults.periodValue
+  }
+})
 
 const handleSubmit = async () => {
   loading.value = true
@@ -97,7 +112,7 @@ const handleSubmit = async () => {
 
     // 只发送非空字段
     const body: any = {
-      group: form.group || undefined,
+      folderId: form.folderId || undefined,
       title: form.title,
       description: form.description || undefined,
       parentId: form.parentGoal?.id || null
@@ -113,7 +128,9 @@ const handleSubmit = async () => {
     emit('saved')
     emit('close')
   } catch (e: any) {
-    alert(e.data?.error || '保存失败')
+    const message = e.data?.error || '保存失败'
+    const { error } = useToast()
+    error(message)
   } finally {
     loading.value = false
   }

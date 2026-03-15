@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { getPrisma } from '~/server/utils/db'
 import { updateGoalSchema, goalStatusSchema } from '~/server/validations/goal'
 import { wouldCreateCycle } from '~/server/utils/goal-hierarchy'
@@ -72,13 +73,13 @@ export default defineEventHandler(async (event) => {
   const goal = await prisma.goal.update({
     where: { id: goalId },
     data: {
-      ...(data.group !== undefined && { group: data.group }),
       ...(data.title !== undefined && { title: data.title }),
       ...(data.description !== undefined && { description: data.description }),
       ...(data.status !== undefined && { status: data.status }),
       ...(data.periodType !== undefined && { periodType: data.periodType }),
       ...(data.periodValue !== undefined && { periodValue: data.periodValue }),
-      ...(data.parentId !== undefined && { parentId: data.parentId })
+      ...(data.parentId !== undefined && { parentId: data.parentId }),
+      ...(data.folderId !== undefined && { folderId: data.folderId })
     }
   })
 

@@ -19,6 +19,7 @@ export default defineEventHandler(async (event) => {
     const { password: _, ...userWithoutPassword } = user
     return { success: true, data: { user: userWithoutPassword } }
   } catch (error) {
-    throw createError({ statusCode: 500, message: 'Server error' })
+    console.error('Error in /api/auth/user:', error)
+    throw createError({ statusCode: 500, message: 'Server error', stack: error instanceof Error ? error.stack : undefined })
   }
 })

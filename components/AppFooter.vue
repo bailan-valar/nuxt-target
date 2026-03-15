@@ -10,9 +10,9 @@
 
           <!-- Links -->
           <div class="flex space-x-4">
-            <NuxtLink to="/about" class="text-gray-600 hover:text-gray-900 text-xs transition-colors">
+           <!-- <NuxtLink to="/about" class="text-gray-600 hover:text-gray-900 text-xs transition-colors">
               关于我们
-            </NuxtLink>
+            </NuxtLink>-->
             <NuxtLink to="/privacy" class="text-gray-600 hover:text-gray-900 text-xs transition-colors">
               隐私政策
             </NuxtLink>
