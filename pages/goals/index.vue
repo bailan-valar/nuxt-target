@@ -186,24 +186,24 @@
     <!-- 表格视图 -->
     <div v-else class="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
+        <table class="min-w-full divide-x divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px]">场景</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px]">分组</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-auto">项目</th>
-              <th v-if="hasSubprojects" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-auto">子项目</th>
+              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px]">场景</th>
+              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px]">分组</th>
+              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-auto">项目</th>
+              <th v-if="hasSubprojects" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-auto">子项目</th>
 
               <!-- 年视图：年目标 + 12个月 -->
               <template v-if="view === 'year'">
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">年目标</th>
-                <th v-for="m in 12" :key="m" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[60px]">{{ m }}月</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">年目标</th>
+                <th v-for="m in 12" :key="m" class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[60px]">{{ m }}月</th>
               </template>
 
               <!-- 月视图：月目标 + 4-5周 -->
               <template v-else-if="view === 'month'">
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">月目标</th>
-                <th v-for="week in monthWeeks" :key="week.index" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[80px]">
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">月目标</th>
+                <th v-for="week in monthWeeks" :key="week.index" class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[80px]">
                   <div class="flex flex-col items-start gap-1">
                     <span>第{{ week.index }}周</span>
                     <span class="text-xs text-gray-400">{{ week.range }}</span>
@@ -213,8 +213,8 @@
 
               <!-- 周视图：周目标 + 7天 -->
               <template v-else-if="view === 'week'">
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周目标</th>
-                <th v-for="day in weekDays" :key="day.date" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[70px]">
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周目标</th>
+                <th v-for="day in weekDays" :key="day.date" class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[70px]">
                   <div class="flex flex-col items-start gap-1">
                     <span :class="{ 'text-blue-600 font-semibold': isToday(day.date) }">{{ day.weekday }}</span>
                     <span :class="{ 'text-blue-600 font-semibold': isToday(day.date) }" class="text-xs">{{ day.day }}</span>
@@ -230,24 +230,10 @@
                 <td
                   v-if="shouldShowCell('scene', rowIndex)"
                   :rowspan="row.rowspans.scene ?? 1"
-                  class="px-4 py-3 align-top"
+                  class="px-3 py-2 align-middle"
+                  @contextmenu.prevent="row.scene ? handleContextMenu($event, row.scene) : null"
                 >
-                  <div v-if="row.scene" class="folder-cell" @contextmenu.prevent="handleContextMenu($event, row.scene)">
-                    <div class="folder-icon" :style="{ color: row.scene.color || undefined }">
-                      <svg
-                        v-if="!row.scene.icon"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                      >
-                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-                      </svg>
-                      <span v-else>{{ row.scene.icon }}</span>
-                    </div>
+                  <div v-if="row.scene" class="folder-cell">
                     <div class="folder-info">
                       <span class="name">{{ row.scene.name }}</span>
                     </div>
@@ -259,24 +245,10 @@
                 <td
                   v-if="shouldShowCell('group', rowIndex)"
                   :rowspan="row.rowspans.group ?? 1"
-                  class="px-4 py-3 align-top"
+                  class="px-3 py-2 align-middle"
+                  @contextmenu.prevent="row.group ? handleContextMenu($event, row.group) : null"
                 >
-                  <div v-if="row.group" class="folder-cell" @contextmenu.prevent="handleContextMenu($event, row.group)">
-                    <div class="folder-icon" :style="{ color: row.group.color || undefined }">
-                      <svg
-                        v-if="!row.group.icon"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                      >
-                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-                      </svg>
-                      <span v-else>{{ row.group.icon }}</span>
-                    </div>
+                  <div v-if="row.group" class="folder-cell">
                     <div class="folder-info">
                       <span class="name">{{ row.group.name }}</span>
                     </div>
@@ -288,24 +260,10 @@
                 <td
                   v-if="shouldShowCell('project', rowIndex)"
                   :rowspan="row.rowspans.project ?? 1"
-                  class="px-4 py-3 align-top"
+                  class="px-3 py-2 align-middle"
+                  @contextmenu.prevent="row.project ? handleContextMenu($event, row.project) : null"
                 >
-                  <div v-if="row.project" class="folder-cell" @contextmenu.prevent="handleContextMenu($event, row.project)">
-                    <div class="folder-icon" :style="{ color: row.project.color || undefined }">
-                      <svg
-                        v-if="!row.project.icon"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                      >
-                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-                      </svg>
-                      <span v-else>{{ row.project.icon }}</span>
-                    </div>
+                  <div v-if="row.project" class="folder-cell">
                     <div class="folder-info">
                       <span class="name">{{ row.project.name }}</span>
                     </div>
@@ -317,24 +275,10 @@
                 <td
                   v-if="hasSubprojects && shouldShowCell('subproject', rowIndex)"
                   :rowspan="row.rowspans.subproject ?? 1"
-                  class="px-4 py-3 align-top"
+                  class="px-3 py-2 align-middle"
+                  @contextmenu.prevent="row.subproject ? handleContextMenu($event, row.subproject) : null"
                 >
-                  <div v-if="row.subproject" class="folder-cell" @contextmenu.prevent="handleContextMenu($event, row.subproject)">
-                    <div class="folder-icon" :style="{ color: row.subproject.color || undefined }">
-                      <svg
-                        v-if="!row.subproject.icon"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                      >
-                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-                      </svg>
-                      <span v-else>{{ row.subproject.icon }}</span>
-                    </div>
+                  <div v-if="row.subproject" class="folder-cell">
                     <div class="folder-info">
                       <span class="name">{{ row.subproject.name }}</span>
                     </div>
@@ -345,13 +289,13 @@
                 <!-- 目标列和日期列 -->
                 <template v-if="view === 'year'">
                   <!-- 年目标列 -->
-                  <td class="px-4 py-3 text-sm">
+                  <td class="px-3 py-2 text-sm">
                     <GoalCell :goal="row.mainGoal" :period-type="'YEAR'" :period-value="String(year)" @add="openAddGoal('YEAR', String(year), row)" @edit="openEditGoal" />
                   </td>
                   <!-- 12个月份列 -->
-                  <td v-for="m in 12" :key="m" class="px-3 py-3 text-sm text-left">
+                  <td v-for="m in 12" :key="m" class="px-2 py-2 text-sm text-left">
                     <GoalCell
-                      :goal="getChildGoal(row.mainGoal, 'MONTH', `${year}-${String(m).padStart(2, '0')}`)"
+                      :goal="getChildGoal(row.mainGoal, 'MONTH', `${year}-${String(m).padStart(2, '0')}`, row.subproject?.id || row.project?.id || row.group?.id || row.scene?.id)"
                       :period-type="'MONTH'"
                       :period-value="`${year}-${String(m).padStart(2, '0')}`"
                       :compact="true"
@@ -363,13 +307,13 @@
 
                 <template v-else-if="view === 'month'">
                   <!-- 月目标列 -->
-                  <td class="px-4 py-3 text-sm">
+                  <td class="px-3 py-2 text-sm">
                     <GoalCell :goal="row.mainGoal" :period-type="'MONTH'" :period-value="`${year}-${String(month).padStart(2, '0')}`" @add="openAddGoal('MONTH', `${year}-${String(month).padStart(2, '0')}`, row)" @edit="openEditGoal" />
                   </td>
                   <!-- 4-5周列 -->
-                  <td v-for="week in monthWeeks" :key="week.index" class="px-3 py-3 text-sm text-left">
+                  <td v-for="week in monthWeeks" :key="week.index" class="px-2 py-2 text-sm text-left">
                     <GoalCell
-                      :goal="getChildGoal(row.mainGoal, 'WEEK', week.value)"
+                      :goal="getChildGoal(row.mainGoal, 'WEEK', week.value, row.subproject?.id || row.project?.id || row.group?.id || row.scene?.id)"
                       :period-type="'WEEK'"
                       :period-value="week.value"
                       :compact="true"
@@ -381,13 +325,13 @@
 
                 <template v-else-if="view === 'week'">
                   <!-- 周目标列 -->
-                  <td class="px-4 py-3 text-sm">
+                  <td class="px-3 py-2 text-sm">
                     <GoalCell :goal="row.mainGoal" :period-type="'WEEK'" :period-value="currentWeekValue" @add="openAddGoal('WEEK', currentWeekValue, row)" @edit="openEditGoal" />
                   </td>
                   <!-- 7天列 -->
-                  <td v-for="day in weekDays" :key="day.date" class="px-3 py-3 text-sm text-left">
+                  <td v-for="day in weekDays" :key="day.date" class="px-2 py-2 text-sm text-left">
                     <GoalCell
-                      :goal="getChildGoal(row.mainGoal, 'DAY', day.date)"
+                      :goal="getChildGoal(row.mainGoal, 'DAY', day.date, row.subproject?.id || row.project?.id || row.group?.id || row.scene?.id)"
                       :period-type="'DAY'"
                       :period-value="day.date"
                       :compact="true"
@@ -1002,37 +946,46 @@ function findFolderById(folders: any[], id: string): any {
 }
 
 // 获取子目标
-function getChildGoal(parentGoal: any, periodType: string, periodValue: string): any {
-  if (!parentGoal?.children) {
-    console.log('🔍 [getChildGoal] parentGoal无children:', {
-      hasParent: !!parentGoal,
+function getChildGoal(parentGoal: any, periodType: string, periodValue: string, folderId?: string): any {
+  // 如果有父目标，从父目标的children中查找
+  if (parentGoal?.children) {
+    const found = parentGoal.children.find((g: any) =>
+      g.periodType === periodType && g.periodValue === periodValue
+    )
+
+    console.log('🔍 [getChildGoal] 从父目标查找:', {
       parentTitle: parentGoal?.title,
-      periodType,
-      periodValue
+      parentPeriodType: parentGoal?.periodType,
+      parentPeriodValue: parentGoal?.periodValue,
+      searchingFor: { periodType, periodValue },
+      childrenCount: parentGoal.children.length,
+      found: !!found,
+      foundTitle: found?.title
     })
-    return null
+
+    return found || null
   }
 
-  const found = parentGoal.children.find((g: any) =>
-    g.periodType === periodType && g.periodValue === periodValue
-  )
+  // 如果没有父目标，直接从根目标中查找（用于显示在"-"行中）
+  if (folderId) {
+    const rootGoal = goals.value.find((g: any) =>
+      g.folderId === folderId &&
+      g.periodType === periodType &&
+      g.periodValue === periodValue
+    )
 
-  console.log('🔍 [getChildGoal] 查找结果:', {
-    parentTitle: parentGoal?.title,
-    parentPeriodType: parentGoal?.periodType,
-    parentPeriodValue: parentGoal?.periodValue,
-    searchingFor: { periodType, periodValue },
-    childrenCount: parentGoal.children.length,
-    children: parentGoal.children.map((c: any) => ({
-      title: c.title,
-      periodType: c.periodType,
-      periodValue: c.periodValue
-    })),
-    found: !!found,
-    foundTitle: found?.title
-  })
+    console.log('🔍 [getChildGoal] 从根目标查找（无父目标）:', {
+      folderId: folderId.substring(0, 8),
+      searchingFor: { periodType, periodValue },
+      found: !!rootGoal,
+      foundTitle: rootGoal?.title
+    })
 
-  return found || null
+    return rootGoal || null
+  }
+
+  console.log('🔍 [getChildGoal] 无父目标且无folderId，返回null')
+  return null
 }
 
 // 获取当前行的最小子节点文件夹ID
@@ -1171,12 +1124,11 @@ function getMainGoalForFolder(folderId: string, currentView: string): any {
       title: g.title,
       periodType: g.periodType,
       periodValue: g.periodValue,
-      hasParent: !!g.parentId,
       childrenCount: g.children?.length || 0
     }))
   })
 
-  // 查找对应视图类型的主目标（无父目标的根目标）
+  // 查找对应视图类型的主目标（根目标）
   let mainGoal = folderRootGoals.find((g: any) => g.periodType === targetType)
 
   console.log('🔍 [getMainGoalForFolder] 查找结果:', {
@@ -1186,12 +1138,7 @@ function getMainGoalForFolder(folderId: string, currentView: string): any {
       title: mainGoal.title,
       periodType: mainGoal.periodType,
       periodValue: mainGoal.periodValue,
-      childrenCount: mainGoal.children?.length || 0,
-      children: mainGoal.children?.map((c: any) => ({
-        title: c.title,
-        periodType: c.periodType,
-        periodValue: c.periodValue
-      }))
+      childrenCount: mainGoal.children?.length || 0
     } : null
   })
 
@@ -1213,28 +1160,7 @@ function getMainGoalForFolder(folderId: string, currentView: string): any {
     }
   }
 
-  // 周视图特殊处理：如果没有周目标，但该文件夹有日目标，创建一个虚拟周目标
-  if (currentView === 'week' && !mainGoal) {
-    // 查找本周内的所有日目标
-    const weekDates = weekDays.value.map((d: any) => d.date)
-    const dayGoals = folderRootGoals.filter((g: any) =>
-      g.periodType === 'DAY' && weekDates.includes(g.periodValue)
-    )
-
-    if (dayGoals.length > 0) {
-      mainGoal = {
-        id: `virtual-week-${folderId}`,
-        title: '',
-        periodType: 'WEEK',
-        periodValue: currentWeekValue.value,
-        folderId,
-        children: dayGoals,
-        isVirtual: true
-      }
-      console.log('🔍 [getMainGoalForFolder] 创建虚拟周目标，包含', dayGoals.length, '个日目标')
-    }
-  }
-
+  // 周视图和月视图：如果没有主目标，返回null（让子目标显示在"-"行中）
   return mainGoal || null
 }
 
