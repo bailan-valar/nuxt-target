@@ -37,6 +37,34 @@
       </div>
 
       <div class="toolbar-right">
+        <button class="btn-secondary" @click="expandAllFolders" title="展开所有">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+          展开
+        </button>
+        <button class="btn-secondary" @click="collapseAllFolders" title="折叠所有">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="9 6 15 12 9 18"></polyline>
+          </svg>
+          折叠
+        </button>
         <button class="btn-secondary" @click="refreshFolders">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -61,11 +89,13 @@
       <!-- 列表视图 -->
       <div class="list-view">
         <FolderList
+          ref="folderListRef"
           :folders="foldersList"
           @edit="handleEditFromList"
           @add-subfolder="handleAddSubfolderFromList"
           @delete="handleDeleteFromList"
           @move="handleMoveFromList"
+          @reorder="handleReorder"
         />
       </div>
     </div>
@@ -107,6 +137,7 @@ const parentFolderId = ref<string | null>(null)
 const parentFolderName = ref<string>('')
 const showModal = ref(false)
 const showMoveModal = ref(false)
+const folderListRef = ref<InstanceType<typeof FolderList>>()
 
 // 获取文件夹列表（用于列表视图）
 const { data: foldersData, refresh: refreshFolders } = await useFetch('/api/folders', {
@@ -166,6 +197,10 @@ const handleDeleteFolder = async () => {
     success('文件夹已删除')
 
     refreshFolders()
+    // 清空折叠状态
+    nextTick(() => {
+      folderListRef.value?.clearCollapseState()
+    })
   } catch (e: any) {
     const { error: showError } = useToast()
     showError(e.data?.message || '删除失败')
@@ -179,12 +214,20 @@ const handleFolderSaved = () => {
   parentFolderId.value = null
   parentFolderName.value = ''
   refreshFolders()
+  // 清空折叠状态
+  nextTick(() => {
+    folderListRef.value?.clearCollapseState()
+  })
 }
 
 // 文件夹移动成功
 const handleFolderMoved = () => {
   showMoveModal.value = false
   refreshFolders()
+  // 清空折叠状态
+  nextTick(() => {
+    folderListRef.value?.clearCollapseState()
+  })
 }
 
 // 关闭模态框
@@ -219,8 +262,43 @@ const handleDeleteFromList = (folder: Folder) => {
 
 // 从列表视图移动
 const handleMoveFromList = (folder: Folder) => {
+  console.log('[Folders Page] handleMoveFromList called:', {
+    folderId: folder.id,
+    folderName: folder.name,
+    timestamp: new Date().toISOString()
+  })
   selectedFolder.value = folder
   handleMoveFolder()
+}
+
+// 处理拖拽排序
+const handleReorder = async (items: Array<{ id: string; sortOrder: number }>) => {
+  try {
+    await $fetch('/api/folders/reorder', {
+      method: 'POST',
+      body: { items }
+    })
+
+    const { success } = useToast()
+    success('排序已更新')
+
+    refreshFolders()
+  } catch (e: any) {
+    const { error: showError } = useToast()
+    showError(e.data?.message || '排序更新失败')
+    // 刷新以恢复原始顺序
+    refreshFolders()
+  }
+}
+
+// 展开所有文件夹
+const expandAllFolders = () => {
+  folderListRef.value?.expandAll()
+}
+
+// 折叠所有文件夹
+const collapseAllFolders = () => {
+  folderListRef.value?.collapseAll()
 }
 </script>
 
