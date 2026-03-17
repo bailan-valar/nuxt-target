@@ -25,6 +25,7 @@ enum PeriodType {
   YEAR
   MONTH
   WEEK
+  TASK
 }
 
 enum FolderType {
@@ -32,6 +33,14 @@ enum FolderType {
   GROUP
   PROJECT
   SUBPROJECT
+}
+
+enum GoalStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  PENDING_VERIFICATION
+  COMPLETED
+  ABANDONED
 }
 
 model Folder {
@@ -64,11 +73,14 @@ model Goal {
   folderId    String?     @map("folder_id")
   title       String
   description String?
-  status      String      @default("active")
-  periodType  PeriodType? @map("period_type")
-  periodValue String?     @map("period_value")
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt @map("updated_at")
+  status      GoalStatus  @default(NOT_STARTED)
+  periodType    PeriodType? @map("period_type")
+  periodValue   String?     @map("period_value")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+  plannedStart  DateTime?   @map("planned_start")
+  plannedEnd    DateTime?   @map("planned_end")
+  nextExecution DateTime?   @map("next_execution")
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   folder      Folder?     @relation(fields: [folderId], references: [id], onDelete: SetNull)
   parent      Goal?       @relation("GoalHierarchy", fields: [parentId], references: [id], onDelete: Restrict)

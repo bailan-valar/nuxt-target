@@ -26,7 +26,7 @@ export const colorSchema = z
   })
 
 /**
- * 基础Folder验证 Schema
+ * 基础Folder验证 Schema (不包含颜色验证，用于partial)
  */
 export const folderBaseSchema = z.object({
   name: z
@@ -46,7 +46,12 @@ export const folderBaseSchema = z.object({
     .transform((val) => val === '' ? null : val)
     .nullable()
     .optional(),
-  color: colorSchema,
+  color: z
+    .string()
+    .max(50, '颜色值不能超过50个字符')
+    .transform((val) => val === '' ? null : val)
+    .nullable()
+    .optional(),
   sortOrder: z.number().int().min(0).optional()
 })
 
@@ -58,9 +63,11 @@ export const parentFolderSchema = z.object({
 })
 
 /**
- * 创建Folder验证 Schema
+ * 创建Folder验证 Schema (带颜色格式验证)
  */
-export const createFolderSchema = folderBaseSchema.and(parentFolderSchema)
+export const createFolderSchema = folderBaseSchema
+  .and(z.object({ color: colorSchema }))
+  .and(parentFolderSchema)
 
 /**
  * 更新Folder验证 Schema

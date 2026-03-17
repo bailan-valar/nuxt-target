@@ -2,7 +2,7 @@
  * 客户端周期工具函数
  */
 
-export type PeriodType = 'YEAR' | 'MONTH' | 'WEEK'
+export type PeriodType = 'YEAR' | 'MONTH' | 'WEEK' | 'TASK'
 
 /**
  * 获取周期值的显示文本
@@ -18,6 +18,10 @@ export function getPeriodLabel(periodType: PeriodType, periodValue: string): str
     case 'WEEK': {
       const [weekYear, week] = periodValue.split('-W')
       return `${weekYear}年第${week}周`
+    }
+    case 'TASK': {
+      const [year, month, day] = periodValue.split('-')
+      return `${year}年${month}月${day}日`
     }
     default:
       return periodValue
@@ -50,6 +54,13 @@ export function getCurrentPeriodValue(periodType: PeriodType): string {
       return `${year}-W${week}`
     }
 
+    case 'TASK': {
+      const year = now.getFullYear()
+      const month = String(now.getMonth() + 1).padStart(2, '0')
+      const day = String(now.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    }
+
     default:
       throw new Error('无效的周期类型')
   }
@@ -68,6 +79,8 @@ export function validatePeriodValue(periodType: PeriodType, periodValue: string)
       return /^\d{4}-\d{2}$/.test(periodValue)
     case 'WEEK':
       return /^\d{4}-W\d{2}$/.test(periodValue)
+    case 'TASK':
+      return /^\d{4}-\d{2}-\d{2}$/.test(periodValue)
     default:
       return false
   }

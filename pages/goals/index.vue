@@ -2,9 +2,92 @@
   <div class="space-y-6">
     <!-- 页面头部 -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900">我的目标</h1>
-        <p class="text-sm text-gray-600 mt-1">管理和追踪您的目标进度</p>
+      <!-- 日期选择器 -->
+      <div class="flex-1">
+        <div class="flex flex-wrap items-center gap-4">
+          <!-- 年视图：年份选择 -->
+          <div v-if="view === 'year'" class="flex items-center gap-2">
+            <button
+              @click="year--"
+              class="p-1 hover:bg-gray-100 rounded transition-colors"
+              title="上一年"
+            >
+              <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <span class="text-lg font-semibold text-gray-900 min-w-[80px] text-center">{{ year }}年</span>
+            <button
+              @click="year++"
+              class="p-1 hover:bg-gray-100 rounded transition-colors"
+              title="下一年"
+            >
+              <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- 月视图：年月选择 -->
+          <div v-else-if="view === 'month'" class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
+              <button
+                @click="prevMonth"
+                class="p-1 hover:bg-gray-100 rounded transition-colors"
+                title="上一月"
+              >
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <span class="text-lg font-semibold text-gray-900 min-w-[120px] text-center">{{ year }}年 {{ month }}月</span>
+              <button
+                @click="nextMonth"
+                class="p-1 hover:bg-gray-100 rounded transition-colors"
+                title="下一月"
+              >
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- 周视图：年月周选择 -->
+          <div v-else-if="view === 'week'" class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
+              <button
+                @click="prevWeek"
+                class="p-1 hover:bg-gray-100 rounded transition-colors"
+                title="上一周"
+              >
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <span class="text-lg font-semibold text-gray-900 min-w-[200px] text-center">{{ weekRangeText }}</span>
+              <button
+                @click="nextWeek"
+                class="p-1 hover:bg-gray-100 rounded transition-colors"
+                title="下一周"
+              >
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="flex-1"></div>
+
+          <!-- 快捷按钮 -->
+          <button
+            @click="goToToday"
+            class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+          >
+            今天
+          </button>
+        </div>
       </div>
 
       <div class="flex items-center gap-3">
@@ -52,96 +135,31 @@
       </div>
     </div>
 
-    <!-- 日期选择器 -->
+    <!-- 筛选区域 -->
     <div class="bg-white rounded-lg shadow border border-gray-200 p-4">
       <div class="flex flex-wrap items-center gap-4">
-        <!-- 年视图：年份选择 -->
-        <div v-if="view === 'year'" class="flex items-center gap-2">
-          <button
-            @click="year--"
-            class="p-1 hover:bg-gray-100 rounded transition-colors"
-            title="上一年"
-          >
-            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <span class="text-lg font-semibold text-gray-900 min-w-[80px] text-center">{{ year }}年</span>
-          <button
-            @click="year++"
-            class="p-1 hover:bg-gray-100 rounded transition-colors"
-            title="下一年"
-          >
-            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+        <!-- 文件夹筛选 -->
+        <div class="flex-1 min-w-[300px]">
+          <FolderTreeMultiSelect
+            v-model="selectedFolderIds"
+            label="按文件夹筛选"
+          />
         </div>
 
-        <!-- 月视图：年月选择 -->
-        <div v-else-if="view === 'month'" class="flex items-center gap-3">
-          <div class="flex items-center gap-2">
-            <button
-              @click="prevMonth"
-              class="p-1 hover:bg-gray-100 rounded transition-colors"
-              title="上一月"
-            >
-              <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <span class="text-lg font-semibold text-gray-900 min-w-[120px] text-center">{{ year }}年 {{ month }}月</span>
-            <button
-              @click="nextMonth"
-              class="p-1 hover:bg-gray-100 rounded transition-colors"
-              title="下一月"
-            >
-              <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- 周视图：年月周选择 -->
-        <div v-else-if="view === 'week'" class="flex items-center gap-3">
-          <div class="flex items-center gap-2">
-            <button
-              @click="prevWeek"
-              class="p-1 hover:bg-gray-100 rounded transition-colors"
-              title="上一周"
-            >
-              <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <span class="text-lg font-semibold text-gray-900 min-w-[200px] text-center">{{ weekRangeText }}</span>
-            <button
-              @click="nextWeek"
-              class="p-1 hover:bg-gray-100 rounded transition-colors"
-              title="下一周"
-            >
-              <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <div class="flex-1"></div>
-
-        <!-- 快捷按钮 -->
+        <!-- 清除筛选按钮 -->
         <button
-          @click="goToToday"
-          class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+          v-if="hasActiveFilters"
+          @click="clearFilters"
+          class="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
         >
-          今天
+          清除筛选
         </button>
       </div>
     </div>
 
     <GoalModal
       :show="showModal"
+      :goal="selectedGoal"
       :defaults="goalModalDefaults"
       @close="handleCloseGoalModal"
       @saved="handleSaved"
@@ -179,14 +197,14 @@
               <!-- 年视图：年目标 + 12个月 -->
               <template v-if="view === 'year'">
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">年目标</th>
-                <th v-for="m in 12" :key="m" class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[60px]">{{ m }}月</th>
+                <th v-for="m in 12" :key="m" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[60px]">{{ m }}月</th>
               </template>
 
               <!-- 月视图：月目标 + 4-5周 -->
               <template v-else-if="view === 'month'">
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">月目标</th>
-                <th v-for="week in monthWeeks" :key="week.index" class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[80px]">
-                  <div class="flex flex-col items-center gap-1">
+                <th v-for="week in monthWeeks" :key="week.index" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[80px]">
+                  <div class="flex flex-col items-start gap-1">
                     <span>第{{ week.index }}周</span>
                     <span class="text-xs text-gray-400">{{ week.range }}</span>
                   </div>
@@ -196,8 +214,8 @@
               <!-- 周视图：周目标 + 7天 -->
               <template v-else-if="view === 'week'">
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周目标</th>
-                <th v-for="day in weekDays" :key="day.date" class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[70px]">
-                  <div class="flex flex-col items-center gap-1">
+                <th v-for="day in weekDays" :key="day.date" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[70px]">
+                  <div class="flex flex-col items-start gap-1">
                     <span :class="{ 'text-blue-600 font-semibold': isToday(day.date) }">{{ day.weekday }}</span>
                     <span :class="{ 'text-blue-600 font-semibold': isToday(day.date) }" class="text-xs">{{ day.day }}</span>
                   </div>
@@ -328,16 +346,17 @@
                 <template v-if="view === 'year'">
                   <!-- 年目标列 -->
                   <td class="px-4 py-3 text-sm">
-                    <GoalCell :goal="row.mainGoal" :period-type="'YEAR'" :period-value="String(year)" @add="openAddGoal('YEAR', String(year), row)" />
+                    <GoalCell :goal="row.mainGoal" :period-type="'YEAR'" :period-value="String(year)" @add="openAddGoal('YEAR', String(year), row)" @edit="openEditGoal" />
                   </td>
                   <!-- 12个月份列 -->
-                  <td v-for="m in 12" :key="m" class="px-2 py-2 text-sm">
+                  <td v-for="m in 12" :key="m" class="px-3 py-3 text-sm text-left">
                     <GoalCell
                       :goal="getChildGoal(row.mainGoal, 'MONTH', `${year}-${String(m).padStart(2, '0')}`)"
                       :period-type="'MONTH'"
                       :period-value="`${year}-${String(m).padStart(2, '0')}`"
                       :compact="true"
                       @add="openAddGoal('MONTH', `${year}-${String(m).padStart(2, '0')}`, row)"
+                      @edit="openEditGoal"
                     />
                   </td>
                 </template>
@@ -345,16 +364,17 @@
                 <template v-else-if="view === 'month'">
                   <!-- 月目标列 -->
                   <td class="px-4 py-3 text-sm">
-                    <GoalCell :goal="row.mainGoal" :period-type="'MONTH'" :period-value="`${year}-${String(month).padStart(2, '0')}`" @add="openAddGoal('MONTH', `${year}-${String(month).padStart(2, '0')}`, row)" />
+                    <GoalCell :goal="row.mainGoal" :period-type="'MONTH'" :period-value="`${year}-${String(month).padStart(2, '0')}`" @add="openAddGoal('MONTH', `${year}-${String(month).padStart(2, '0')}`, row)" @edit="openEditGoal" />
                   </td>
                   <!-- 4-5周列 -->
-                  <td v-for="week in monthWeeks" :key="week.index" class="px-2 py-2 text-sm">
+                  <td v-for="week in monthWeeks" :key="week.index" class="px-3 py-3 text-sm text-left">
                     <GoalCell
                       :goal="getChildGoal(row.mainGoal, 'WEEK', week.value)"
                       :period-type="'WEEK'"
                       :period-value="week.value"
                       :compact="true"
                       @add="openAddGoal('WEEK', week.value, row)"
+                      @edit="openEditGoal"
                     />
                   </td>
                 </template>
@@ -362,16 +382,17 @@
                 <template v-else-if="view === 'week'">
                   <!-- 周目标列 -->
                   <td class="px-4 py-3 text-sm">
-                    <GoalCell :goal="row.mainGoal" :period-type="'WEEK'" :period-value="currentWeekValue" @add="openAddGoal('WEEK', currentWeekValue, row)" />
+                    <GoalCell :goal="row.mainGoal" :period-type="'WEEK'" :period-value="currentWeekValue" @add="openAddGoal('WEEK', currentWeekValue, row)" @edit="openEditGoal" />
                   </td>
                   <!-- 7天列 -->
-                  <td v-for="day in weekDays" :key="day.date" class="px-2 py-2 text-sm">
+                  <td v-for="day in weekDays" :key="day.date" class="px-3 py-3 text-sm text-left">
                     <GoalCell
                       :goal="getChildGoal(row.mainGoal, 'DAY', day.date)"
                       :period-type="'DAY'"
                       :period-value="day.date"
                       :compact="true"
                       @add="openAddGoal('DAY', day.date, row)"
+                      @edit="openEditGoal"
                     />
                   </td>
                 </template>
@@ -428,7 +449,7 @@ const GoalCell = defineComponent({
     periodValue: { type: String as PropType<string>, required: true },
     compact: { type: Boolean, default: false }
   },
-  emits: ['add'],
+  emits: ['add', 'edit'],
   setup(props, { emit }) {
     const hasChildGoals = computed(() => {
       return props.goal?.children && props.goal.children.length > 0
@@ -441,9 +462,13 @@ const GoalCell = defineComponent({
       )
     })
 
+    const handleGoalClick = (goal: any) => {
+      emit('edit', goal)
+    }
+
     return () => h('div', { class: 'goal-cell-container' }, [
       // 显示当前层级目标
-      props.goal ? h('div', { class: 'goal-item' }, [
+      props.goal ? h('div', { class: 'goal-item cursor-pointer hover:bg-gray-50 rounded px-2 py-1 transition-colors', onClick: () => handleGoalClick(props.goal) }, [
         h('div', { class: 'flex items-center gap-2' }, [
           h('span', { class: 'goal-title' }, props.goal.title),
           hasChildGoals.value ? h('span', { class: 'goal-badge' }, `${props.goal.children.length}`) : null
@@ -468,7 +493,7 @@ const GoalCell = defineComponent({
       // 显示子目标
       !props.compact && childGoalsForPeriod.value.length > 0 ? h('div', { class: 'child-goals mt-2' },
         childGoalsForPeriod.value.map((child: any) =>
-          h('div', { class: 'child-goal-item text-xs' }, [
+          h('div', { class: 'child-goal-item text-xs cursor-pointer hover:text-gray-900 transition-colors', onClick: () => handleGoalClick(child) }, [
             h('span', { class: 'text-gray-600' }, child.title)
           ])
         )
@@ -481,12 +506,23 @@ const { signOut } = useAuth()
 const view = ref<'year' | 'month' | 'week'>('year')
 const showModal = ref(false)
 
+// 筛选状态
+const selectedFolderIds = ref<string[]>([])
+
+// 是否有活动筛选
+const hasActiveFilters = computed(() => {
+  return selectedFolderIds.value.length > 0
+})
+
 // 目标模态框默认值
 const goalModalDefaults = ref<{
   folderId: string | null
   periodType: string
   periodValue: string
 } | null>(null)
+
+// 当前编辑的目标
+const selectedGoal = ref<any>(null)
 
 // 日期状态
 const today = new Date()
@@ -495,10 +531,71 @@ const month = ref(today.getMonth() + 1)
 const weekStart = ref(getWeekStart(today))
 
 const { data, pending, error, refresh } = await useFetch('/api/goals')
-const goals = computed(() => data.value?.data || [])
+
+// 构建goals父子关系树
+const goalsWithTree = computed(() => {
+  const flatGoals = data.value?.data || []
+
+  // 调试信息：输出原始数据
+  console.log('🔍 [调试] 原始goals数据:', flatGoals.length, '条')
+  console.log('🔍 [调试] 周视图当前周期值:', currentWeekValue.value)
+  console.log('🔍 [调试] 周7天日期:', weekDays.value.map(d => d.date))
+
+  // 按文件夹分组统计
+  const folderStats = new Map<string, { total: number; byType: Record<string, number> }>()
+  flatGoals.forEach((g: any) => {
+    if (!folderStats.has(g.folderId)) {
+      folderStats.set(g.folderId, { total: 0, byType: {} })
+    }
+    const stat = folderStats.get(g.folderId)!
+    stat.total++
+    stat.byType[g.periodType] = (stat.byType[g.periodType] || 0) + 1
+  })
+
+  console.log('🔍 [调试] 按文件夹统计:', Array.from(folderStats.entries()).map(([id, stat]) => ({
+    folderId: id.substring(0, 8),
+    total: stat.total,
+    byType: stat.byType
+  })))
+
+  // 构建父子关系映射
+  const goalsMap = new Map<string, any>()
+  const rootGoals: any[] = []
+
+  // 第一遍：创建映射
+  flatGoals.forEach((goal: any) => {
+    goalsMap.set(goal.id, { ...goal, children: [] })
+  })
+
+  // 第二遍：构建父子关系
+  flatGoals.forEach((goal: any) => {
+    const goalWithChildren = goalsMap.get(goal.id)
+    if (!goalWithChildren) return
+
+    if (goal.parentId) {
+      const parent = goalsMap.get(goal.parentId)
+      if (parent) {
+        parent.children.push(goalWithChildren)
+      } else {
+        // parentId存在但找不到父目标，作为根目标处理
+        console.warn(`⚠️ 目标 ${goal.id} 的父目标 ${goal.parentId} 不存在，作为根目标处理`)
+        rootGoals.push(goalWithChildren)
+      }
+    } else {
+      // 没有parentId，是根目标
+      rootGoals.push(goalWithChildren)
+    }
+  })
+
+  console.log('🔍 [调试] 构建后根目标数量:', rootGoals.length)
+
+  return rootGoals
+})
+
+const goals = computed(() => goalsWithTree.value)
 
 // 获取文件夹数据
-const { data: foldersData } = await useFetch('/api/folders', {
+const { data: foldersData, refresh: refreshFolders } = await useFetch('/api/folders', {
   query: {
     expandAll: true,
     includeGoals: false
@@ -605,25 +702,166 @@ const typedTableData = computed<TypedRow[]>(() => {
   const result: TypedRow[] = []
   const scenes = folders.value.filter(f => f.type === 'SCENE')
 
-  if (scenes.length === 0) {
-    result.push({
-      scene: null,
-      group: null,
-      project: null,
-      subproject: null,
-      mainGoal: null,
-      rowspans: { scene: 1, group: null, project: null, subproject: null }
-    })
+  // 如果有筛选，只处理选中的文件夹
+  if (selectedFolderIds.value.length > 0) {
+    // 获取所有选中的文件夹及其子孙文件夹
+    const selectedFoldersSet = new Set<string>()
+
+    const collectDescendantIds = (folderId: string) => {
+      selectedFoldersSet.add(folderId)
+      const folder = findFolderById(folders.value, folderId)
+      if (folder?.children) {
+        for (const child of folder.children) {
+          collectDescendantIds(child.id)
+        }
+      }
+    }
+
+    for (const folderId of selectedFolderIds.value) {
+      collectDescendantIds(folderId)
+    }
+
+    // 过滤掉已经被父文件夹包含的子文件夹，避免重复
+    const getTopLevelFolders = (): string[] => {
+      const topLevelIds: string[] = []
+      const visitedIds = new Set<string>()
+
+      // 检查一个文件夹是否有被选中的祖先
+      const hasSelectedAncestor = (folderId: string): boolean => {
+        const folder = findFolderById(folders.value, folderId)
+        if (!folder || !folder.parentId) return false
+
+        // 检查父文件夹是否在选中列表中
+        if (selectedFolderIds.value.includes(folder.parentId)) {
+          return true
+        }
+
+        // 递归检查更上层的祖先
+        return hasSelectedAncestor(folder.parentId)
+      }
+
+      for (const folderId of selectedFolderIds.value) {
+        // 只保留没有被选中祖先包含的文件夹
+        if (!hasSelectedAncestor(folderId)) {
+          topLevelIds.push(folderId)
+        }
+      }
+
+      return topLevelIds
+    }
+
+    const topLevelFolderIds = getTopLevelFolders()
+
+    // 根据选中的文件夹类型生成行
+    for (const folderId of topLevelFolderIds) {
+      const folder = findFolderById(folders.value, folderId)
+      if (!folder) continue
+
+      if (folder.type === 'SCENE') {
+        const sceneRows = generateTypedRows(folder)
+        result.push(...sceneRows)
+      } else if (folder.type === 'GROUP') {
+        // 找到父场景
+        const parentScene = findParentScene(folder.id)
+        if (parentScene) {
+          const groupRows = generateGroupRows(folder, parentScene)
+          result.push(...groupRows)
+        }
+      } else if (folder.type === 'PROJECT') {
+        // 找到父场景和分组
+        const parentInfo = findParentInfo(folder.id)
+        if (parentInfo) {
+          const projectRows = generateProjectRows(folder, parentInfo.scene, parentInfo.group)
+          result.push(...projectRows)
+        }
+      } else if (folder.type === 'SUBPROJECT') {
+        // 找到父场景、分组和项目
+        const parentInfo = findParentInfo(folder.id)
+        if (parentInfo && parentInfo.project) {
+          const mainGoal = getMainGoalForFolder(folder.id, view.value)
+          result.push({
+            scene: parentInfo.scene,
+            group: parentInfo.group,
+            project: parentInfo.project,
+            subproject: folder,
+            mainGoal,
+            rowspans: { scene: null, group: null, project: null, subproject: 1 }
+          })
+        }
+      }
+    }
   } else {
-    for (const scene of scenes) {
-      const sceneRows = generateTypedRows(scene)
-      result.push(...sceneRows)
+    // 没有筛选，显示所有场景
+    if (scenes.length === 0) {
+      result.push({
+        scene: null,
+        group: null,
+        project: null,
+        subproject: null,
+        mainGoal: null,
+        rowspans: { scene: 1, group: null, project: null, subproject: null }
+      })
+    } else {
+      for (const scene of scenes) {
+        const sceneRows = generateTypedRows(scene)
+        result.push(...sceneRows)
+      }
     }
   }
 
   calculateRowspans(result)
   return result
 })
+
+// 查找父场景
+function findParentScene(folderId: string): any {
+  const folder = findFolderById(folders.value, folderId)
+  if (!folder) return null
+
+  if (folder.type === 'SCENE') return folder
+  if (folder.parentId) return findParentScene(folder.parentId)
+  return null
+}
+
+// 查找父信息（场景、分组、项目）
+function findParentInfo(folderId: string): { scene?: any; group?: any; project?: any } | null {
+  const folder = findFolderById(folders.value, folderId)
+  if (!folder) return null
+
+  if (folder.type === 'PROJECT') {
+    const scene = findParentScene(folderId)
+    let group = null
+    if (folder.parentId) {
+      const parent = findFolderById(folders.value, folder.parentId)
+      if (parent?.type === 'GROUP') group = parent
+    }
+    return { scene, group, project: folder }
+  }
+
+  if (folder.type === 'SUBPROJECT') {
+    const scene = findParentScene(folderId)
+    let group = null
+    let project = null
+
+    if (folder.parentId) {
+      const parent = findFolderById(folders.value, folder.parentId)
+      if (parent?.type === 'PROJECT') {
+        project = parent
+        // 查找项目的父分组
+        if (project.parentId) {
+          const projectParent = findFolderById(folders.value, project.parentId)
+          if (projectParent?.type === 'GROUP') group = projectParent
+        }
+      } else if (parent?.type === 'GROUP') {
+        group = parent
+      }
+    }
+
+    return { scene, group, project }
+  }
+
+  return null
+}
 
 // 辅助函数
 function getWeekStart(date: Date): Date {
@@ -701,12 +939,100 @@ function goToToday() {
   weekStart.value = getWeekStart(today)
 }
 
+// 清除筛选
+function clearFilters() {
+  selectedFolderIds.value = []
+}
+
+// 检查文件夹是否在筛选范围内（包括其子文件夹）
+function isFolderInFilter(folderId: string): boolean {
+  if (selectedFolderIds.value.length === 0) return true
+
+  // 检查是否直接选中
+  if (selectedFolderIds.value.includes(folderId)) return true
+
+  // 检查是否是选中文件夹的子孙文件夹
+  const checkAncestors = (folders: any[], targetId: string): boolean => {
+    for (const folder of folders) {
+      if (folder.id === targetId) {
+        // 找到了，现在检查这个文件夹或其祖先是否被选中
+        if (selectedFolderIds.value.includes(folder.id)) return true
+
+        // 检查父文件夹
+        if (folder.parentId) {
+          // 递归向上查找
+          const parent = findFolderById(folders, folder.parentId)
+          if (parent && checkAncestors([parent], folder.parentId)) {
+            return true
+          }
+        }
+      }
+      if (folder.children) {
+        if (checkAncestors(folder.children, targetId)) return true
+      }
+    }
+    return false
+  }
+
+  // 检查文件夹的所有祖先，看是否有被选中的
+  const folder = findFolderById(folders.value, folderId)
+  if (!folder) return false
+
+  // 检查该文件夹的祖先路径
+  let currentId: string | null = folder.parentId
+  while (currentId) {
+    if (selectedFolderIds.value.includes(currentId)) return true
+    const parent = findFolderById(folders.value, currentId)
+    currentId = parent?.parentId || null
+  }
+
+  return false
+}
+
+// 根据ID查找文件夹
+function findFolderById(folders: any[], id: string): any {
+  for (const folder of folders) {
+    if (folder.id === id) return folder
+    if (folder.children) {
+      const found = findFolderById(folder.children, id)
+      if (found) return found
+    }
+  }
+  return null
+}
+
 // 获取子目标
 function getChildGoal(parentGoal: any, periodType: string, periodValue: string): any {
-  if (!parentGoal?.children) return null
-  return parentGoal.children.find((g: any) =>
+  if (!parentGoal?.children) {
+    console.log('🔍 [getChildGoal] parentGoal无children:', {
+      hasParent: !!parentGoal,
+      parentTitle: parentGoal?.title,
+      periodType,
+      periodValue
+    })
+    return null
+  }
+
+  const found = parentGoal.children.find((g: any) =>
     g.periodType === periodType && g.periodValue === periodValue
-  ) || null
+  )
+
+  console.log('🔍 [getChildGoal] 查找结果:', {
+    parentTitle: parentGoal?.title,
+    parentPeriodType: parentGoal?.periodType,
+    parentPeriodValue: parentGoal?.periodValue,
+    searchingFor: { periodType, periodValue },
+    childrenCount: parentGoal.children.length,
+    children: parentGoal.children.map((c: any) => ({
+      title: c.title,
+      periodType: c.periodType,
+      periodValue: c.periodValue
+    })),
+    found: !!found,
+    foundTitle: found?.title
+  })
+
+  return found || null
 }
 
 // 获取当前行的最小子节点文件夹ID
@@ -727,6 +1053,12 @@ function openAddGoal(periodType: string, periodValue: string, row?: TypedRow) {
     periodType,
     periodValue
   }
+  showModal.value = true
+}
+
+// 打开编辑目标模态框
+function openEditGoal(goal: any) {
+  selectedGoal.value = goal
   showModal.value = true
 }
 
@@ -826,14 +1158,46 @@ function getMainGoalForFolder(folderId: string, currentView: string): any {
     targetType = 'WEEK'
   }
 
-  const folderGoals = goals.value.filter((g: any) => g.folderId === folderId)
+  // goals.value 现在是根目标数组
+  const folderRootGoals = goals.value.filter((g: any) => g.folderId === folderId)
 
-  // 查找对应视图类型的主目标（无父目标的）
-  let mainGoal = folderGoals.find((g: any) => g.periodType === targetType && !g.parentId)
+  console.log('🔍 [getMainGoalForFolder] 开始查找:', {
+    folderId: folderId.substring(0, 8),
+    currentView,
+    targetType,
+    folderRootGoalsCount: folderRootGoals.length,
+    folderRootGoals: folderRootGoals.map((g: any) => ({
+      id: g.id.substring(0, 8),
+      title: g.title,
+      periodType: g.periodType,
+      periodValue: g.periodValue,
+      hasParent: !!g.parentId,
+      childrenCount: g.children?.length || 0
+    }))
+  })
+
+  // 查找对应视图类型的主目标（无父目标的根目标）
+  let mainGoal = folderRootGoals.find((g: any) => g.periodType === targetType)
+
+  console.log('🔍 [getMainGoalForFolder] 查找结果:', {
+    found: !!mainGoal,
+    mainGoal: mainGoal ? {
+      id: mainGoal.id.substring(0, 8),
+      title: mainGoal.title,
+      periodType: mainGoal.periodType,
+      periodValue: mainGoal.periodValue,
+      childrenCount: mainGoal.children?.length || 0,
+      children: mainGoal.children?.map((c: any) => ({
+        title: c.title,
+        periodType: c.periodType,
+        periodValue: c.periodValue
+      }))
+    } : null
+  })
 
   // 年视图特殊处理：如果没有年目标，但该文件夹有月度目标，创建一个虚拟的年目标来承载这些月度目标
   if (currentView === 'year' && !mainGoal) {
-    const monthGoals = folderGoals.filter((g: any) => g.periodType === 'MONTH' && !g.parentId)
+    const monthGoals = folderRootGoals.filter((g: any) => g.periodType === 'MONTH')
     if (monthGoals.length > 0) {
       // 创建一个虚拟年目标，包含这些月度目标作为子目标
       mainGoal = {
@@ -845,6 +1209,29 @@ function getMainGoalForFolder(folderId: string, currentView: string): any {
         children: monthGoals,
         isVirtual: true
       }
+      console.log('🔍 [getMainGoalForFolder] 创建虚拟年目标')
+    }
+  }
+
+  // 周视图特殊处理：如果没有周目标，但该文件夹有日目标，创建一个虚拟周目标
+  if (currentView === 'week' && !mainGoal) {
+    // 查找本周内的所有日目标
+    const weekDates = weekDays.value.map((d: any) => d.date)
+    const dayGoals = folderRootGoals.filter((g: any) =>
+      g.periodType === 'DAY' && weekDates.includes(g.periodValue)
+    )
+
+    if (dayGoals.length > 0) {
+      mainGoal = {
+        id: `virtual-week-${folderId}`,
+        title: '',
+        periodType: 'WEEK',
+        periodValue: currentWeekValue.value,
+        folderId,
+        children: dayGoals,
+        isVirtual: true
+      }
+      console.log('🔍 [getMainGoalForFolder] 创建虚拟周目标，包含', dayGoals.length, '个日目标')
     }
   }
 
@@ -982,13 +1369,15 @@ const handleFolderSaved = () => {
   selectedFolder.value = undefined
   parentFolderId.value = null
   parentFolderName.value = ''
-  refresh()
+  refreshFolders() // 刷新文件夹数据
+  refresh() // 刷新目标数据
 }
 
 // 文件夹移动成功
 const handleFolderMoved = () => {
   showMoveModal.value = false
-  refresh()
+  refreshFolders() // 刷新文件夹数据
+  refresh() // 刷新目标数据
 }
 
 // 关闭模态框
@@ -1006,6 +1395,7 @@ const handleSaved = () => {
 const handleCloseGoalModal = () => {
   showModal.value = false
   goalModalDefaults.value = null
+  selectedGoal.value = null
 }
 
 const handleSignOut = async () => {

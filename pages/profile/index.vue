@@ -254,8 +254,8 @@ const loadStats = async () => {
 
     stats.value = {
       totalGoals: goals.length,
-      activeGoals: goals.filter((g: any) => g.status === 'active').length,
-      completedGoals: goals.filter((g: any) => g.status === 'completed').length,
+      activeGoals: goals.filter((g: any) => g.status === 'IN_PROGRESS').length,
+      completedGoals: goals.filter((g: any) => g.status === 'COMPLETED').length,
       totalFolders: folders.length
     }
   } catch (error) {

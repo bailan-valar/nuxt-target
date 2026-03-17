@@ -40,10 +40,14 @@ export default defineEventHandler(async (event) => {
     data: {
       title: data.title,
       description: data.description,
+      status: data.status || 'NOT_STARTED',
       periodType: data.periodType,
       periodValue: data.periodValue,
       parentId: data.parentId,
       folderId: data.folderId,
+      plannedStart: data.plannedStart ? new Date(data.plannedStart) : null,
+      plannedEnd: data.plannedEnd ? new Date(data.plannedEnd) : null,
+      nextExecution: data.nextExecution ? new Date(data.nextExecution) : null,
       userId
     }
   })

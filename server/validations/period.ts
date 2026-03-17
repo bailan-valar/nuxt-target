@@ -3,8 +3,8 @@ import { z } from 'zod'
 /**
  * 周期类型验证
  */
-export const periodTypeSchema = z.enum(['YEAR', 'MONTH', 'WEEK'], {
-  errorMap: () => ({ message: '周期类型必须是 YEAR、MONTH 或 WEEK' })
+export const periodTypeSchema = z.enum(['YEAR', 'MONTH', 'WEEK', 'TASK'], {
+  errorMap: () => ({ message: '周期类型必须是 YEAR、MONTH、WEEK 或 TASK' })
 })
 
 /**
@@ -12,11 +12,12 @@ export const periodTypeSchema = z.enum(['YEAR', 'MONTH', 'WEEK'], {
  * YEAR: 2025
  * MONTH: 2025-03
  * WEEK: 2025-W11
+ * TASK: 2025-03-17
  */
 export const periodValueSchema = z.string().regex(
-  /^\d{4}(-W\d{2})?(-\d{2})?$/,
+  /^\d{4}(-W\d{2})?(-\d{2})?(-\d{2})?$/,
   {
-    message: '周期值格式错误：年目标使用 YYYY（如2025），月目标使用 YYYY-MM（如2025-03），周目标使用 YYYY-Www（如2025-W11）'
+    message: '周期值格式错误：年目标使用 YYYY（如2025），月目标使用 YYYY-MM（如2025-03），周目标使用 YYYY-Www（如2025-W11），任务使用 YYYY-MM-DD（如2025-03-17）'
   }
 )
 
@@ -56,6 +57,9 @@ export const createPeriodSchema = z.object({
       case 'WEEK':
         // 周目标：YYYY-Www
         return /^\d{4}-W\d{2}$/.test(periodValue)
+      case 'TASK':
+        // 任务：YYYY-MM-DD
+        return /^\d{4}-\d{2}-\d{2}$/.test(periodValue)
       default:
         return false
     }
@@ -69,7 +73,7 @@ export const createPeriodSchema = z.object({
 /**
  * 验证周期值并返回格式化后的值
  */
-export function formatPeriodValue(periodType: 'YEAR' | 'MONTH' | 'WEEK', value: string): string {
+export function formatPeriodValue(periodType: 'YEAR' | 'MONTH' | 'WEEK' | 'TASK', value: string): string {
   const trimmed = value.trim()
 
   switch (periodType) {
@@ -91,6 +95,12 @@ export function formatPeriodValue(periodType: 'YEAR' | 'MONTH' | 'WEEK', value: 
       if (!weekMatch) throw new Error('无效的周格式，应为 YYYY-Www')
       return `${weekMatch[1]}-W${weekMatch[2]}`
 
+    case 'TASK':
+      // 确保是 YYYY-MM-DD 格式
+      const taskMatch = trimmed.match(/^(\d{4})-?(\d{2})-?(\d{2})$/)
+      if (!taskMatch) throw new Error('无效的任务日期格式，应为 YYYY-MM-DD')
+      return `${taskMatch[1]}-${taskMatch[2]}-${taskMatch[3]}`
+
     default:
       throw new Error('无效的周期类型')
   }
@@ -99,7 +109,7 @@ export function formatPeriodValue(periodType: 'YEAR' | 'MONTH' | 'WEEK', value: 
 /**
  * 获取周期值的显示文本
  */
-export function getPeriodLabel(periodType: 'YEAR' | 'MONTH' | 'WEEK', periodValue: string): string {
+export function getPeriodLabel(periodType: 'YEAR' | 'MONTH' | 'WEEK' | 'TASK', periodValue: string): string {
   switch (periodType) {
     case 'YEAR':
       return `${periodValue}年`
@@ -109,6 +119,8 @@ export function getPeriodLabel(periodType: 'YEAR' | 'MONTH' | 'WEEK', periodValu
     case 'WEEK':
       const [weekYear, week] = periodValue.split('-W')
       return `${weekYear}年第${week}周`
+    case 'TASK':
+      return periodValue // 直接返回日期格式 YYYY-MM-DD
     default:
       return periodValue
   }
@@ -117,7 +129,7 @@ export function getPeriodLabel(periodType: 'YEAR' | 'MONTH' | 'WEEK', periodValu
 /**
  * 获取当前周期的周期值
  */
-export function getCurrentPeriodValue(periodType: 'YEAR' | 'MONTH' | 'WEEK'): string {
+export function getCurrentPeriodValue(periodType: 'YEAR' | 'MONTH' | 'WEEK' | 'TASK'): string {
   const now = new Date()
 
   switch (periodType) {
@@ -138,6 +150,13 @@ export function getCurrentPeriodValue(periodType: 'YEAR' | 'MONTH' | 'WEEK'): st
       const weekNumber = Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7)
       const week = String(weekNumber).padStart(2, '0')
       return `${year}-W${week}`
+    }
+
+    case 'TASK': {
+      const year = now.getFullYear()
+      const month = String(now.getMonth() + 1).padStart(2, '0')
+      const day = String(now.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
     }
 
     default:

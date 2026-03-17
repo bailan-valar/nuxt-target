@@ -12,7 +12,8 @@
 export const PeriodType = {
   YEAR: 'YEAR',
   MONTH: 'MONTH',
-  WEEK: 'WEEK'
+  WEEK: 'WEEK',
+  TASK: 'TASK'
 } as const
 
 export type PeriodType = (typeof PeriodType)[keyof typeof PeriodType]
@@ -26,3 +27,14 @@ export const FolderType = {
 } as const
 
 export type FolderType = (typeof FolderType)[keyof typeof FolderType]
+
+
+export const GoalStatus = {
+  NOT_STARTED: 'NOT_STARTED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  PENDING_VERIFICATION: 'PENDING_VERIFICATION',
+  COMPLETED: 'COMPLETED',
+  ABANDONED: 'ABANDONED'
+} as const
+
+export type GoalStatus = (typeof GoalStatus)[keyof typeof GoalStatus]

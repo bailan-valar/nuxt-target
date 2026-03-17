@@ -2,7 +2,7 @@
   <div class="goal-card">
     <div class="goal-header">
       <h3>{{ goal.title }}</h3>
-      <span class="status" :class="goal.status">{{ goal.status }}</span>
+      <span class="status" :class="goal.status">{{ statusText }}</span>
     </div>
     <p v-if="goal.description">{{ goal.description }}</p>
     <div class="actions">
@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import type { Goal } from '~/types'
 
-defineProps<{
+const props = defineProps<{
   goal: Goal
 }>()
 
@@ -23,6 +23,16 @@ defineEmits<{
   edit: [id: string]
   delete: [id: string]
 }>()
+
+const statusTextMap: Record<string, string> = {
+  NOT_STARTED: '待开始',
+  IN_PROGRESS: '进行中',
+  PENDING_VERIFICATION: '待验证',
+  COMPLETED: '已完成',
+  ABANDONED: '已放弃'
+}
+
+const statusText = computed(() => statusTextMap[props.goal.status] || props.goal.status)
 </script>
 
 <style scoped>
@@ -42,9 +52,11 @@ defineEmits<{
   border-radius: 4px;
   font-size: 0.875rem;
 }
-.status.active { background: #e3f2fd; color: #1976d2; }
-.status.completed { background: #e8f5e9; color: #388e3c; }
-.status.archived { background: #f5f5f5; color: #757575; }
+.status.NOT_STARTED { background: #e3f2fd; color: #1976d2; }
+.status.IN_PROGRESS { background: #fff3e0; color: #f57c00; }
+.status.PENDING_VERIFICATION { background: #f3e5f5; color: #7b1fa2; }
+.status.COMPLETED { background: #e8f5e9; color: #388e3c; }
+.status.ABANDONED { background: #ffebee; color: #c62828; }
 .actions {
   margin-top: 1rem;
   display: flex;

@@ -11,6 +11,7 @@
         <option value="YEAR">年目标</option>
         <option value="MONTH">月目标</option>
         <option value="WEEK">周目标</option>
+        <option value="TASK">任务</option>
       </select>
     </div>
 
@@ -51,6 +52,13 @@
           class="week-number"
         />
       </div>
+      <input
+        v-else-if="localPeriodType === 'TASK'"
+        id="period-value"
+        v-model="localPeriodValue"
+        type="date"
+        :placeholder="currentTaskValue"
+      />
       <button
         v-if="localPeriodType"
         type="button"
@@ -67,7 +75,7 @@
 <script setup lang="ts">
 import { getCurrentPeriodValue } from '~/lib/validations/period-utils'
 
-type PeriodType = 'YEAR' | 'MONTH' | 'WEEK' | ''
+type PeriodType = 'YEAR' | 'MONTH' | 'WEEK' | 'TASK' | ''
 
 const props = defineProps<{
   periodType?: PeriodType
@@ -102,6 +110,7 @@ const weekNumber = computed({
 // 当前周期的值
 const currentYearValue = computed(() => getCurrentPeriodValue('YEAR'))
 const currentMonthValue = computed(() => getCurrentPeriodValue('MONTH'))
+const currentTaskValue = computed(() => getCurrentPeriodValue('TASK'))
 
 // 周期标签
 const periodLabel = computed(() => {
@@ -109,7 +118,8 @@ const periodLabel = computed(() => {
   const labels: Record<string, string> = {
     YEAR: '年份',
     MONTH: '年月',
-    WEEK: '年周'
+    WEEK: '年周',
+    TASK: '任务日期'
   }
   return labels[localPeriodType.value] || '周期值'
 })
@@ -143,7 +153,7 @@ const handlePeriodTypeChange = () => {
 
 const setCurrentPeriod = () => {
   if (!localPeriodType.value) return
-  localPeriodValue.value = getCurrentPeriodValue(localPeriodType.value as 'YEAR' | 'MONTH' | 'WEEK')
+  localPeriodValue.value = getCurrentPeriodValue(localPeriodType.value as 'YEAR' | 'MONTH' | 'WEEK' | 'TASK')
 }
 </script>
 

@@ -1,5 +1,5 @@
-export type GoalStatus = 'active' | 'completed' | 'archived'
-export type PeriodType = 'YEAR' | 'MONTH' | 'WEEK'
+export type GoalStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'PENDING_VERIFICATION' | 'COMPLETED' | 'ABANDONED'
+export type PeriodType = 'YEAR' | 'MONTH' | 'WEEK' | 'TASK'
 
 export type FolderType = 'SCENE' | 'GROUP' | 'PROJECT' | 'SUBPROJECT'
 
@@ -15,6 +15,9 @@ export interface Goal {
   periodValue: string | null
   createdAt: string
   updatedAt: string
+  plannedStart: string | null
+  plannedEnd: string | null
+  nextExecution: string | null
   parent?: Goal | null
   folder?: Folder | null
   children?: Goal[]
@@ -27,6 +30,10 @@ export interface CreateGoalInput {
   periodType?: PeriodType
   periodValue?: string
   parentId?: string | null
+  folderId?: string | null
+  plannedStart?: string | null
+  plannedEnd?: string | null
+  nextExecution?: string | null
 }
 
 export interface UpdateGoalInput {
@@ -37,6 +44,9 @@ export interface UpdateGoalInput {
   periodValue?: string
   parentId?: string | null
   folderId?: string | null
+  plannedStart?: string | null
+  plannedEnd?: string | null
+  nextExecution?: string | null
 }
 
 export interface Folder {

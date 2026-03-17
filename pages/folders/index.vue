@@ -34,76 +34,10 @@
           <option value="PROJECT">项目</option>
           <option value="SUBPROJECT">子项目</option>
         </select>
-
-        <!-- 视图切换 -->
-        <div class="view-toggle">
-          <button
-            :class="{ active: viewMode === 'tree' }"
-            @click="viewMode = 'tree'"
-            title="树形视图"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
-              <line x1="12" y1="11" x2="12" y2="17"></line>
-              <line x1="9" y1="14" x2="15" y2="14"></line>
-            </svg>
-          </button>
-          <button
-            :class="{ active: viewMode === 'list' }"
-            @click="viewMode = 'list'"
-            title="列表视图"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <line x1="8" y1="6" x2="21" y2="6"></line>
-              <line x1="8" y1="12" x2="21" y2="12"></line>
-              <line x1="8" y1="18" x2="21" y2="18"></line>
-              <line x1="3" y1="6" x2="3.01" y2="6"></line>
-              <line x1="3" y1="12" x2="3.01" y2="12"></line>
-              <line x1="3" y1="18" x2="3.01" y2="18"></line>
-            </svg>
-          </button>
-          <button
-            :class="{ active: viewMode === 'hierarchy' }"
-            @click="viewMode = 'hierarchy'"
-            title="层级表格视图"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="3" y1="9" x2="21" y2="9"></line>
-              <line x1="3" y1="15" x2="21" y2="15"></line>
-              <line x1="9" y1="3" x2="9" y2="21"></line>
-              <line x1="15" y1="3" x2="15" y2="21"></line>
-            </svg>
-          </button>
-        </div>
       </div>
 
       <div class="toolbar-right">
-        <button class="btn-secondary" @click="folderTreeRef?.refresh()">
+        <button class="btn-secondary" @click="refreshFolders">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -124,29 +58,9 @@
 
     <!-- 内容区域 -->
     <div class="content">
-      <!-- 树形视图 -->
-      <div v-if="viewMode === 'tree'" class="tree-view">
-        <FolderTree
-          ref="folderTreeRef"
-          :folder_type="filterType || undefined"
-          @select="handleSelectFolder"
-          @contextmenu="handleContextMenu"
-        />
-      </div>
-
       <!-- 列表视图 -->
-      <div v-else-if="viewMode === 'list'" class="list-view">
+      <div class="list-view">
         <FolderList
-          :folders="foldersList"
-          @edit="handleEditFromList"
-          @add-subfolder="handleAddSubfolderFromList"
-          @delete="handleDeleteFromList"
-        />
-      </div>
-
-      <!-- 层级表格视图 -->
-      <div v-else-if="viewMode === 'hierarchy'" class="hierarchy-view">
-        <FolderHierarchyTable
           :folders="foldersList"
           @edit="handleEditFromList"
           @add-subfolder="handleAddSubfolderFromList"
@@ -164,18 +78,6 @@
       :parentFolderName="parentFolderName"
       @close="handleCloseModal"
       @saved="handleFolderSaved"
-    />
-
-    <!-- 右键菜单 -->
-    <FolderContextMenu
-      :show="showContextMenu"
-      :x="contextMenuPosition.x"
-      :y="contextMenuPosition.y"
-      @edit="handleEditFolder"
-      @add-subfolder="handleAddSubfolder"
-      @move="handleMoveFolder"
-      @delete="handleDeleteFolder"
-      @close="showContextMenu = false"
     />
 
     <!-- 移动模态框 -->
@@ -199,17 +101,12 @@ definePageMeta({
   middleware: 'auth'
 })
 
-const viewMode = ref<'tree' | 'list' | 'hierarchy'>('tree')
 const filterType = ref('')
 const selectedFolder = ref<Folder>()
 const parentFolderId = ref<string | null>(null)
 const parentFolderName = ref<string>('')
 const showModal = ref(false)
-const showContextMenu = ref(false)
 const showMoveModal = ref(false)
-const contextMenuPosition = ref({ x: 0, y: 0 })
-
-const folderTreeRef = ref()
 
 // 获取文件夹列表（用于列表视图）
 const { data: foldersData, refresh: refreshFolders } = await useFetch('/api/folders', {
@@ -223,18 +120,6 @@ const foldersList = computed(() => {
   return foldersData.value?.data ?? []
 })
 
-// 选择文件夹
-const handleSelectFolder = (folder: Folder) => {
-  selectedFolder.value = folder
-}
-
-// 右键菜单
-const handleContextMenu = (event: MouseEvent, folder: Folder) => {
-  selectedFolder.value = folder
-  contextMenuPosition.value = { x: event.clientX, y: event.clientY }
-  showContextMenu.value = true
-}
-
 // 创建文件夹
 const handleCreateFolder = async (parentId: string | null, parentName: string = '') => {
   selectedFolder.value = undefined
@@ -245,34 +130,13 @@ const handleCreateFolder = async (parentId: string | null, parentName: string = 
   showModal.value = true
 }
 
-// 添加子文件夹
-const handleAddSubfolder = async () => {
-  showContextMenu.value = false
-  const parent = selectedFolder.value
-  parentFolderId.value = parent?.id || null
-  parentFolderName.value = parent?.name || ''
-  selectedFolder.value = undefined
-  // 等待 DOM 更新，确保 selectedFolder 已清除
-  await nextTick()
-  showModal.value = true
-}
-
-// 编辑文件夹
-const handleEditFolder = () => {
-  showContextMenu.value = false
-  showModal.value = true
-}
-
 // 移动文件夹
 const handleMoveFolder = () => {
-  showContextMenu.value = false
   showMoveModal.value = true
 }
 
 // 删除文件夹
 const handleDeleteFolder = async () => {
-  showContextMenu.value = false
-
   if (!selectedFolder.value) return
 
   const confirmed = confirm(
@@ -302,7 +166,6 @@ const handleDeleteFolder = async () => {
     success('文件夹已删除')
 
     refreshFolders()
-    folderTreeRef.value?.refresh()
   } catch (e: any) {
     const { error: showError } = useToast()
     showError(e.data?.message || '删除失败')
@@ -316,14 +179,12 @@ const handleFolderSaved = () => {
   parentFolderId.value = null
   parentFolderName.value = ''
   refreshFolders()
-  folderTreeRef.value?.refresh()
 }
 
 // 文件夹移动成功
 const handleFolderMoved = () => {
   showMoveModal.value = false
   refreshFolders()
-  folderTreeRef.value?.refresh()
 }
 
 // 关闭模态框
@@ -361,11 +222,6 @@ const handleMoveFromList = (folder: Folder) => {
   selectedFolder.value = folder
   handleMoveFolder()
 }
-
-// 监听筛选类型变化
-watch(filterType, () => {
-  folderTreeRef.value?.refresh()
-})
 </script>
 
 <style scoped>
@@ -410,26 +266,6 @@ watch(filterType, () => {
   @apply px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
 }
 
-.view-toggle {
-  @apply inline-flex items-center border border-gray-300 rounded-lg overflow-hidden;
-}
-
-.view-toggle button {
-  @apply p-2 transition-colors;
-}
-
-.view-toggle button:first-child {
-  @apply border-r border-gray-300;
-}
-
-.view-toggle button.active {
-  @apply bg-blue-50 text-blue-600;
-}
-
-.view-toggle button:not(.active):hover {
-  @apply bg-gray-50;
-}
-
 .toolbar-right {
   @apply flex items-center gap-2;
 }
@@ -438,9 +274,7 @@ watch(filterType, () => {
   @apply bg-white rounded-lg border border-gray-200 min-h-[500px];
 }
 
-.tree-view,
-.list-view,
-.hierarchy-view {
+.list-view {
   @apply p-4;
 }
 </style>

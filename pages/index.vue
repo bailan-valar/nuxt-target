@@ -192,9 +192,11 @@
                   <span
                     class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
                     :class="{
-                      'bg-blue-100 text-blue-800': goal.status === 'active',
-                      'bg-green-100 text-green-800': goal.status === 'completed',
-                      'bg-gray-100 text-gray-800': goal.status === 'archived'
+                      'bg-blue-100 text-blue-800': goal.status === 'NOT_STARTED',
+                      'bg-orange-100 text-orange-800': goal.status === 'IN_PROGRESS',
+                      'bg-purple-100 text-purple-800': goal.status === 'PENDING_VERIFICATION',
+                      'bg-green-100 text-green-800': goal.status === 'COMPLETED',
+                      'bg-red-100 text-red-800': goal.status === 'ABANDONED'
                     }"
                   >
                     {{ statusText(goal.status) }}
@@ -271,15 +273,15 @@ const stats = computed(() => {
   const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1)
   const thisYear = new Date(now.getFullYear(), 0, 1)
 
-  const activeGoals = allGoals.filter((g: any) => g.status === 'active')
-  const completedGoals = allGoals.filter((g: any) => g.status === 'completed')
+  const activeGoals = allGoals.filter((g: any) => g.status === 'IN_PROGRESS')
+  const completedGoals = allGoals.filter((g: any) => g.status === 'COMPLETED')
   const newGoalsThisMonth = allGoals.filter((g: any) => {
     const createdAt = new Date(g.createdAt)
     return createdAt >= thisMonth
   })
   const completedThisYear = allGoals.filter((g: any) => {
     const createdAt = new Date(g.createdAt)
-    return g.status === 'completed' && createdAt >= thisYear
+    return g.status === 'COMPLETED' && createdAt >= thisYear
   })
 
   const totalGoals = allGoals.length
@@ -308,9 +310,11 @@ const recentGoals = computed(() => {
 
 const statusText = (status: string) => {
   const map: Record<string, string> = {
-    active: '进行中',
-    completed: '已完成',
-    archived: '已归档'
+    NOT_STARTED: '待开始',
+    IN_PROGRESS: '进行中',
+    PENDING_VERIFICATION: '待验证',
+    COMPLETED: '已完成',
+    ABANDONED: '已放弃'
   }
   return map[status] || status
 }
