@@ -117,6 +117,7 @@ const props = defineProps<{
     folderId: string | null
     periodType: string
     periodValue: string
+    parentGoal?: Goal | null
   } | null
 }>()
 
@@ -185,6 +186,10 @@ watch(() => props.show, (isShow) => {
     form.folderId = props.defaults.folderId
     form.periodType = props.defaults.periodType as PeriodType
     form.periodValue = props.defaults.periodValue
+    // 如果提供了父目标默认值，则设置父目标
+    if (props.defaults.parentGoal !== undefined) {
+      form.parentGoal = props.defaults.parentGoal
+    }
   }
 })
 
@@ -203,8 +208,8 @@ const handleSubmit = async () => {
       parentId: form.parentGoal?.id || null
     }
 
-    // 只有在有周期类型时才添加周期字段
-    if (form.periodType) {
+    // 只有在有周期类型时才添加周期字段（排除空字符串）
+    if (form.periodType && form.periodType !== '') {
       body.periodType = form.periodType
       body.periodValue = form.periodValue
     }
@@ -219,6 +224,9 @@ const handleSubmit = async () => {
     if (form.nextExecution) {
       body.nextExecution = new Date(form.nextExecution).toISOString()
     }
+
+    // 调试日志
+    console.log('发送的数据:', body)
 
     await $fetch(url, { method, body })
     emit('saved')

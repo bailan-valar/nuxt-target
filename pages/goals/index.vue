@@ -331,11 +331,11 @@
                   <!-- 7天列 -->
                   <td v-for="day in weekDays" :key="day.date" class="px-2 py-2 text-sm text-left border-r border-gray-200">
                     <GoalCell
-                      :goal="getChildGoal(row.mainGoal, 'DAY', day.date, row.subproject?.id || row.project?.id || row.group?.id || row.scene?.id)"
-                      :period-type="'DAY'"
+                      :goal="getChildGoal(row.mainGoal, 'TASK', day.date, getDeepestFolderId(row))"
+                      :period-type="'TASK'"
                       :period-value="day.date"
                       :compact="true"
-                      @add="openAddGoal('DAY', day.date, row)"
+                      @add="openAddGoal('TASK', day.date, row)"
                       @edit="openEditGoal"
                     />
                   </td>
@@ -463,6 +463,7 @@ const goalModalDefaults = ref<{
   folderId: string | null
   periodType: string
   periodValue: string
+  parentGoal?: any | null
 } | null>(null)
 
 // 当前编辑的目标
@@ -482,6 +483,13 @@ const goalsWithTree = computed(() => {
 
   // 调试信息：输出原始数据
   console.log('🔍 [调试] 原始goals数据:', flatGoals.length, '条')
+  console.log('🔍 [调试] 所有TASK类型的目标:', flatGoals.filter((g: any) => g.periodType === 'TASK').map((g: any) => ({
+    id: g.id.substring(0, 8),
+    title: g.title,
+    folderId: g.folderId.substring(0, 8),
+    periodValue: g.periodValue,
+    parentId: g.parentId?.substring(0, 8) || null
+  })))
   console.log('🔍 [调试] 周视图当前周期值:', currentWeekValue.value)
   console.log('🔍 [调试] 周7天日期:', weekDays.value.map(d => d.date))
 
@@ -533,6 +541,11 @@ const goalsWithTree = computed(() => {
 
   console.log('🔍 [调试] 构建后根目标数量:', rootGoals.length)
 
+  // 暴露到全局以便调试
+  ;(window as any).__DEBUG_goals__ = flatGoals
+  ;(window as any).__DEBUG_rootGoals__ = rootGoals
+  ;(window as any).__DEBUG_folders__ = null // 稍后设置
+
   return rootGoals
 })
 
@@ -546,7 +559,78 @@ const { data: foldersData, refresh: refreshFolders } = await useFetch('/api/fold
   }
 })
 
-const folders = computed(() => foldersData.value?.data || [])
+const folders = computed(() => {
+  const folderList = foldersData.value?.data || []
+
+  // 🔍 [调试] 检查cmmtyfkr文件夹是否在foldersData中
+  if (view.value === 'week') {
+    console.log('🔍 [调试] 检查foldersData中的cmmtyfkr文件夹...')
+    
+    // 打印所有文件夹的ID
+    const printAllFolderIds = (foldersList: any[], prefix = '') => {
+      for (const folder of foldersList) {
+        console.log(prefix + '文件夹:', {
+          id: folder.id.substring(0, 8),
+          name: folder.name,
+          type: folder.type
+        })
+        if (folder.children?.length > 0) {
+          printAllFolderIds(folder.children, prefix + '  ')
+        }
+      }
+    }
+    console.log('🔍 [调试] 所有文件夹列表:')
+    printAllFolderIds(folderList)
+    
+    // 递归查找cmmtyfkr文件夹
+    const findCmmtyfkrFolder = (folders: any[]): any => {
+      for (const folder of folders) {
+        if (folder.id.startsWith('cmmtyfkr')) {
+          return folder
+        }
+        if (folder.children?.length > 0) {
+          const found = findCmmtyfkrFolder(folder.children)
+          if (found) return found
+        }
+      }
+      return null
+    }
+    
+    const cmmtyfkrFolder = findCmmtyfkrFolder(folderList)
+    
+    if (cmmtyfkrFolder) {
+      console.log('🔍 [调试] 找到cmmtyfkr文件夹:', {
+        id: cmmtyfkrFolder.id.substring(0, 8),
+        name: cmmtyfkrFolder.name,
+        type: cmmtyfkrFolder.type,
+        parentId: cmmtyfkrFolder.parentId?.substring(0, 8) || null,
+        hasChildren: cmmtyfkrFolder.children?.length || 0
+      })
+    } else {
+      console.log('🔍 [调试] 未找到cmmtyfkr文件夹')
+      console.log('🔍 [调试] folders总数:', folderList.length)
+    }
+  }
+
+  return folderList
+})
+
+// 暴露folders到全局
+watchEffect(() => {
+  if (folders.value?.length > 0) {
+    ;(window as any).__DEBUG_folders__ = folders.value
+    console.log('🔍 [调试] folders数据已更新，总数:', folders.value.length)
+
+    // 查找 cmmtyfkr 文件夹
+    const targetFolder = folders.value.find((f: any) => f.id.startsWith('cmmtyfkr'))
+    console.log('🔍 [调试] cmmtyfkr 文件夹:', targetFolder ? {
+      id: targetFolder.id.substring(0, 8),
+      name: targetFolder.name,
+      type: targetFolder.type,
+      parentId: targetFolder.parentId?.substring(0, 8) || null
+    } : '未找到')
+  }
+})
 
 // 计算属性：是否存在子项目数据
 const hasSubprojects = computed(() => {
@@ -640,11 +724,43 @@ interface TypedRow {
     project: number | null
     subproject: number | null
   }
+  isOrphanRow?: boolean  // 标记是否为孤儿目标行（周目标为空）
 }
 
 const typedTableData = computed<TypedRow[]>(() => {
   const result: TypedRow[] = []
   const scenes = folders.value.filter(f => f.type === 'SCENE')
+
+  // 🔍 [调试] 检查cmmtyfkr文件夹的类型和层级
+  const targetFolder = folders.value.find((f: any) => f.id.startsWith('cmmtyfkr'))
+  if (targetFolder && view.value === 'week') {
+    console.log('🔍 [调试] typedTableData - cmmtyfkr文件夹信息:', {
+      id: targetFolder.id,
+      id8: targetFolder.id.substring(0, 8),
+      name: targetFolder.name,
+      type: targetFolder.type,
+      parentId: targetFolder.parentId?.substring(0, 8) || null,
+      hasChildren: targetFolder.children?.length || 0
+    })
+
+    // 检查是否在筛选中
+    const isInSelected = selectedFolderIds.value.includes(targetFolder.id)
+    console.log('🔍 [调试] 是否在selectedFolderIds中:', isInSelected)
+    console.log('🔍 [调试] selectedFolderIds:', selectedFolderIds.value.map((id: string) => id.substring(0, 8)))
+
+    // 检查祖先文件夹
+    if (targetFolder.parentId) {
+      const parent = findFolderById(folders.value, targetFolder.parentId)
+      if (parent) {
+        console.log('🔍 [调试] 父文件夹:', {
+          id: parent.id.substring(0, 8),
+          name: parent.name,
+          type: parent.type,
+          parentId: parent.parentId?.substring(0, 8) || null
+        })
+      }
+    }
+  }
 
   // 如果有筛选，只处理选中的文件夹
   if (selectedFolderIds.value.length > 0) {
@@ -947,7 +1063,16 @@ function findFolderById(folders: any[], id: string): any {
 
 // 获取子目标
 function getChildGoal(parentGoal: any, periodType: string, periodValue: string, folderId?: string): any {
-  // 如果有父目标，从父目标的children中查找
+  // 添加调试：在查找 cmmtyfkr 的 TASK 时打印 goals.value 的内容
+  if (folderId === 'cmmtyfkr' && periodType === 'TASK') {
+    console.log('🔍🔍 [getChildGoal] 即将查找 cmmtyfkr 的TASK，当前goals.value:', goals.value.map(g => ({
+      id: g.id.substring(0, 8),
+      periodType: g.periodType,
+      folderId: g.folderId.substring(0, 8)
+    })))
+  }
+
+  // 如果有父目标，先从父目标的children中查找
   if (parentGoal?.children) {
     const found = parentGoal.children.find((g: any) =>
       g.periodType === periodType && g.periodValue === periodValue
@@ -963,28 +1088,61 @@ function getChildGoal(parentGoal: any, periodType: string, periodValue: string, 
       foundTitle: found?.title
     })
 
+    // 如果找到了，直接返回；如果找不到，返回null（不要继续查找）
     return found || null
   }
 
-  // 如果没有父目标，直接从根目标中查找（用于显示在"-"行中）
-  if (folderId) {
-    const rootGoal = goals.value.find((g: any) =>
-      g.folderId === folderId &&
+  // 如果parentGoal为null（孤儿任务行），查找该文件夹下的孤儿任务
+  if (!parentGoal && folderId && periodType === 'TASK') {
+    const orphanTasksInFolder = goals.value.filter((g: any) =>
       g.periodType === periodType &&
-      g.periodValue === periodValue
+      g.periodValue === periodValue &&
+      g.folderId === folderId &&
+      !g.parentId  // 没有父目标
     )
 
-    console.log('🔍 [getChildGoal] 从根目标查找（无父目标）:', {
+    console.log('🔍 [getChildGoal] 孤儿任务行，查找文件夹下的孤儿TASK:', {
       folderId: folderId.substring(0, 8),
       searchingFor: { periodType, periodValue },
-      found: !!rootGoal,
-      foundTitle: rootGoal?.title
+      orphanTasksInFolderCount: orphanTasksInFolder.length,
+      orphanTasksInFolder: orphanTasksInFolder.map((g: any) => ({
+        id: g.id.substring(0, 8),
+        title: g.title,
+        periodValue: g.periodValue
+      }))
     })
 
-    return rootGoal || null
+    if (orphanTasksInFolder.length > 0) {
+      return orphanTasksInFolder[0]
+    }
   }
 
-  console.log('🔍 [getChildGoal] 无父目标且无folderId，返回null')
+  // 如果folderId为null，查找所有没有父目标的匹配TASK（用于全局查找）
+  if (!folderId && periodType === 'TASK') {
+    const orphanTasks = goals.value.filter((g: any) =>
+      g.periodType === periodType &&
+      g.periodValue === periodValue &&
+      !g.parentId  // 没有父目标
+    )
+
+    console.log('🔍 [getChildGoal] folderId为null，查找孤儿TASK:', {
+      searchingFor: { periodType, periodValue },
+      orphanTasksCount: orphanTasks.length,
+      orphanTasks: orphanTasks.map((g: any) => ({
+        id: g.id.substring(0, 8),
+        title: g.title,
+        folderId: g.folderId.substring(0, 8),
+        periodValue: g.periodValue
+      }))
+    })
+
+    // 如果找到了孤儿TASK，返回第一个（实际上应该只有一个）
+    if (orphanTasks.length > 0) {
+      return orphanTasks[0]
+    }
+  }
+
+  console.log('🔍 [getChildGoal] 无匹配目标，返回null')
   return null
 }
 
@@ -1001,11 +1159,18 @@ function getDeepestFolderId(row: TypedRow): string | null {
 // 打开添加目标模态框
 function openAddGoal(periodType: string, periodValue: string, row?: TypedRow) {
   // 设置默认值
-  goalModalDefaults.value = {
+  const defaults: any = {
     folderId: row ? getDeepestFolderId(row) : null,
     periodType,
     periodValue
   }
+  
+  // 如果是周视图中的日目标，且该行有周目标，则将周目标设置为父目标
+  if (periodType === 'TASK' && row?.mainGoal) {
+    defaults.parentGoal = row.mainGoal
+  }
+  
+  goalModalDefaults.value = defaults
   showModal.value = true
 }
 
@@ -1031,6 +1196,19 @@ function generateTypedRows(scene: any): TypedRow[] {
       mainGoal,
       rowspans: { scene: 1, group: null, project: null, subproject: null }
     })
+
+    // 周视图：检查场景是否有孤儿TASK，添加周目标为空的行
+    if (view.value === 'week' && hasOrphanTasksInFolder(scene.id)) {
+      result.push({
+        scene,
+        group: null,
+        project: null,
+        subproject: null,
+        mainGoal: null,
+        rowspans: { scene: 1, group: null, project: null, subproject: null },
+        isOrphanRow: true
+      })
+    }
   } else if (groups.length === 0) {
     for (const project of projects) {
       const projectRows = generateProjectRows(project, scene, null)
@@ -1060,6 +1238,19 @@ function generateGroupRows(group: any, scene: any): TypedRow[] {
       mainGoal,
       rowspans: { scene: null, group: 1, project: null, subproject: null }
     })
+
+    // 周视图：检查分组是否有孤儿TASK，添加周目标为空的行
+    if (view.value === 'week' && hasOrphanTasksInFolder(group.id)) {
+      result.push({
+        scene,
+        group,
+        project: null,
+        subproject: null,
+        mainGoal: null,
+        rowspans: { scene: null, group: 1, project: null, subproject: null },
+        isOrphanRow: true
+      })
+    }
   } else {
     for (const project of projects) {
       const projectRows = generateProjectRows(project, scene, group)
@@ -1084,6 +1275,19 @@ function generateProjectRows(project: any, scene: any, group: any | null): Typed
       mainGoal,
       rowspans: { scene: null, group: null, project: 1, subproject: null }
     })
+
+    // 周视图：检查项目是否有孤儿TASK，添加周目标为空的行
+    if (view.value === 'week' && hasOrphanTasksInFolder(project.id)) {
+      result.push({
+        scene,
+        group,
+        project,
+        subproject: null,
+        mainGoal: null,
+        rowspans: { scene: null, group: null, project: 1, subproject: null },
+        isOrphanRow: true
+      })
+    }
   } else {
     for (const subproject of subprojects) {
       const mainGoal = getMainGoalForFolder(subproject.id, view.value)
@@ -1095,10 +1299,35 @@ function generateProjectRows(project: any, scene: any, group: any | null): Typed
         mainGoal,
         rowspans: { scene: null, group: null, project: null, subproject: 1 }
       })
+
+      // 周视图：检查子项目是否有孤儿TASK，添加周目标为空的行
+      if (view.value === 'week' && hasOrphanTasksInFolder(subproject.id)) {
+        result.push({
+          scene,
+          group,
+          project,
+          subproject,
+          mainGoal: null,
+          rowspans: { scene: null, group: null, project: null, subproject: 1 },
+          isOrphanRow: true
+        })
+      }
     }
   }
 
   return result
+}
+
+// 检查文件夹是否有孤儿TASK（没有父目标的TASK）
+function hasOrphanTasksInFolder(folderId: string): boolean {
+  const orphanTasks = goals.value.filter((g: any) => {
+    if (g.periodType !== 'TASK') return false
+    if (g.folderId !== folderId) return false
+    // 检查是否没有父目标
+    return !g.parentId
+  })
+
+  return orphanTasks.length > 0
 }
 
 // 根据当前视图获取主目标
@@ -1210,7 +1439,30 @@ function calculateRowspans(rows: TypedRow[]) {
       row.rowspans.project = span
     }
 
-    row.rowspans.subproject = 1
+    // 计算子项目的rowspan：当相邻行具有相同的子项目时进行合并
+    if (row) {
+      const prevRow = rows[i - 1]
+      if (!prevRow ||
+          prevRow.scene !== row.scene ||
+          prevRow.group !== row.group ||
+          prevRow.project !== row.project ||
+          prevRow.subproject !== row.subproject) {
+        let span = 1
+        for (let j = i + 1; j < rows.length; j++) {
+          const currentRow = rows[j]
+          if (currentRow &&
+              currentRow.scene === row.scene &&
+              currentRow.group === row.group &&
+              currentRow.project === row.project &&
+              currentRow.subproject === row.subproject) {
+            span++
+          } else {
+            break
+          }
+        }
+        row.rowspans.subproject = span
+      }
+    }
   }
 }
 
