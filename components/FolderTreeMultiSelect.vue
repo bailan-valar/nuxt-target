@@ -227,9 +227,28 @@ function handleExpand(folderId: string) {
   }
 }
 
-// 移除文件夹
+// 移除文件夹（同时移除所有子孙文件夹）
 function removeFolder(folderId: string) {
-  selectedIds.value = selectedIds.value.filter(id => id !== folderId)
+  // 获取所有子孙文件夹的ID
+  const getAllDescendantIds = (folder: Folder): string[] => {
+    const ids: string[] = []
+    if (folder.children) {
+      for (const child of folder.children) {
+        ids.push(child.id)
+        ids.push(...getAllDescendantIds(child))
+      }
+    }
+    return ids
+  }
+
+  // 查找文件夹并获取其子孙ID
+  const folder = folderMap.value.get(folderId)
+  const descendantIds = folder ? getAllDescendantIds(folder) : []
+
+  // 移除父文件夹和所有子孙文件夹
+  const allIdsToRemove = new Set([folderId, ...descendantIds])
+  selectedIds.value = selectedIds.value.filter(id => !allIdsToRemove.has(id))
+
   emit('update:modelValue', selectedIds.value)
 }
 

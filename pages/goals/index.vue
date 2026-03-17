@@ -189,20 +189,20 @@
         <table class="min-w-full divide-x divide-y divide-gray-200">
           <thead class="bg-gray-50 sticky top-0 z-30">
             <tr>
-              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px] border-r border-gray-200 sticky left-0 z-20 bg-gray-50">场景</th>
-              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px] border-r border-gray-200 sticky left-[90px] z-20 bg-gray-50">分组</th>
-              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-auto border-r border-gray-200 sticky left-[180px] z-20 bg-gray-50">项目</th>
-              <th v-if="hasSubprojects" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-auto border-r border-gray-200 sticky left-[330px] z-20 bg-gray-50">子项目</th>
+              <th data-column="scene" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px] border-r border-gray-200 sticky left-0 z-20 bg-gray-50">场景</th>
+              <th data-column="group" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px] border-r border-gray-200 sticky left-0 z-20 bg-gray-50">分组</th>
+              <th data-column="project" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-auto border-r border-gray-200 sticky left-0 z-20 bg-gray-50">项目</th>
+              <th v-if="hasSubprojects" data-column="subproject" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-auto border-r border-gray-200 sticky left-0 z-20 bg-gray-50">子项目</th>
 
               <!-- 年视图：年目标 + 12个月 -->
               <template v-if="view === 'year'">
-                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 sticky left-[480px] z-20 bg-gray-50">年目标</th>
+                <th data-column="goal" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 sticky left-0 z-20 bg-gray-50">年目标</th>
                 <th v-for="m in 12" :key="m" class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[60px] border-r border-gray-200">{{ m }}月</th>
               </template>
 
               <!-- 月视图：月目标 + 4-5周 -->
               <template v-else-if="view === 'month'">
-                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 sticky left-[480px] z-20 bg-gray-50">月目标</th>
+                <th data-column="goal" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 sticky left-0 z-20 bg-gray-50">月目标</th>
                 <th v-for="week in monthWeeks" :key="week.index" class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[80px] border-r border-gray-200">
                   <div class="flex flex-col items-start gap-1">
                     <span>第{{ week.index }}周</span>
@@ -213,7 +213,7 @@
 
               <!-- 周视图：周目标 + 7天 -->
               <template v-else-if="view === 'week'">
-                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 sticky left-[480px] z-20 bg-gray-50">周目标</th>
+                <th data-column="goal" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 sticky left-0 z-20 bg-gray-50">周目标</th>
                 <th v-for="day in weekDays" :key="day.date" class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[70px] border-r border-gray-200">
                   <div class="flex flex-col items-start gap-1">
                     <span :class="{ 'text-blue-600 font-semibold': isToday(day.date) }">{{ day.weekday }}</span>
@@ -230,7 +230,7 @@
                 <td
                   v-if="shouldShowCell('scene', rowIndex)"
                   :rowspan="row.rowspans.scene ?? 1"
-                  class="px-3 py-2 align-middle border-r border-gray-200 sticky left-0 z-10 bg-white"
+                  data-column="scene" class="px-3 py-2 align-middle border-r border-gray-200 sticky left-0 z-10 bg-white"
                   @contextmenu.prevent="row.scene ? handleContextMenu($event, row.scene) : null"
                 >
                   <div v-if="row.scene" class="folder-cell">
@@ -245,7 +245,7 @@
                 <td
                   v-if="shouldShowCell('group', rowIndex)"
                   :rowspan="row.rowspans.group ?? 1"
-                  class="px-3 py-2 align-middle border-r border-gray-200 sticky left-[90px] z-10 bg-white"
+                  data-column="group" class="px-3 py-2 align-middle border-r border-gray-200 sticky left-0 z-10 bg-white"
                   @contextmenu.prevent="row.group ? handleContextMenu($event, row.group) : null"
                 >
                   <div v-if="row.group" class="folder-cell">
@@ -260,7 +260,7 @@
                 <td
                   v-if="shouldShowCell('project', rowIndex)"
                   :rowspan="row.rowspans.project ?? 1"
-                  class="px-3 py-2 align-middle border-r border-gray-200 sticky left-[180px] z-10 bg-white"
+                  data-column="project" class="px-3 py-2 align-middle border-r border-gray-200 sticky left-0 z-10 bg-white"
                   @contextmenu.prevent="row.project ? handleContextMenu($event, row.project) : null"
                 >
                   <div v-if="row.project" class="folder-cell">
@@ -275,7 +275,7 @@
                 <td
                   v-if="hasSubprojects && shouldShowCell('subproject', rowIndex)"
                   :rowspan="row.rowspans.subproject ?? 1"
-                  class="px-3 py-2 align-middle border-r border-gray-200 sticky left-[330px] z-10 bg-white"
+                  data-column="subproject" class="px-3 py-2 align-middle border-r border-gray-200 sticky left-0 z-10 bg-white"
                   @contextmenu.prevent="row.subproject ? handleContextMenu($event, row.subproject) : null"
                 >
                   <div v-if="row.subproject" class="folder-cell">
@@ -289,7 +289,7 @@
                 <!-- 目标列和日期列 -->
                 <template v-if="view === 'year'">
                   <!-- 年目标列 -->
-                  <td class="px-3 py-2 text-sm border-r border-gray-200 sticky left-[480px] z-10 bg-white">
+                  <td data-column="goal" class="px-3 py-2 text-sm border-r border-gray-200 sticky left-0 z-10 bg-white">
                     <GoalCell :goal="row.mainGoal" :period-type="'YEAR'" :period-value="String(year)" @add="openAddGoal('YEAR', String(year), row)" @edit="openEditGoal" />
                   </td>
                   <!-- 12个月份列 -->
@@ -307,7 +307,7 @@
 
                 <template v-else-if="view === 'month'">
                   <!-- 月目标列 -->
-                  <td class="px-3 py-2 text-sm border-r border-gray-200 sticky left-[480px] z-10 bg-white">
+                  <td data-column="goal" class="px-3 py-2 text-sm border-r border-gray-200 sticky left-0 z-10 bg-white">
                     <GoalCell :goal="row.mainGoal" :period-type="'MONTH'" :period-value="`${year}-${String(month).padStart(2, '0')}`" @add="openAddGoal('MONTH', `${year}-${String(month).padStart(2, '0')}`, row)" @edit="openEditGoal" />
                   </td>
                   <!-- 4-5周列 -->
@@ -325,7 +325,7 @@
 
                 <template v-else-if="view === 'week'">
                   <!-- 周目标列 -->
-                  <td class="px-3 py-2 text-sm border-r border-gray-200 sticky left-[480px] z-10 bg-white">
+                  <td data-column="goal" class="px-3 py-2 text-sm border-r border-gray-200 sticky left-0 z-10 bg-white">
                     <GoalCell :goal="row.mainGoal" :period-type="'WEEK'" :period-value="currentWeekValue" @add="openAddGoal('WEEK', currentWeekValue, row)" @edit="openEditGoal" />
                   </td>
                   <!-- 7天列 -->
@@ -1412,5 +1412,163 @@ tr:hover td.sticky {
 
 tr:hover td.sticky.bg-white {
   background-color: #f9fafb;
+}
+
+/* 响应式表格布局 */
+@media (max-width: 1536px) {
+  /* 在较小屏幕下调整固定列位置 */
+  table th.sticky.left-5,
+  table td.sticky.left-5 {
+    left: 5rem !important;
+  }
+}
+
+@media (max-width: 1280px) {
+  /* 中等屏幕下隐藏子项目列 */
+  .hide-on-md {
+    display: none !important;
+  }
+
+  /* 调整固定列位置 */
+  table th.sticky.left-4,
+  table td.sticky.left-4 {
+    left: 4rem !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  /* 小屏幕下隐藏项目和子项目列 */
+  .hide-on-sm {
+    display: none !important;
+  }
+
+  /* 调整固定列位置 */
+  table th.sticky.left-3,
+  table td.sticky.left-3 {
+    left: 3rem !important;
+  }
+
+  /* 减小单元格内边距 */
+  table th,
+  table td {
+    padding: 0.5rem 0.375rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* 平板设备优化 */
+  table {
+    font-size: 0.875rem;
+  }
+
+  /* 只显示场景和分组列 */
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
+/* 表格容器最小宽度控制 */
+.table-responsive {
+  min-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 确保表格在小屏幕上有最小宽度 */
+table {
+  min-width: max-content;
+}
+
+/* 优化固定列在不同宽度下的显示 */
+@media (min-width: 1536px) {
+  table th.sticky[data-column="scene"],
+  table td.sticky[data-column="scene"] {
+    min-width: 90px;
+    left: 0;
+  }
+
+  table th.sticky[data-column="group"],
+  table td.sticky[data-column="group"] {
+    min-width: 90px;
+    left: 90px;
+  }
+
+  table th.sticky[data-column="project"],
+  table td.sticky[data-column="project"] {
+    min-width: 150px;
+    left: 180px;
+  }
+
+  table th.sticky[data-column="subproject"],
+  table td.sticky[data-column="subproject"] {
+    min-width: 150px;
+    left: 330px;
+  }
+
+  table th.sticky[data-column="goal"],
+  table td.sticky[data-column="goal"] {
+    min-width: 150px;
+    left: 480px;
+  }
+}
+
+/* 中等屏幕 */
+@media (min-width: 1280px) and (max-width: 1535px) {
+  table th.sticky[data-column="scene"],
+  table td.sticky[data-column="scene"] {
+    min-width: 80px;
+    left: 0;
+  }
+
+  table th.sticky[data-column="group"],
+  table td.sticky[data-column="group"] {
+    min-width: 80px;
+    left: 80px;
+  }
+
+  table th.sticky[data-column="project"],
+  table td.sticky[data-column="project"] {
+    min-width: 130px;
+    left: 160px;
+  }
+
+  table th.sticky[data-column="subproject"],
+  table td.sticky[data-column="subproject"] {
+    min-width: 130px;
+    left: 290px;
+  }
+
+  table th.sticky[data-column="goal"],
+  table td.sticky[data-column="goal"] {
+    min-width: 130px;
+    left: 420px;
+  }
+}
+
+/* 小屏幕 */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  table th.sticky[data-column="scene"],
+  table td.sticky[data-column="scene"] {
+    min-width: 70px;
+    left: 0;
+  }
+
+  table th.sticky[data-column="group"],
+  table td.sticky[data-column="group"] {
+    min-width: 70px;
+    left: 70px;
+  }
+
+  table th.sticky[data-column="project"],
+  table td.sticky[data-column="project"] {
+    min-width: 120px;
+    left: 140px;
+  }
+
+  table th.sticky[data-column="goal"],
+  table td.sticky[data-column="goal"] {
+    min-width: 120px;
+    left: 260px;
+  }
 }
 </style>
