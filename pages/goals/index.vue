@@ -185,24 +185,24 @@
 
     <!-- 表格视图 -->
     <div v-else class="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
-      <div class="overflow-x-auto">
+      <div class="overflow-x-auto overflow-y-hidden relative">
         <table class="min-w-full divide-x divide-y divide-gray-200">
-          <thead class="bg-gray-50">
+          <thead class="bg-gray-50 sticky top-0 z-30">
             <tr>
-              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px] border-r border-gray-200">场景</th>
-              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px] border-r border-gray-200">分组</th>
-              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-auto border-r border-gray-200">项目</th>
-              <th v-if="hasSubprojects" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-auto border-r border-gray-200">子项目</th>
+              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px] border-r border-gray-200 sticky left-0 z-20 bg-gray-50">场景</th>
+              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px] border-r border-gray-200 sticky left-[90px] z-20 bg-gray-50">分组</th>
+              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-auto border-r border-gray-200 sticky left-[180px] z-20 bg-gray-50">项目</th>
+              <th v-if="hasSubprojects" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-auto border-r border-gray-200 sticky left-[330px] z-20 bg-gray-50">子项目</th>
 
               <!-- 年视图：年目标 + 12个月 -->
               <template v-if="view === 'year'">
-                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">年目标</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 sticky left-[480px] z-20 bg-gray-50">年目标</th>
                 <th v-for="m in 12" :key="m" class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[60px] border-r border-gray-200">{{ m }}月</th>
               </template>
 
               <!-- 月视图：月目标 + 4-5周 -->
               <template v-else-if="view === 'month'">
-                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">月目标</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 sticky left-[480px] z-20 bg-gray-50">月目标</th>
                 <th v-for="week in monthWeeks" :key="week.index" class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[80px] border-r border-gray-200">
                   <div class="flex flex-col items-start gap-1">
                     <span>第{{ week.index }}周</span>
@@ -213,7 +213,7 @@
 
               <!-- 周视图：周目标 + 7天 -->
               <template v-else-if="view === 'week'">
-                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">周目标</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 sticky left-[480px] z-20 bg-gray-50">周目标</th>
                 <th v-for="day in weekDays" :key="day.date" class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[70px] border-r border-gray-200">
                   <div class="flex flex-col items-start gap-1">
                     <span :class="{ 'text-blue-600 font-semibold': isToday(day.date) }">{{ day.weekday }}</span>
@@ -225,12 +225,12 @@
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             <template v-for="(row, rowIndex) in typedTableData" :key="rowIndex">
-              <tr class="hover:bg-gray-50">
+              <tr class="hover:bg-gray-50 group">
                 <!-- 场景列 -->
                 <td
                   v-if="shouldShowCell('scene', rowIndex)"
                   :rowspan="row.rowspans.scene ?? 1"
-                  class="px-3 py-2 align-middle border-r border-gray-200"
+                  class="px-3 py-2 align-middle border-r border-gray-200 sticky left-0 z-10 bg-white"
                   @contextmenu.prevent="row.scene ? handleContextMenu($event, row.scene) : null"
                 >
                   <div v-if="row.scene" class="folder-cell">
@@ -245,7 +245,7 @@
                 <td
                   v-if="shouldShowCell('group', rowIndex)"
                   :rowspan="row.rowspans.group ?? 1"
-                  class="px-3 py-2 align-middle border-r border-gray-200"
+                  class="px-3 py-2 align-middle border-r border-gray-200 sticky left-[90px] z-10 bg-white"
                   @contextmenu.prevent="row.group ? handleContextMenu($event, row.group) : null"
                 >
                   <div v-if="row.group" class="folder-cell">
@@ -260,7 +260,7 @@
                 <td
                   v-if="shouldShowCell('project', rowIndex)"
                   :rowspan="row.rowspans.project ?? 1"
-                  class="px-3 py-2 align-middle border-r border-gray-200"
+                  class="px-3 py-2 align-middle border-r border-gray-200 sticky left-[180px] z-10 bg-white"
                   @contextmenu.prevent="row.project ? handleContextMenu($event, row.project) : null"
                 >
                   <div v-if="row.project" class="folder-cell">
@@ -275,7 +275,7 @@
                 <td
                   v-if="hasSubprojects && shouldShowCell('subproject', rowIndex)"
                   :rowspan="row.rowspans.subproject ?? 1"
-                  class="px-3 py-2 align-middle border-r border-gray-200"
+                  class="px-3 py-2 align-middle border-r border-gray-200 sticky left-[330px] z-10 bg-white"
                   @contextmenu.prevent="row.subproject ? handleContextMenu($event, row.subproject) : null"
                 >
                   <div v-if="row.subproject" class="folder-cell">
@@ -289,7 +289,7 @@
                 <!-- 目标列和日期列 -->
                 <template v-if="view === 'year'">
                   <!-- 年目标列 -->
-                  <td class="px-3 py-2 text-sm border-r border-gray-200">
+                  <td class="px-3 py-2 text-sm border-r border-gray-200 sticky left-[480px] z-10 bg-white">
                     <GoalCell :goal="row.mainGoal" :period-type="'YEAR'" :period-value="String(year)" @add="openAddGoal('YEAR', String(year), row)" @edit="openEditGoal" />
                   </td>
                   <!-- 12个月份列 -->
@@ -307,7 +307,7 @@
 
                 <template v-else-if="view === 'month'">
                   <!-- 月目标列 -->
-                  <td class="px-3 py-2 text-sm border-r border-gray-200">
+                  <td class="px-3 py-2 text-sm border-r border-gray-200 sticky left-[480px] z-10 bg-white">
                     <GoalCell :goal="row.mainGoal" :period-type="'MONTH'" :period-value="`${year}-${String(month).padStart(2, '0')}`" @add="openAddGoal('MONTH', `${year}-${String(month).padStart(2, '0')}`, row)" @edit="openEditGoal" />
                   </td>
                   <!-- 4-5周列 -->
@@ -325,7 +325,7 @@
 
                 <template v-else-if="view === 'week'">
                   <!-- 周目标列 -->
-                  <td class="px-3 py-2 text-sm border-r border-gray-200">
+                  <td class="px-3 py-2 text-sm border-r border-gray-200 sticky left-[480px] z-10 bg-white">
                     <GoalCell :goal="row.mainGoal" :period-type="'WEEK'" :period-value="currentWeekValue" @add="openAddGoal('WEEK', currentWeekValue, row)" @edit="openEditGoal" />
                   </td>
                   <!-- 7天列 -->
@@ -1385,5 +1385,32 @@ const handleSignOut = async () => {
 
 .add-goal-btn:hover {
   @apply bg-blue-100;
+}
+
+/* 固定列样式增强 */
+table th.sticky,
+table td.sticky {
+  position: sticky;
+}
+
+/* 固定列之间的阴影效果，提示可滚动 */
+table th.sticky:not(:last-child),
+table td.sticky:not(:last-child) {
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
+}
+
+/* 固定最后一列的阴影效果 */
+table th.sticky:last-child,
+table td.sticky:last-child {
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+}
+
+/* hover 效果同步到固定列 */
+tr:hover td.sticky {
+  background-color: #f9fafb;
+}
+
+tr:hover td.sticky.bg-white {
+  background-color: #f9fafb;
 }
 </style>
