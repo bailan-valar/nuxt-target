@@ -189,21 +189,21 @@
         <table class="min-w-full divide-x divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px]">场景</th>
-              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px]">分组</th>
-              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-auto">项目</th>
-              <th v-if="hasSubprojects" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-auto">子项目</th>
+              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px] border-r border-gray-200">场景</th>
+              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px] border-r border-gray-200">分组</th>
+              <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-auto border-r border-gray-200">项目</th>
+              <th v-if="hasSubprojects" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-auto border-r border-gray-200">子项目</th>
 
               <!-- 年视图：年目标 + 12个月 -->
               <template v-if="view === 'year'">
-                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">年目标</th>
-                <th v-for="m in 12" :key="m" class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[60px]">{{ m }}月</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">年目标</th>
+                <th v-for="m in 12" :key="m" class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[60px] border-r border-gray-200">{{ m }}月</th>
               </template>
 
               <!-- 月视图：月目标 + 4-5周 -->
               <template v-else-if="view === 'month'">
-                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">月目标</th>
-                <th v-for="week in monthWeeks" :key="week.index" class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[80px]">
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">月目标</th>
+                <th v-for="week in monthWeeks" :key="week.index" class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[80px] border-r border-gray-200">
                   <div class="flex flex-col items-start gap-1">
                     <span>第{{ week.index }}周</span>
                     <span class="text-xs text-gray-400">{{ week.range }}</span>
@@ -213,8 +213,8 @@
 
               <!-- 周视图：周目标 + 7天 -->
               <template v-else-if="view === 'week'">
-                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">周目标</th>
-                <th v-for="day in weekDays" :key="day.date" class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[70px]">
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">周目标</th>
+                <th v-for="day in weekDays" :key="day.date" class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[70px] border-r border-gray-200">
                   <div class="flex flex-col items-start gap-1">
                     <span :class="{ 'text-blue-600 font-semibold': isToday(day.date) }">{{ day.weekday }}</span>
                     <span :class="{ 'text-blue-600 font-semibold': isToday(day.date) }" class="text-xs">{{ day.day }}</span>
@@ -230,7 +230,7 @@
                 <td
                   v-if="shouldShowCell('scene', rowIndex)"
                   :rowspan="row.rowspans.scene ?? 1"
-                  class="px-3 py-2 align-middle"
+                  class="px-3 py-2 align-middle border-r border-gray-200"
                   @contextmenu.prevent="row.scene ? handleContextMenu($event, row.scene) : null"
                 >
                   <div v-if="row.scene" class="folder-cell">
@@ -245,7 +245,7 @@
                 <td
                   v-if="shouldShowCell('group', rowIndex)"
                   :rowspan="row.rowspans.group ?? 1"
-                  class="px-3 py-2 align-middle"
+                  class="px-3 py-2 align-middle border-r border-gray-200"
                   @contextmenu.prevent="row.group ? handleContextMenu($event, row.group) : null"
                 >
                   <div v-if="row.group" class="folder-cell">
@@ -260,7 +260,7 @@
                 <td
                   v-if="shouldShowCell('project', rowIndex)"
                   :rowspan="row.rowspans.project ?? 1"
-                  class="px-3 py-2 align-middle"
+                  class="px-3 py-2 align-middle border-r border-gray-200"
                   @contextmenu.prevent="row.project ? handleContextMenu($event, row.project) : null"
                 >
                   <div v-if="row.project" class="folder-cell">
@@ -275,7 +275,7 @@
                 <td
                   v-if="hasSubprojects && shouldShowCell('subproject', rowIndex)"
                   :rowspan="row.rowspans.subproject ?? 1"
-                  class="px-3 py-2 align-middle"
+                  class="px-3 py-2 align-middle border-r border-gray-200"
                   @contextmenu.prevent="row.subproject ? handleContextMenu($event, row.subproject) : null"
                 >
                   <div v-if="row.subproject" class="folder-cell">
@@ -289,11 +289,11 @@
                 <!-- 目标列和日期列 -->
                 <template v-if="view === 'year'">
                   <!-- 年目标列 -->
-                  <td class="px-3 py-2 text-sm">
+                  <td class="px-3 py-2 text-sm border-r border-gray-200">
                     <GoalCell :goal="row.mainGoal" :period-type="'YEAR'" :period-value="String(year)" @add="openAddGoal('YEAR', String(year), row)" @edit="openEditGoal" />
                   </td>
                   <!-- 12个月份列 -->
-                  <td v-for="m in 12" :key="m" class="px-2 py-2 text-sm text-left">
+                  <td v-for="m in 12" :key="m" class="px-2 py-2 text-sm text-left border-r border-gray-200">
                     <GoalCell
                       :goal="getChildGoal(row.mainGoal, 'MONTH', `${year}-${String(m).padStart(2, '0')}`, row.subproject?.id || row.project?.id || row.group?.id || row.scene?.id)"
                       :period-type="'MONTH'"
@@ -307,11 +307,11 @@
 
                 <template v-else-if="view === 'month'">
                   <!-- 月目标列 -->
-                  <td class="px-3 py-2 text-sm">
+                  <td class="px-3 py-2 text-sm border-r border-gray-200">
                     <GoalCell :goal="row.mainGoal" :period-type="'MONTH'" :period-value="`${year}-${String(month).padStart(2, '0')}`" @add="openAddGoal('MONTH', `${year}-${String(month).padStart(2, '0')}`, row)" @edit="openEditGoal" />
                   </td>
                   <!-- 4-5周列 -->
-                  <td v-for="week in monthWeeks" :key="week.index" class="px-2 py-2 text-sm text-left">
+                  <td v-for="week in monthWeeks" :key="week.index" class="px-2 py-2 text-sm text-left border-r border-gray-200">
                     <GoalCell
                       :goal="getChildGoal(row.mainGoal, 'WEEK', week.value, row.subproject?.id || row.project?.id || row.group?.id || row.scene?.id)"
                       :period-type="'WEEK'"
@@ -325,11 +325,11 @@
 
                 <template v-else-if="view === 'week'">
                   <!-- 周目标列 -->
-                  <td class="px-3 py-2 text-sm">
+                  <td class="px-3 py-2 text-sm border-r border-gray-200">
                     <GoalCell :goal="row.mainGoal" :period-type="'WEEK'" :period-value="currentWeekValue" @add="openAddGoal('WEEK', currentWeekValue, row)" @edit="openEditGoal" />
                   </td>
                   <!-- 7天列 -->
-                  <td v-for="day in weekDays" :key="day.date" class="px-2 py-2 text-sm text-left">
+                  <td v-for="day in weekDays" :key="day.date" class="px-2 py-2 text-sm text-left border-r border-gray-200">
                     <GoalCell
                       :goal="getChildGoal(row.mainGoal, 'DAY', day.date, row.subproject?.id || row.project?.id || row.group?.id || row.scene?.id)"
                       :period-type="'DAY'"
