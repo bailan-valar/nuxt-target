@@ -3,23 +3,22 @@
  * 提供简单的toast通知功能
  */
 export const useToast = () => {
-  const toasts = ref<
-    Array<{
-      id: string
-      message: string
-      type: 'success' | 'error' | 'warning' | 'info'
-      duration: number
-    }>
-  >([])
+  // 使用全局状态共享 toasts
+  const toasts = useState<Array<{
+    id: string
+    message: string
+    type: 'success' | 'error' | 'warning' | 'info'
+    duration: number
+  }>>('global-toasts', () => [])
 
-  let idCounter = 0
+  const idCounter = useState('toast-id-counter', () => 0)
 
   const show = (
     message: string,
     type: 'success' | 'error' | 'warning' | 'info' = 'info',
     duration: number = 3000
   ) => {
-    const id = `toast-${idCounter++}`
+    const id = `toast-${idCounter.value++}`
     toasts.value.push({ id, message, type, duration })
 
     // 自动移除

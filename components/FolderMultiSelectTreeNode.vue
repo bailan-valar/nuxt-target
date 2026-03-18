@@ -68,7 +68,7 @@
           <span v-else>{{ folder.icon }}</span>
         </div>
         <span class="folder-name">{{ folder.name }}</span>
-        <span v-if="folder._count" class="folder-count">
+        <span v-if="includeGoals && folder._count" class="folder-count">
           ({{ folder._count.goals || 0 }})
         </span>
       </div>
@@ -83,6 +83,7 @@
         :depth="depth + 1"
         :selected-ids="selectedIds"
         :expanded-ids="expandedIds"
+        :include-goals="includeGoals"
         @toggle="$emit('toggle', $event)"
         @expand="$emit('expand', $event)"
       />
@@ -98,10 +99,12 @@ interface Props {
   depth: number
   selectedIds: string[]
   expandedIds?: Set<string>
+  includeGoals?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  expandedIds: () => new Set<string>()
+  expandedIds: () => new Set<string>(),
+  includeGoals: false
 })
 
 const emit = defineEmits<{

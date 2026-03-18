@@ -197,16 +197,41 @@
               <!-- 年视图：年目标 + 12个月 -->
               <template v-if="view === 'year'">
                 <th data-column="goal" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 sticky left-0 z-20 bg-gray-50">年目标</th>
-                <th v-for="m in 12" :key="m" class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[60px] border-r border-gray-200">{{ m }}月</th>
+                <th
+                  v-for="m in 12"
+                  :key="m"
+                  :class="[
+                    'px-2 py-2 text-left text-xs font-medium uppercase tracking-wider min-w-[60px] border-r border-gray-200',
+                    m === currentMonth && year === currentYear
+                      ? '!bg-blue-100 !text-blue-700 font-bold'
+                      : '!bg-gray-50 !text-gray-500'
+                  ]"
+                  :style="m === currentMonth && year === currentYear ? 'background-color: rgb(219 234 254) !important; color: rgb(29 78 216) !important;' : ''"
+                >
+                  {{ m }}月
+                </th>
               </template>
 
               <!-- 月视图：月目标 + 4-5周 -->
               <template v-else-if="view === 'month'">
                 <th data-column="goal" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 sticky left-0 z-20 bg-gray-50">月目标</th>
-                <th v-for="week in monthWeeks" :key="week.index" class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[80px] border-r border-gray-200">
+                <th
+                  v-for="week in monthWeeks"
+                  :key="week.index"
+                  :class="[
+                    'px-2 py-2 text-left text-xs font-medium uppercase tracking-wider min-w-[80px] border-r border-gray-200',
+                    week.value === currentWeekValue
+                      ? '!bg-blue-100 !text-blue-700 font-bold'
+                      : '!bg-gray-50 !text-gray-500'
+                  ]"
+                  :style="week.value === currentWeekValue ? 'background-color: rgb(219 234 254) !important; color: rgb(29 78 216) !important;' : ''"
+                >
                   <div class="flex flex-col items-start gap-1">
                     <span>第{{ week.index }}周</span>
-                    <span class="text-xs text-gray-400">{{ week.range }}</span>
+                    <span
+                      class="text-xs"
+                      :class="week.value === currentWeekValue ? '!text-blue-500' : 'text-gray-400'"
+                    >{{ week.range }}</span>
                   </div>
                 </th>
               </template>
@@ -214,10 +239,20 @@
               <!-- 周视图：周目标 + 7天 -->
               <template v-else-if="view === 'week'">
                 <th data-column="goal" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 sticky left-0 z-20 bg-gray-50">周目标</th>
-                <th v-for="day in weekDays" :key="day.date" class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[70px] border-r border-gray-200">
+                <th
+                  v-for="day in weekDays"
+                  :key="day.date"
+                  :class="[
+                    'px-2 py-2 text-left text-xs font-medium uppercase tracking-wider min-w-[70px] border-r border-gray-200',
+                    isToday(day.date)
+                      ? '!bg-blue-100 !text-blue-700 font-bold'
+                      : '!bg-gray-50 !text-gray-500'
+                  ]"
+                  :style="isToday(day.date) ? 'background-color: rgb(219 234 254) !important; color: rgb(29 78 216) !important;' : ''"
+                >
                   <div class="flex flex-col items-start gap-1">
-                    <span :class="{ 'text-blue-600 font-semibold': isToday(day.date) }">{{ day.weekday }}</span>
-                    <span :class="{ 'text-blue-600 font-semibold': isToday(day.date) }" class="text-xs">{{ day.day }}</span>
+                    <span>{{ day.weekday }}</span>
+                    <span class="text-xs">{{ day.day }}</span>
                   </div>
                 </th>
               </template>
@@ -470,10 +505,14 @@ const goalModalDefaults = ref<{
 const selectedGoal = ref<any>(null)
 
 // 日期状态
-const today = new Date()
-const year = ref(today.getFullYear())
-const month = ref(today.getMonth() + 1)
-const weekStart = ref(getWeekStart(today))
+const today = ref(new Date())
+const year = ref(today.value.getFullYear())
+const month = ref(today.value.getMonth() + 1)
+const weekStart = ref(getWeekStart(today.value))
+
+// 当前月份和年份（用于高亮显示）
+const currentMonth = computed(() => today.value.getMonth() + 1)
+const currentYear = computed(() => today.value.getFullYear())
 
 const { data, pending, error, refresh } = await useFetch('/api/goals')
 
@@ -482,16 +521,10 @@ const goalsWithTree = computed(() => {
   const flatGoals = data.value?.data || []
 
   // 调试信息：输出原始数据
-  console.log('🔍 [调试] 原始goals数据:', flatGoals.length, '条')
-  console.log('🔍 [调试] 所有TASK类型的目标:', flatGoals.filter((g: any) => g.periodType === 'TASK').map((g: any) => ({
-    id: g.id.substring(0, 8),
-    title: g.title,
-    folderId: g.folderId.substring(0, 8),
-    periodValue: g.periodValue,
-    parentId: g.parentId?.substring(0, 8) || null
-  })))
-  console.log('🔍 [调试] 周视图当前周期值:', currentWeekValue.value)
-  console.log('🔍 [调试] 周7天日期:', weekDays.value.map(d => d.date))
+  
+  
+  
+  
 
   // 按文件夹分组统计
   const folderStats = new Map<string, { total: number; byType: Record<string, number> }>()
@@ -504,11 +537,7 @@ const goalsWithTree = computed(() => {
     stat.byType[g.periodType] = (stat.byType[g.periodType] || 0) + 1
   })
 
-  console.log('🔍 [调试] 按文件夹统计:', Array.from(folderStats.entries()).map(([id, stat]) => ({
-    folderId: id.substring(0, 8),
-    total: stat.total,
-    byType: stat.byType
-  })))
+  
 
   // 构建父子关系映射
   const goalsMap = new Map<string, any>()
@@ -530,7 +559,7 @@ const goalsWithTree = computed(() => {
         parent.children.push(goalWithChildren)
       } else {
         // parentId存在但找不到父目标，作为根目标处理
-        console.warn(`⚠️ 目标 ${goal.id} 的父目标 ${goal.parentId} 不存在，作为根目标处理`)
+        
         rootGoals.push(goalWithChildren)
       }
     } else {
@@ -539,7 +568,7 @@ const goalsWithTree = computed(() => {
     }
   })
 
-  console.log('🔍 [调试] 构建后根目标数量:', rootGoals.length)
+  
 
   // 暴露到全局以便调试
   ;(window as any).__DEBUG_goals__ = flatGoals
@@ -564,22 +593,18 @@ const folders = computed(() => {
 
   // 🔍 [调试] 检查cmmtyfkr文件夹是否在foldersData中
   if (view.value === 'week') {
-    console.log('🔍 [调试] 检查foldersData中的cmmtyfkr文件夹...')
+    
     
     // 打印所有文件夹的ID
     const printAllFolderIds = (foldersList: any[], prefix = '') => {
       for (const folder of foldersList) {
-        console.log(prefix + '文件夹:', {
-          id: folder.id.substring(0, 8),
-          name: folder.name,
-          type: folder.type
-        })
+        
         if (folder.children?.length > 0) {
           printAllFolderIds(folder.children, prefix + '  ')
         }
       }
     }
-    console.log('🔍 [调试] 所有文件夹列表:')
+    
     printAllFolderIds(folderList)
     
     // 递归查找cmmtyfkr文件夹
@@ -599,16 +624,10 @@ const folders = computed(() => {
     const cmmtyfkrFolder = findCmmtyfkrFolder(folderList)
     
     if (cmmtyfkrFolder) {
-      console.log('🔍 [调试] 找到cmmtyfkr文件夹:', {
-        id: cmmtyfkrFolder.id.substring(0, 8),
-        name: cmmtyfkrFolder.name,
-        type: cmmtyfkrFolder.type,
-        parentId: cmmtyfkrFolder.parentId?.substring(0, 8) || null,
-        hasChildren: cmmtyfkrFolder.children?.length || 0
-      })
+      
     } else {
-      console.log('🔍 [调试] 未找到cmmtyfkr文件夹')
-      console.log('🔍 [调试] folders总数:', folderList.length)
+      
+      
     }
   }
 
@@ -619,16 +638,11 @@ const folders = computed(() => {
 watchEffect(() => {
   if (folders.value?.length > 0) {
     ;(window as any).__DEBUG_folders__ = folders.value
-    console.log('🔍 [调试] folders数据已更新，总数:', folders.value.length)
+    
 
     // 查找 cmmtyfkr 文件夹
     const targetFolder = folders.value.find((f: any) => f.id.startsWith('cmmtyfkr'))
-    console.log('🔍 [调试] cmmtyfkr 文件夹:', targetFolder ? {
-      id: targetFolder.id.substring(0, 8),
-      name: targetFolder.name,
-      type: targetFolder.type,
-      parentId: targetFolder.parentId?.substring(0, 8) || null
-    } : '未找到')
+    
   }
 })
 
@@ -734,30 +748,18 @@ const typedTableData = computed<TypedRow[]>(() => {
   // 🔍 [调试] 检查cmmtyfkr文件夹的类型和层级
   const targetFolder = folders.value.find((f: any) => f.id.startsWith('cmmtyfkr'))
   if (targetFolder && view.value === 'week') {
-    console.log('🔍 [调试] typedTableData - cmmtyfkr文件夹信息:', {
-      id: targetFolder.id,
-      id8: targetFolder.id.substring(0, 8),
-      name: targetFolder.name,
-      type: targetFolder.type,
-      parentId: targetFolder.parentId?.substring(0, 8) || null,
-      hasChildren: targetFolder.children?.length || 0
-    })
+    
 
     // 检查是否在筛选中
     const isInSelected = selectedFolderIds.value.includes(targetFolder.id)
-    console.log('🔍 [调试] 是否在selectedFolderIds中:', isInSelected)
-    console.log('🔍 [调试] selectedFolderIds:', selectedFolderIds.value.map((id: string) => id.substring(0, 8)))
+    
+    
 
     // 检查祖先文件夹
     if (targetFolder.parentId) {
       const parent = findFolderById(folders.value, targetFolder.parentId)
       if (parent) {
-        console.log('🔍 [调试] 父文件夹:', {
-          id: parent.id.substring(0, 8),
-          name: parent.name,
-          type: parent.type,
-          parentId: parent.parentId?.substring(0, 8) || null
-        })
+        
       }
     }
   }
@@ -993,10 +995,10 @@ function nextWeek() {
 }
 
 function goToToday() {
-  const today = new Date()
-  year.value = today.getFullYear()
-  month.value = today.getMonth() + 1
-  weekStart.value = getWeekStart(today)
+  today.value = new Date()
+  year.value = today.value.getFullYear()
+  month.value = today.value.getMonth() + 1
+  weekStart.value = getWeekStart(today.value)
 }
 
 // 清除筛选
@@ -1065,11 +1067,7 @@ function findFolderById(folders: any[], id: string): any {
 function getChildGoal(parentGoal: any, periodType: string, periodValue: string, folderId?: string): any {
   // 添加调试：在查找 cmmtyfkr 的 TASK 时打印 goals.value 的内容
   if (folderId === 'cmmtyfkr' && periodType === 'TASK') {
-    console.log('🔍🔍 [getChildGoal] 即将查找 cmmtyfkr 的TASK，当前goals.value:', goals.value.map(g => ({
-      id: g.id.substring(0, 8),
-      periodType: g.periodType,
-      folderId: g.folderId.substring(0, 8)
-    })))
+    
   }
 
   // 如果有父目标，先从父目标的children中查找
@@ -1078,15 +1076,7 @@ function getChildGoal(parentGoal: any, periodType: string, periodValue: string, 
       g.periodType === periodType && g.periodValue === periodValue
     )
 
-    console.log('🔍 [getChildGoal] 从父目标查找:', {
-      parentTitle: parentGoal?.title,
-      parentPeriodType: parentGoal?.periodType,
-      parentPeriodValue: parentGoal?.periodValue,
-      searchingFor: { periodType, periodValue },
-      childrenCount: parentGoal.children.length,
-      found: !!found,
-      foundTitle: found?.title
-    })
+    
 
     // 如果找到了，直接返回；如果找不到，返回null（不要继续查找）
     return found || null
@@ -1101,16 +1091,7 @@ function getChildGoal(parentGoal: any, periodType: string, periodValue: string, 
       !g.parentId  // 没有父目标
     )
 
-    console.log('🔍 [getChildGoal] 孤儿任务行，查找文件夹下的孤儿TASK:', {
-      folderId: folderId.substring(0, 8),
-      searchingFor: { periodType, periodValue },
-      orphanTasksInFolderCount: orphanTasksInFolder.length,
-      orphanTasksInFolder: orphanTasksInFolder.map((g: any) => ({
-        id: g.id.substring(0, 8),
-        title: g.title,
-        periodValue: g.periodValue
-      }))
-    })
+    
 
     if (orphanTasksInFolder.length > 0) {
       return orphanTasksInFolder[0]
@@ -1125,16 +1106,7 @@ function getChildGoal(parentGoal: any, periodType: string, periodValue: string, 
       !g.parentId  // 没有父目标
     )
 
-    console.log('🔍 [getChildGoal] folderId为null，查找孤儿TASK:', {
-      searchingFor: { periodType, periodValue },
-      orphanTasksCount: orphanTasks.length,
-      orphanTasks: orphanTasks.map((g: any) => ({
-        id: g.id.substring(0, 8),
-        title: g.title,
-        folderId: g.folderId.substring(0, 8),
-        periodValue: g.periodValue
-      }))
-    })
+    
 
     // 如果找到了孤儿TASK，返回第一个（实际上应该只有一个）
     if (orphanTasks.length > 0) {
@@ -1142,7 +1114,7 @@ function getChildGoal(parentGoal: any, periodType: string, periodValue: string, 
     }
   }
 
-  console.log('🔍 [getChildGoal] 无匹配目标，返回null')
+  
   return null
 }
 
@@ -1343,33 +1315,12 @@ function getMainGoalForFolder(folderId: string, currentView: string): any {
   // goals.value 现在是根目标数组
   const folderRootGoals = goals.value.filter((g: any) => g.folderId === folderId)
 
-  console.log('🔍 [getMainGoalForFolder] 开始查找:', {
-    folderId: folderId.substring(0, 8),
-    currentView,
-    targetType,
-    folderRootGoalsCount: folderRootGoals.length,
-    folderRootGoals: folderRootGoals.map((g: any) => ({
-      id: g.id.substring(0, 8),
-      title: g.title,
-      periodType: g.periodType,
-      periodValue: g.periodValue,
-      childrenCount: g.children?.length || 0
-    }))
-  })
+  
 
   // 查找对应视图类型的主目标（根目标）
   let mainGoal = folderRootGoals.find((g: any) => g.periodType === targetType)
 
-  console.log('🔍 [getMainGoalForFolder] 查找结果:', {
-    found: !!mainGoal,
-    mainGoal: mainGoal ? {
-      id: mainGoal.id.substring(0, 8),
-      title: mainGoal.title,
-      periodType: mainGoal.periodType,
-      periodValue: mainGoal.periodValue,
-      childrenCount: mainGoal.children?.length || 0
-    } : null
-  })
+  
 
   // 年视图特殊处理：如果没有年目标，但该文件夹有月度目标，创建一个虚拟的年目标来承载这些月度目标
   if (currentView === 'year' && !mainGoal) {
@@ -1385,7 +1336,7 @@ function getMainGoalForFolder(folderId: string, currentView: string): any {
         children: monthGoals,
         isVirtual: true
       }
-      console.log('🔍 [getMainGoalForFolder] 创建虚拟年目标')
+      
     }
   }
 

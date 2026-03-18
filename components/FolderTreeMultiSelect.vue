@@ -67,6 +67,7 @@
           :depth="0"
           :selected-ids="selectedIds"
           :expanded-ids="expandedIds"
+          :include-goals="props.includeGoals"
           @toggle="handleToggle"
           @expand="handleExpand"
         />
@@ -90,13 +91,15 @@ interface Props {
   label?: string
   modelValue?: string[]
   folderType?: string
+  includeGoals?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   id: undefined,
   label: '',
   modelValue: () => [],
-  folderType: undefined
+  folderType: undefined,
+  includeGoals: false
 })
 
 const emit = defineEmits<{
@@ -106,10 +109,10 @@ const emit = defineEmits<{
 const isOpen = ref(false)
 const selectedIds = ref<string[]>([...props.modelValue])
 
-// 展开状态管理
+// 展开状态管理（默认折叠）
 const expandedIds = ref<Set<string>>(new Set())
 
-// 初始化展开所有文件夹
+// 初始化展开指定文件夹（用于需要默认展开某些节点的场景）
 const initializeExpandedIds = (folderList: Folder[]) => {
   folderList.forEach(folder => {
     expandedIds.value.add(folder.id)
@@ -123,7 +126,7 @@ const { data: foldersData } = await useFetch('/api/folders', {
   query: {
     type: props.folderType,
     expandAll: true,
-    includeGoals: false
+    includeGoals: props.includeGoals
   }
 })
 
@@ -131,12 +134,13 @@ const folderTree = computed(() => {
   return foldersData.value?.data ?? []
 })
 
-// 监听文件夹数据变化，自动展开所有节点
-watch(folderTree, (newFolders) => {
-  if (newFolders && newFolders.length > 0) {
-    initializeExpandedIds(newFolders)
-  }
-}, { immediate: true })
+// 默认折叠所有节点
+// 如需自动展开，可取消注释以下代码：
+// watch(folderTree, (newFolders) => {
+//   if (newFolders && newFolders.length > 0) {
+//     initializeExpandedIds(newFolders)
+//   }
+// }, { immediate: true })
 
 // 获取所有文件夹的扁平映射
 const folderMap = computed(() => {

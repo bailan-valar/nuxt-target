@@ -82,12 +82,53 @@
         </div>
 
         <div class="actions">
+          <!-- 删除按钮（仅在编辑模式显示） -->
+          <button
+            v-if="goal?.id"
+            type="button"
+            class="btn-delete"
+            :disabled="deleting"
+            @click="showDeleteConfirm = true"
+          >
+            删除
+          </button>
+
           <button type="button" class="btn-secondary" @click="$emit('close')">取消</button>
           <button type="submit" class="btn-primary" :disabled="loading">
             {{ loading ? '保存中...' : '保存' }}
           </button>
         </div>
       </form>
+    </div>
+
+    <!-- 删除确认弹框 -->
+    <div v-if="showDeleteConfirm" class="confirm-dialog-overlay" @click.self="showDeleteConfirm = false">
+      <div class="confirm-dialog">
+        <div class="confirm-dialog-header">
+          <h3>确认删除</h3>
+        </div>
+        <div class="confirm-dialog-body">
+          <p>确定要删除目标「{{ goal?.title }}」吗？</p>
+          <p class="warning-text">此操作无法撤销</p>
+        </div>
+        <div class="confirm-dialog-footer">
+          <button
+            type="button"
+            class="btn-secondary"
+            @click="showDeleteConfirm = false"
+          >
+            取消
+          </button>
+          <button
+            type="button"
+            class="btn-danger"
+            :disabled="deleting"
+            @click="handleDelete"
+          >
+            {{ deleting ? '删除中...' : '确认删除' }}
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -124,6 +165,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   close: []
   saved: []
+  deleted: []
 }>()
 
 const form = reactive({
@@ -140,6 +182,8 @@ const form = reactive({
 })
 
 const loading = ref(false)
+const deleting = ref(false)
+const showDeleteConfirm = ref(false)
 
 // 辅助函数：将 ISO 8601 字符串转换为 datetime-local 格式
 const isoToDateTimeLocal = (isoString: string | null | undefined): string => {
@@ -191,6 +235,10 @@ watch(() => props.show, (isShow) => {
       form.parentGoal = props.defaults.parentGoal
     }
   }
+  // 重置删除确认状态
+  if (!isShow) {
+    showDeleteConfirm.value = false
+  }
 })
 
 const handleSubmit = async () => {
@@ -225,9 +273,6 @@ const handleSubmit = async () => {
       body.nextExecution = new Date(form.nextExecution).toISOString()
     }
 
-    // 调试日志
-    console.log('发送的数据:', body)
-
     await $fetch(url, { method, body })
     emit('saved')
     emit('close')
@@ -237,6 +282,26 @@ const handleSubmit = async () => {
     error(message)
   } finally {
     loading.value = false
+  }
+}
+
+const handleDelete = async () => {
+  if (!props.goal?.id) return
+
+  deleting.value = true
+  try {
+    await $fetch(`/api/goals/${props.goal.id}`, { method: 'DELETE' })
+    const { success } = useToast()
+    success('目标已删除')
+    showDeleteConfirm.value = false
+    emit('deleted')
+    emit('close')
+  } catch (e: any) {
+    const message = e.data?.error || '删除失败'
+    const { error } = useToast()
+    error(message)
+  } finally {
+    deleting.value = false
   }
 }
 </script>
@@ -434,5 +499,107 @@ const handleSubmit = async () => {
 .actions button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.btn-delete {
+  background: #fff;
+  color: #ef4444;
+  border: 1px solid #fecaca;
+  margin-right: auto;
+}
+
+.btn-delete:hover:not(:disabled) {
+  background: #fef2f2;
+  border-color: #f87171;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: white;
+  border: 1px solid #ef4444;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
+/* 删除确认弹框样式 */
+.confirm-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+  padding: 1rem;
+}
+
+.confirm-dialog {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  animation: dialogSlideIn 0.2s ease-out;
+}
+
+@keyframes dialogSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.confirm-dialog-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.confirm-dialog-header h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.confirm-dialog-body {
+  padding: 1.25rem;
+}
+
+.confirm-dialog-body p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.warning-text {
+  margin-top: 0.5rem !important;
+  color: #ef4444 !important;
+  font-size: 0.8125rem !important;
+}
+
+.confirm-dialog-footer {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.confirm-dialog-footer button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
 }
 </style>
