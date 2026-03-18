@@ -64,6 +64,16 @@ export const defaultCommands: Command[] = [
   },
   // 列表
   {
+    id: 'taskList',
+    title: '待办清单',
+    description: '可勾选的待办事项',
+    icon: 'TaskList',
+    category: 'list',
+    command: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).toggleTaskList().run()
+    }
+  },
+  {
     id: 'bulletList',
     title: '无序列表',
     description: '简单的无序列表',

@@ -216,7 +216,8 @@ onUnmounted(() => {
 
 <style scoped>
 .slash-command-popup {
-  @apply fixed z-[10000] w-80 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden;
+  @apply fixed z-[99999] w-80 bg-white rounded-lg shadow-2xl border border-gray-300 overflow-hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
 }
 
 .slash-command-header {

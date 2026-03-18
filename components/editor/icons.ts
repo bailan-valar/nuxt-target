@@ -128,6 +128,32 @@ export const OrderedList = defineComponent({
   }
 })
 
+export const TaskList = defineComponent({
+  name: 'TaskListIcon',
+  setup() {
+    return () => h('svg', {
+      width: '16',
+      height: '16',
+      viewBox: '0 0 24 24',
+      fill: 'none',
+      stroke: 'currentColor',
+      'stroke-width': '2'
+    }, [
+      h('rect', {
+        x: '3',
+        y: '3',
+        width: '18',
+        height: '18',
+        rx: '2',
+        ry: '2'
+      }),
+      h('polyline', {
+        points: '9 12 11 14 15 10'
+      })
+    ])
+  }
+})
+
 export const Blockquote = defineComponent({
   name: 'BlockquoteIcon',
   setup() {

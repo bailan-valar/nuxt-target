@@ -2,26 +2,48 @@
   <div class="space-y-6">
     <!-- 页面头部 -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <!-- 视图切换 -->
+        <div class="inline-flex rounded-lg border border-gray-300 p-1">
+          <button @click="switchView('year')" :class="[
+            'px-3 py-1.5 text-sm font-medium rounded-md transition-colors',
+            view === 'year' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+          ]">
+            年
+          </button>
+          <button @click="switchView('month')" :class="[
+            'px-3 py-1.5 text-sm font-medium rounded-md transition-colors',
+            view === 'month' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+          ]">
+            月
+          </button>
+          <button @click="switchView('week')" :class="[
+            'px-3 py-1.5 text-sm font-medium rounded-md transition-colors',
+            view === 'week' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+          ]">
+            周
+          </button>
+        </div>
+
+      </div>
+
+      <!-- 文件夹筛选 -->
+      <div class="flex-1 max-w-[200px]">
+        <FolderTreeMultiSelect v-model="selectedFolderIds" />
+      </div>
       <!-- 日期选择器 -->
       <div class="flex-1">
         <div class="flex flex-wrap items-center gap-4">
+        <div class="flex-1"></div>
           <!-- 年视图：年份选择 -->
           <div v-if="view === 'year'" class="flex items-center gap-2">
-            <button
-              @click="year--"
-              class="p-1 hover:bg-gray-100 rounded transition-colors"
-              title="上一年"
-            >
+            <button @click="year--" class="p-1 hover:bg-gray-100 rounded transition-colors" title="上一年">
               <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
               </svg>
             </button>
             <span class="text-lg font-semibold text-gray-900 min-w-[80px] text-center">{{ year }}年</span>
-            <button
-              @click="year++"
-              class="p-1 hover:bg-gray-100 rounded transition-colors"
-              title="下一年"
-            >
+            <button @click="year++" class="p-1 hover:bg-gray-100 rounded transition-colors" title="下一年">
               <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
@@ -31,21 +53,14 @@
           <!-- 月视图：年月选择 -->
           <div v-else-if="view === 'month'" class="flex items-center gap-3">
             <div class="flex items-center gap-2">
-              <button
-                @click="prevMonth"
-                class="p-1 hover:bg-gray-100 rounded transition-colors"
-                title="上一月"
-              >
+              <button @click="prevMonth" class="p-1 hover:bg-gray-100 rounded transition-colors" title="上一月">
                 <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              <span class="text-lg font-semibold text-gray-900 min-w-[120px] text-center">{{ year }}年 {{ month }}月</span>
-              <button
-                @click="nextMonth"
-                class="p-1 hover:bg-gray-100 rounded transition-colors"
-                title="下一月"
-              >
+              <span class="text-lg font-semibold text-gray-900 min-w-[120px] text-center">{{ year }}年 {{ month
+              }}月</span>
+              <button @click="nextMonth" class="p-1 hover:bg-gray-100 rounded transition-colors" title="下一月">
                 <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
@@ -56,21 +71,13 @@
           <!-- 周视图：年月周选择 -->
           <div v-else-if="view === 'week'" class="flex items-center gap-3">
             <div class="flex items-center gap-2">
-              <button
-                @click="prevWeek"
-                class="p-1 hover:bg-gray-100 rounded transition-colors"
-                title="上一周"
-              >
+              <button @click="prevWeek" class="p-1 hover:bg-gray-100 rounded transition-colors" title="上一周">
                 <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
               <span class="text-lg font-semibold text-gray-900 min-w-[200px] text-center">{{ weekRangeText }}</span>
-              <button
-                @click="nextWeek"
-                class="p-1 hover:bg-gray-100 rounded transition-colors"
-                title="下一周"
-              >
+              <button @click="nextWeek" class="p-1 hover:bg-gray-100 rounded transition-colors" title="下一周">
                 <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
@@ -78,92 +85,19 @@
             </div>
           </div>
 
-          <div class="flex-1"></div>
 
           <!-- 快捷按钮 -->
-          <button
-            @click="goToToday"
-            class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
-          >
+          <button @click="goToToday"
+            class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
             今天
           </button>
         </div>
       </div>
 
-      <div class="flex items-center gap-3">
-        <!-- 视图切换 -->
-        <div class="inline-flex rounded-lg border border-gray-300 p-1">
-          <button
-            @click="switchView('year')"
-            :class="[
-              'px-3 py-1.5 text-sm font-medium rounded-md transition-colors',
-              view === 'year' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100'
-            ]"
-          >
-            年
-          </button>
-          <button
-            @click="switchView('month')"
-            :class="[
-              'px-3 py-1.5 text-sm font-medium rounded-md transition-colors',
-              view === 'month' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100'
-            ]"
-          >
-            月
-          </button>
-          <button
-            @click="switchView('week')"
-            :class="[
-              'px-3 py-1.5 text-sm font-medium rounded-md transition-colors',
-              view === 'week' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100'
-            ]"
-          >
-            周
-          </button>
-        </div>
-
-        <!-- 新增按钮 -->
-        <button
-          @click="showModal = true"
-          class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg>
-          新增目标
-        </button>
-      </div>
     </div>
 
-    <!-- 筛选区域 -->
-    <div class="bg-white rounded-lg shadow border border-gray-200 p-4">
-      <div class="flex flex-wrap items-center gap-4">
-        <!-- 文件夹筛选 -->
-        <div class="flex-1 min-w-[300px]">
-          <FolderTreeMultiSelect
-            v-model="selectedFolderIds"
-            label="按文件夹筛选"
-          />
-        </div>
-
-        <!-- 清除筛选按钮 -->
-        <button
-          v-if="hasActiveFilters"
-          @click="clearFilters"
-          class="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
-        >
-          清除筛选
-        </button>
-      </div>
-    </div>
-
-    <GoalModal
-      :show="showModal"
-      :goal="selectedGoal"
-      :defaults="goalModalDefaults"
-      @close="handleCloseGoalModal"
-      @saved="handleSaved"
-    />
+    <GoalModal :show="showModal" :goal="selectedGoal" :defaults="goalModalDefaults" @close="handleCloseGoalModal"
+      @saved="handleSaved" />
 
     <!-- 加载状态 -->
     <div v-if="pending" class="flex items-center justify-center py-12">
@@ -177,7 +111,9 @@
     <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4">
       <div class="flex">
         <svg class="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+          <path fill-rule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+            clip-rule="evenodd" />
         </svg>
         <p class="text-red-800">{{ error.message }}</p>
       </div>
@@ -189,69 +125,70 @@
         <table class="min-w-full divide-x divide-y divide-gray-200">
           <thead class="bg-gray-50 sticky top-0 z-30">
             <tr>
-              <th data-column="scene" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px] border-r border-gray-200 sticky left-0 z-20 bg-gray-50">场景</th>
-              <th data-column="group" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px] border-r border-gray-200 sticky left-0 z-20 bg-gray-50">分组</th>
-              <th data-column="project" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-auto border-r border-gray-200 sticky left-0 z-20 bg-gray-50">项目</th>
-              <th v-if="hasSubprojects" data-column="subproject" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-auto border-r border-gray-200 sticky left-0 z-20 bg-gray-50">子项目</th>
+              <th data-column="scene"
+                class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px] border-r border-gray-200 sticky left-0 z-20 bg-gray-50">
+                场景</th>
+              <th data-column="group"
+                class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[90px] border-r border-gray-200 sticky left-0 z-20 bg-gray-50">
+                分组</th>
+              <th data-column="project"
+                class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-auto border-r border-gray-200 sticky left-0 z-20 bg-gray-50">
+                项目</th>
+              <th v-if="hasSubprojects" data-column="subproject"
+                class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-auto border-r border-gray-200 sticky left-0 z-20 bg-gray-50">
+                子项目</th>
 
               <!-- 年视图：年目标 + 12个月 -->
               <template v-if="view === 'year'">
-                <th data-column="goal" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 sticky left-0 z-20 bg-gray-50">年目标</th>
-                <th
-                  v-for="m in 12"
-                  :key="m"
-                  :class="[
-                    'px-2 py-2 text-left text-xs font-medium uppercase tracking-wider min-w-[60px] border-r border-gray-200 cursor-pointer hover:bg-gray-100',
-                    m === currentMonth && year === currentYear
-                      ? '!bg-blue-100 !text-blue-700 font-bold'
-                      : '!bg-gray-50 !text-gray-500'
-                  ]"
+                <th data-column="goal"
+                  class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 sticky left-0 z-20 bg-gray-50">
+                  年目标</th>
+                <th v-for="m in 12" :key="m" :class="[
+                  'px-2 py-2 text-left text-xs font-medium uppercase tracking-wider min-w-[60px] border-r border-gray-200 cursor-pointer hover:bg-gray-100',
+                  m === currentMonth && year === currentYear
+                    ? '!bg-blue-100 !text-blue-700 font-bold'
+                    : '!bg-gray-50 !text-gray-500'
+                ]"
                   :style="m === currentMonth && year === currentYear ? 'background-color: rgb(219 234 254) !important; color: rgb(29 78 216) !important;' : ''"
-                  @click="goToMonthView(m)"
-                >
+                  @click="goToMonthView(m)">
                   {{ m }}月
                 </th>
               </template>
 
               <!-- 月视图：月目标 + 4-5周 -->
               <template v-else-if="view === 'month'">
-                <th data-column="goal" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 sticky left-0 z-20 bg-gray-50">月目标</th>
-                <th
-                  v-for="week in monthWeeks"
-                  :key="week.index"
-                  :class="[
-                    'px-2 py-2 text-left text-xs font-medium uppercase tracking-wider min-w-[80px] border-r border-gray-200 cursor-pointer hover:bg-gray-100',
-                    week.value === currentWeekValue
-                      ? '!bg-blue-100 !text-blue-700 font-bold'
-                      : '!bg-gray-50 !text-gray-500'
-                  ]"
+                <th data-column="goal"
+                  class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 sticky left-0 z-20 bg-gray-50">
+                  月目标</th>
+                <th v-for="week in monthWeeks" :key="week.index" :class="[
+                  'px-2 py-2 text-left text-xs font-medium uppercase tracking-wider min-w-[80px] border-r border-gray-200 cursor-pointer hover:bg-gray-100',
+                  week.value === currentWeekValue
+                    ? '!bg-blue-100 !text-blue-700 font-bold'
+                    : '!bg-gray-50 !text-gray-500'
+                ]"
                   :style="week.value === currentWeekValue ? 'background-color: rgb(219 234 254) !important; color: rgb(29 78 216) !important;' : ''"
-                  @click="goToWeekView(week.value)"
-                >
+                  @click="goToWeekView(week.value)">
                   <div class="flex flex-col items-start gap-1">
                     <span>第{{ week.index }}周</span>
-                    <span
-                      class="text-xs"
-                      :class="week.value === currentWeekValue ? '!text-blue-500' : 'text-gray-400'"
-                    >{{ week.range }}</span>
+                    <span class="text-xs"
+                      :class="week.value === currentWeekValue ? '!text-blue-500' : 'text-gray-400'">{{ week.range
+                      }}</span>
                   </div>
                 </th>
               </template>
 
               <!-- 周视图：周目标 + 7天 -->
               <template v-else-if="view === 'week'">
-                <th data-column="goal" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 sticky left-0 z-20 bg-gray-50">周目标</th>
-                <th
-                  v-for="day in weekDays"
-                  :key="day.date"
-                  :class="[
-                    'px-2 py-2 text-left text-xs font-medium uppercase tracking-wider min-w-[70px] border-r border-gray-200',
-                    isToday(day.date)
-                      ? '!bg-blue-100 !text-blue-700 font-bold'
-                      : '!bg-gray-50 !text-gray-500'
-                  ]"
-                  :style="isToday(day.date) ? 'background-color: rgb(219 234 254) !important; color: rgb(29 78 216) !important;' : ''"
-                >
+                <th data-column="goal"
+                  class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200 sticky left-0 z-20 bg-gray-50">
+                  周目标</th>
+                <th v-for="day in weekDays" :key="day.date" :class="[
+                  'px-2 py-2 text-left text-xs font-medium uppercase tracking-wider min-w-[70px] border-r border-gray-200',
+                  isToday(day.date)
+                    ? '!bg-blue-100 !text-blue-700 font-bold'
+                    : '!bg-gray-50 !text-gray-500'
+                ]"
+                  :style="isToday(day.date) ? 'background-color: rgb(219 234 254) !important; color: rgb(29 78 216) !important;' : ''">
                   <div class="flex flex-col items-start gap-1">
                     <span>{{ day.weekday }}</span>
                     <span class="text-xs">{{ day.day }}</span>
@@ -264,12 +201,9 @@
             <template v-for="(row, rowIndex) in typedTableData" :key="rowIndex">
               <tr class="hover:bg-gray-50 group">
                 <!-- 场景列 -->
-                <td
-                  v-if="shouldShowCell('scene', rowIndex)"
-                  :rowspan="row.rowspans.scene ?? 1"
-                  data-column="scene" class="px-3 py-2 align-middle border-r border-gray-200 sticky left-0 z-10 bg-white"
-                  @contextmenu.prevent="row.scene ? handleContextMenu($event, row.scene) : null"
-                >
+                <td v-if="shouldShowCell('scene', rowIndex)" :rowspan="row.rowspans.scene ?? 1" data-column="scene"
+                  class="px-3 py-2 align-middle border-r border-gray-200 sticky left-0 z-10 bg-white"
+                  @contextmenu.prevent="row.scene ? handleContextMenu($event, row.scene) : null">
                   <div v-if="row.scene" class="folder-cell">
                     <div class="folder-info">
                       <span class="name">{{ row.scene.name }}</span>
@@ -279,12 +213,9 @@
                 </td>
 
                 <!-- 分组列 -->
-                <td
-                  v-if="shouldShowCell('group', rowIndex)"
-                  :rowspan="row.rowspans.group ?? 1"
-                  data-column="group" class="px-3 py-2 align-middle border-r border-gray-200 sticky left-0 z-10 bg-white"
-                  @contextmenu.prevent="row.group ? handleContextMenu($event, row.group) : null"
-                >
+                <td v-if="shouldShowCell('group', rowIndex)" :rowspan="row.rowspans.group ?? 1" data-column="group"
+                  class="px-3 py-2 align-middle border-r border-gray-200 sticky left-0 z-10 bg-white"
+                  @contextmenu.prevent="row.group ? handleContextMenu($event, row.group) : null">
                   <div v-if="row.group" class="folder-cell">
                     <div class="folder-info">
                       <span class="name">{{ row.group.name }}</span>
@@ -294,12 +225,10 @@
                 </td>
 
                 <!-- 项目列 -->
-                <td
-                  v-if="shouldShowCell('project', rowIndex)"
-                  :rowspan="row.rowspans.project ?? 1"
-                  data-column="project" class="px-3 py-2 align-middle border-r border-gray-200 sticky left-0 z-10 bg-white"
-                  @contextmenu.prevent="row.project ? handleContextMenu($event, row.project) : null"
-                >
+                <td v-if="shouldShowCell('project', rowIndex)" :rowspan="row.rowspans.project ?? 1"
+                  data-column="project"
+                  class="px-3 py-2 align-middle border-r border-gray-200 sticky left-0 z-10 bg-white"
+                  @contextmenu.prevent="row.project ? handleContextMenu($event, row.project) : null">
                   <div v-if="row.project" class="folder-cell">
                     <div class="folder-info">
                       <span class="name">{{ row.project.name }}</span>
@@ -309,12 +238,10 @@
                 </td>
 
                 <!-- 子项目列 -->
-                <td
-                  v-if="hasSubprojects && shouldShowCell('subproject', rowIndex)"
-                  :rowspan="row.rowspans.subproject ?? 1"
-                  data-column="subproject" class="px-3 py-2 align-middle border-r border-gray-200 sticky left-0 z-10 bg-white"
-                  @contextmenu.prevent="row.subproject ? handleContextMenu($event, row.subproject) : null"
-                >
+                <td v-if="hasSubprojects && shouldShowCell('subproject', rowIndex)"
+                  :rowspan="row.rowspans.subproject ?? 1" data-column="subproject"
+                  class="px-3 py-2 align-middle border-r border-gray-200 sticky left-0 z-10 bg-white"
+                  @contextmenu.prevent="row.subproject ? handleContextMenu($event, row.subproject) : null">
                   <div v-if="row.subproject" class="folder-cell">
                     <div class="folder-info">
                       <span class="name">{{ row.subproject.name }}</span>
@@ -327,54 +254,48 @@
                 <template v-if="view === 'year'">
                   <!-- 年目标列 -->
                   <td data-column="goal" class="px-3 py-2 text-sm border-r border-gray-200 sticky left-0 z-10 bg-white">
-                    <GoalCell :goal="row.mainGoal" :period-type="'YEAR'" :period-value="String(year)" @add="openAddGoal('YEAR', String(year), row)" @edit="openEditGoal" />
+                    <GoalCell :goal="row.mainGoal" :period-type="'YEAR'" :period-value="String(year)"
+                      @add="openAddGoal('YEAR', String(year), row)" @edit="openEditGoal" />
                   </td>
                   <!-- 12个月份列 -->
                   <td v-for="m in 12" :key="m" class="px-2 py-2 text-sm text-left border-r border-gray-200">
                     <GoalCell
                       :goal="getChildGoal(row.mainGoal, 'MONTH', `${year}-${String(m).padStart(2, '0')}`, row.subproject?.id || row.project?.id || row.group?.id || row.scene?.id)"
-                      :period-type="'MONTH'"
-                      :period-value="`${year}-${String(m).padStart(2, '0')}`"
-                      :compact="true"
-                      @add="openAddGoal('MONTH', `${year}-${String(m).padStart(2, '0')}`, row)"
-                      @edit="openEditGoal"
-                    />
+                      :period-type="'MONTH'" :period-value="`${year}-${String(m).padStart(2, '0')}`" :compact="true"
+                      @add="openAddGoal('MONTH', `${year}-${String(m).padStart(2, '0')}`, row)" @edit="openEditGoal" />
                   </td>
                 </template>
 
                 <template v-else-if="view === 'month'">
                   <!-- 月目标列 -->
                   <td data-column="goal" class="px-3 py-2 text-sm border-r border-gray-200 sticky left-0 z-10 bg-white">
-                    <GoalCell :goal="row.mainGoal" :period-type="'MONTH'" :period-value="`${year}-${String(month).padStart(2, '0')}`" @add="openAddGoal('MONTH', `${year}-${String(month).padStart(2, '0')}`, row)" @edit="openEditGoal" />
+                    <GoalCell :goal="row.mainGoal" :period-type="'MONTH'"
+                      :period-value="`${year}-${String(month).padStart(2, '0')}`"
+                      @add="openAddGoal('MONTH', `${year}-${String(month).padStart(2, '0')}`, row)"
+                      @edit="openEditGoal" />
                   </td>
                   <!-- 4-5周列 -->
-                  <td v-for="week in monthWeeks" :key="week.index" class="px-2 py-2 text-sm text-left border-r border-gray-200">
+                  <td v-for="week in monthWeeks" :key="week.index"
+                    class="px-2 py-2 text-sm text-left border-r border-gray-200">
                     <GoalCell
                       :goal="getChildGoal(row.mainGoal, 'WEEK', week.value, row.subproject?.id || row.project?.id || row.group?.id || row.scene?.id)"
-                      :period-type="'WEEK'"
-                      :period-value="week.value"
-                      :compact="true"
-                      @add="openAddGoal('WEEK', week.value, row)"
-                      @edit="openEditGoal"
-                    />
+                      :period-type="'WEEK'" :period-value="week.value" :compact="true"
+                      @add="openAddGoal('WEEK', week.value, row)" @edit="openEditGoal" />
                   </td>
                 </template>
 
                 <template v-else-if="view === 'week'">
                   <!-- 周目标列 -->
                   <td data-column="goal" class="px-3 py-2 text-sm border-r border-gray-200 sticky left-0 z-10 bg-white">
-                    <GoalCell :goal="row.mainGoal" :period-type="'WEEK'" :period-value="currentWeekValue" @add="openAddGoal('WEEK', currentWeekValue, row)" @edit="openEditGoal" />
+                    <GoalCell :goal="row.mainGoal" :period-type="'WEEK'" :period-value="currentWeekValue"
+                      @add="openAddGoal('WEEK', currentWeekValue, row)" @edit="openEditGoal" />
                   </td>
                   <!-- 7天列 -->
-                  <td v-for="day in weekDays" :key="day.date" class="px-2 py-2 text-sm text-left border-r border-gray-200">
-                    <GoalCell
-                      :goal="getChildGoal(row.mainGoal, 'TASK', day.date, getDeepestFolderId(row))"
-                      :period-type="'TASK'"
-                      :period-value="day.date"
-                      :compact="true"
-                      @add="openAddGoal('TASK', day.date, row)"
-                      @edit="openEditGoal"
-                    />
+                  <td v-for="day in weekDays" :key="day.date"
+                    class="px-2 py-2 text-sm text-left border-r border-gray-200">
+                    <GoalCell :goal="getChildGoal(row.mainGoal, 'TASK', day.date, getDeepestFolderId(row))"
+                      :period-type="'TASK'" :period-value="day.date" :compact="true"
+                      @add="openAddGoal('TASK', day.date, row)" @edit="openEditGoal" />
                   </td>
                 </template>
               </tr>
@@ -385,34 +306,17 @@
     </div>
 
     <!-- 右键菜单 -->
-    <FolderContextMenu
-      :show="showContextMenu"
-      :x="contextMenuPosition.x"
-      :y="contextMenuPosition.y"
-      @edit="handleEditFolder"
-      @add-subfolder="handleAddSubfolder"
-      @move="handleMoveFolder"
-      @delete="handleDeleteFolder"
-      @close="showContextMenu = false"
-    />
+    <FolderContextMenu :show="showContextMenu" :x="contextMenuPosition.x" :y="contextMenuPosition.y"
+      @edit="handleEditFolder" @add-subfolder="handleAddSubfolder" @move="handleMoveFolder" @delete="handleDeleteFolder"
+      @close="showContextMenu = false" />
 
     <!-- 文件夹模态框 -->
-    <FolderModal
-      :show="showFolderModal"
-      :folder="selectedFolder"
-      :parentId="parentFolderId"
-      :parentFolderName="parentFolderName"
-      @close="handleCloseFolderModal"
-      @saved="handleFolderSaved"
-    />
+    <FolderModal :show="showFolderModal" :folder="selectedFolder" :parentId="parentFolderId"
+      :parentFolderName="parentFolderName" @close="handleCloseFolderModal" @saved="handleFolderSaved" />
 
     <!-- 移动模态框 -->
-    <MoveFolderModal
-      :show="showMoveModal"
-      :folder="selectedFolder"
-      @close="showMoveModal = false"
-      @moved="handleFolderMoved"
-    />
+    <MoveFolderModal :show="showMoveModal" :folder="selectedFolder" @close="showMoveModal = false"
+      @moved="handleFolderMoved" />
   </div>
 </template>
 
@@ -428,84 +332,49 @@ function doesCustomPeriodOverlapWithView(
   viewType: 'year' | 'month' | 'week',
   viewPeriodValue: string
 ): boolean {
-  console.log('[doesCustomPeriodOverlapWithView] 开始检查', {
-    plannedStart,
-    plannedEnd,
-    viewType,
-    viewPeriodValue
-  })
-  
   const customStart = new Date(plannedStart)
   const customEnd = new Date(plannedEnd)
-  
+
   let viewStart: Date, viewEnd: Date
-  
+
   switch (viewType) {
     case 'year': {
       const year = parseInt(viewPeriodValue)
       viewStart = new Date(year, 0, 1)
       viewEnd = new Date(year, 11, 31, 23, 59, 59, 999)
-      console.log('[doesCustomPeriodOverlapWithView] 年视图范围', {
-        year,
-        viewStart: viewStart.toISOString(),
-        viewEnd: viewEnd.toISOString()
-      })
       break
     }
     case 'month': {
       const [year, month] = viewPeriodValue.split('-').map(Number)
       viewStart = new Date(year, month - 1, 1)
       viewEnd = new Date(year, month, 0, 23, 59, 59, 999)
-      console.log('[doesCustomPeriodOverlapWithView] 月视图范围', {
-        year,
-        month,
-        viewStart: viewStart.toISOString(),
-        viewEnd: viewEnd.toISOString()
-      })
       break
     }
     case 'week': {
       const match = viewPeriodValue.match(/(\d+)-W(\d+)/)
       if (!match) {
-        console.log('[doesCustomPeriodOverlapWithView] 无效的周格式', viewPeriodValue)
         return false
       }
-      
+
       const year = parseInt(match[1])
       const weekNumber = parseInt(match[2])
-      
+
       const date = new Date(year, 0, 1)
       const firstDayOfWeek = date.getDay() || 7 // 将周日从0转换为7
       const daysToAdd = (weekNumber - 1) * 7 - (firstDayOfWeek - 1)
       date.setDate(daysToAdd + 1)
-      
+
       viewStart = getWeekStart(date)
       viewEnd = new Date(viewStart)
       viewEnd.setDate(viewEnd.getDate() + 6)
       viewEnd.setHours(23, 59, 59, 999)
-      console.log('[doesCustomPeriodOverlapWithView] 周视图范围', {
-        year,
-        weekNumber,
-        viewStart: viewStart.toISOString(),
-        viewEnd: viewEnd.toISOString()
-      })
       break
     }
     default:
-      console.log('[doesCustomPeriodOverlapWithView] 未知视图类型', viewType)
       return false
   }
-  
+
   const overlaps = customStart <= viewEnd && customEnd >= viewStart
-  console.log('[doesCustomPeriodOverlapWithView] 重叠检查结果', {
-    customStart: customStart.toISOString(),
-    customEnd: customEnd.toISOString(),
-    viewStart: viewStart.toISOString(),
-    viewEnd: viewEnd.toISOString(),
-    overlaps,
-    comparison: `${customStart.toISOString()} <= ${viewEnd.toISOString()} && ${customEnd.toISOString()} >= ${viewStart.toISOString()}`
-  })
-  
   return overlaps
 }
 
@@ -571,7 +440,7 @@ const GoalCell = defineComponent({
 })
 
 const { signOut } = useAuth()
-const view = ref<'year' | 'month' | 'week'>('year')
+const view = ref<'year' | 'month' | 'week'>('week')
 const showModal = ref(false)
 
 // 筛选状态
@@ -610,10 +479,10 @@ const goalsWithTree = computed(() => {
   const flatGoals = data.value?.data || []
 
   // 调试信息：输出原始数据
-  
-  
-  
-  
+
+
+
+
 
   // 按文件夹分组统计
   const folderStats = new Map<string, { total: number; byType: Record<string, number> }>()
@@ -626,7 +495,7 @@ const goalsWithTree = computed(() => {
     stat.byType[g.periodType] = (stat.byType[g.periodType] || 0) + 1
   })
 
-  
+
 
   // 构建父子关系映射
   const goalsMap = new Map<string, any>()
@@ -648,7 +517,7 @@ const goalsWithTree = computed(() => {
         parent.children.push(goalWithChildren)
       } else {
         // parentId存在但找不到父目标，作为根目标处理
-        
+
         rootGoals.push(goalWithChildren)
       }
     } else {
@@ -657,13 +526,13 @@ const goalsWithTree = computed(() => {
     }
   })
 
-  
 
-  // 暴露到全局以便调试
-  ;(window as any).__DEBUG_goals__ = flatGoals
-// 调试：输出所有CUSTOM类型的目标  const customGoals = flatGoals.filter((g: any) => g.periodType === 'CUSTOM')  console.log('[goalsWithTree] CUSTOM类型目标数量:', customGoals.length)  customGoals.forEach((g: any) => {    console.log('[goalsWithTree] CUSTOM目标详情:', {      id: g.id,      title: g.title,      folderId: g.folderId,      parentId: g.parentId,      periodType: g.periodType,      periodValue: g.periodValue,      plannedStart: g.plannedStart,      plannedEnd: g.plannedEnd,      status: g.status    })  })
-  ;(window as any).__DEBUG_rootGoals__ = rootGoals
-  ;(window as any).__DEBUG_folders__ = null // 稍后设置
+
+    // 暴露到全局以便调试
+    ; (window as any).__DEBUG_goals__ = flatGoals
+    // 调试：输出所有CUSTOM类型的目标  const customGoals = flatGoals.filter((g: any) => g.periodType === 'CUSTOM')  console.log('[goalsWithTree] CUSTOM类型目标数量:', customGoals.length)  customGoals.forEach((g: any) => {    console.log('[goalsWithTree] CUSTOM目标详情:', {      id: g.id,      title: g.title,      folderId: g.folderId,      parentId: g.parentId,      periodType: g.periodType,      periodValue: g.periodValue,      plannedStart: g.plannedStart,      plannedEnd: g.plannedEnd,      status: g.status    })  })
+    ; (window as any).__DEBUG_rootGoals__ = rootGoals
+    ; (window as any).__DEBUG_folders__ = null // 稍后设置
 
   return rootGoals
 })
@@ -683,20 +552,20 @@ const folders = computed(() => {
 
   // 🔍 [调试] 检查cmmtyfkr文件夹是否在foldersData中
   if (view.value === 'week') {
-    
-    
+
+
     // 打印所有文件夹的ID
     const printAllFolderIds = (foldersList: any[], prefix = '') => {
       for (const folder of foldersList) {
-        
+
         if (folder.children?.length > 0) {
           printAllFolderIds(folder.children, prefix + '  ')
         }
       }
     }
-    
+
     printAllFolderIds(folderList)
-    
+
     // 递归查找cmmtyfkr文件夹
     const findCmmtyfkrFolder = (folders: any[]): any => {
       for (const folder of folders) {
@@ -710,14 +579,14 @@ const folders = computed(() => {
       }
       return null
     }
-    
+
     const cmmtyfkrFolder = findCmmtyfkrFolder(folderList)
-    
+
     if (cmmtyfkrFolder) {
-      
+
     } else {
-      
-      
+
+
     }
   }
 
@@ -727,12 +596,12 @@ const folders = computed(() => {
 // 暴露folders到全局
 watchEffect(() => {
   if (folders.value?.length > 0) {
-    ;(window as any).__DEBUG_folders__ = folders.value
-    
+    ; (window as any).__DEBUG_folders__ = folders.value
+
 
     // 查找 cmmtyfkr 文件夹
     const targetFolder = folders.value.find((f: any) => f.id.startsWith('cmmtyfkr'))
-    
+
   }
 })
 
@@ -838,18 +707,18 @@ const typedTableData = computed<TypedRow[]>(() => {
   // 🔍 [调试] 检查cmmtyfkr文件夹的类型和层级
   const targetFolder = folders.value.find((f: any) => f.id.startsWith('cmmtyfkr'))
   if (targetFolder && view.value === 'week') {
-    
+
 
     // 检查是否在筛选中
     const isInSelected = selectedFolderIds.value.includes(targetFolder.id)
-    
-    
+
+
 
     // 检查祖先文件夹
     if (targetFolder.parentId) {
       const parent = findFolderById(folders.value, targetFolder.parentId)
       if (parent) {
-        
+
       }
     }
   }
@@ -1193,21 +1062,21 @@ function getChildGoal(parentGoal: any, periodType: string, periodValue: string, 
       return exactMatch
     }
 
-    
+
     const customGoals = parentGoal.children.filter((g: any) => {
-      
+
       if (g.periodType !== 'CUSTOM') return false
       if (!g.plannedStart || !g.plannedEnd) {
         return false
       }
-      
+
       const overlaps = doesCustomPeriodOverlapWithView(
         g.plannedStart,
         g.plannedEnd,
         view.value as 'year' | 'month' | 'week',
         periodValue
       )
-      
+
       return overlaps
     })
 
@@ -1266,12 +1135,12 @@ function openAddGoal(periodType: string, periodValue: string, row?: TypedRow) {
     periodType,
     periodValue
   }
-  
+
   // 如果是周视图中的日目标，且该行有周目标，则将周目标设置为父目标
   if (periodType === 'TASK' && row?.mainGoal) {
     defaults.parentGoal = row.mainGoal
   }
-  
+
   goalModalDefaults.value = defaults
   showModal.value = true
 }
@@ -1457,7 +1326,7 @@ function getMainGoalForFolder(folderId: string, currentView: string): any {
   const customGoals = folderRootGoals.filter((g: any) => {
     if (g.periodType !== 'CUSTOM') return false
     if (!g.plannedStart || !g.plannedEnd) return false
-    
+
     // 获取当前视图的 periodValue
     let viewPeriodValue: string
     if (currentView === 'year') {
@@ -1468,14 +1337,14 @@ function getMainGoalForFolder(folderId: string, currentView: string): any {
       // week view
       viewPeriodValue = currentWeekValue.value
     }
-    
+
     const overlaps = doesCustomPeriodOverlapWithView(
       g.plannedStart,
       g.plannedEnd,
       currentView as 'year' | 'month' | 'week',
       viewPeriodValue
     )
-    
+
     return overlaps
   })
 
@@ -1534,14 +1403,14 @@ function calculateRowspans(rows: TypedRow[]) {
     }
 
     if (!rows[i - 1] ||
-        rows[i - 1].scene !== row.scene ||
-        rows[i - 1].group !== row.group ||
-        rows[i - 1].project !== row.project) {
+      rows[i - 1].scene !== row.scene ||
+      rows[i - 1].group !== row.group ||
+      rows[i - 1].project !== row.project) {
       let span = 1
       for (let j = i + 1; j < rows.length; j++) {
         if (rows[j].scene === row.scene &&
-            rows[j].group === row.group &&
-            rows[j].project === row.project) {
+          rows[j].group === row.group &&
+          rows[j].project === row.project) {
           span++
         } else {
           break
@@ -1554,18 +1423,18 @@ function calculateRowspans(rows: TypedRow[]) {
     if (row) {
       const prevRow = rows[i - 1]
       if (!prevRow ||
-          prevRow.scene !== row.scene ||
-          prevRow.group !== row.group ||
-          prevRow.project !== row.project ||
-          prevRow.subproject !== row.subproject) {
+        prevRow.scene !== row.scene ||
+        prevRow.group !== row.group ||
+        prevRow.project !== row.project ||
+        prevRow.subproject !== row.subproject) {
         let span = 1
         for (let j = i + 1; j < rows.length; j++) {
           const currentRow = rows[j]
           if (currentRow &&
-              currentRow.scene === row.scene &&
-              currentRow.group === row.group &&
-              currentRow.project === row.project &&
-              currentRow.subproject === row.subproject) {
+            currentRow.scene === row.scene &&
+            currentRow.group === row.group &&
+            currentRow.project === row.project &&
+            currentRow.subproject === row.subproject) {
             span++
           } else {
             break
@@ -1779,6 +1648,7 @@ tr:hover td.sticky.bg-white {
 
 /* 响应式表格布局 */
 @media (max-width: 1536px) {
+
   /* 在较小屏幕下调整固定列位置 */
   table th.sticky.left-5,
   table td.sticky.left-5 {
@@ -1787,6 +1657,7 @@ tr:hover td.sticky.bg-white {
 }
 
 @media (max-width: 1280px) {
+
   /* 中等屏幕下隐藏子项目列 */
   .hide-on-md {
     display: none !important;
@@ -1800,6 +1671,7 @@ tr:hover td.sticky.bg-white {
 }
 
 @media (max-width: 1024px) {
+
   /* 小屏幕下隐藏项目和子项目列 */
   .hide-on-sm {
     display: none !important;
@@ -1819,6 +1691,7 @@ tr:hover td.sticky.bg-white {
 }
 
 @media (max-width: 768px) {
+
   /* 平板设备优化 */
   table {
     font-size: 0.875rem;
@@ -1844,6 +1717,7 @@ table {
 
 /* 优化固定列在不同宽度下的显示 */
 @media (min-width: 1536px) {
+
   table th.sticky[data-column="scene"],
   table td.sticky[data-column="scene"] {
     min-width: 90px;
@@ -1877,6 +1751,7 @@ table {
 
 /* 中等屏幕 */
 @media (min-width: 1280px) and (max-width: 1535px) {
+
   table th.sticky[data-column="scene"],
   table td.sticky[data-column="scene"] {
     min-width: 80px;
@@ -1910,6 +1785,7 @@ table {
 
 /* 小屏幕 */
 @media (min-width: 1024px) and (max-width: 1279px) {
+
   table th.sticky[data-column="scene"],
   table td.sticky[data-column="scene"] {
     min-width: 70px;

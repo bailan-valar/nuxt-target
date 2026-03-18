@@ -106,6 +106,19 @@
 
       <div class="toolbar-group">
         <button
+          @click="editor.chain().focus().toggleTaskList().run()"
+          :class="{ 'is-active': editor.isActive('taskList') }"
+          class="toolbar-btn"
+          title="待办清单"
+          type="button"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <polyline points="9 12 11 14 15 10"/>
+          </svg>
+        </button>
+
+        <button
           @click="editor.chain().focus().toggleBulletList().run()"
           :class="{ 'is-active': editor.isActive('bulletList') }"
           class="toolbar-btn"
@@ -237,6 +250,9 @@
 <script setup lang="ts">
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
+import Placeholder from '@tiptap/extension-placeholder'
+import TaskList from '@tiptap/extension-task-list'
+import TaskItem from '@tiptap/extension-task-item'
 import { watch, onBeforeUnmount, onMounted, onUnmounted, ref, markRaw } from 'vue'
 import SlashCommand from './editor/SlashCommand.vue'
 import { defaultCommands } from '../lib/editor/slash-command'
@@ -279,18 +295,27 @@ const slashCommands = ref(
 )
 
 const editor = useEditor({
-  content: props.modelValue,
+  content: props.modelValue || '',
   extensions: [
     StarterKit.configure({
       heading: {
         levels: [1, 2, 3]
       }
+    }),
+    Placeholder.configure({
+      emptyEditorClass: 'is-editor-empty',
+      placeholder: props.placeholder
+    }),
+    TaskList,
+    TaskItem.configure({
+      nested: true
     })
   ],
   editorProps: {
     attributes: {
       class: 'prose prose-sm max-w-none focus:outline-none min-h-[100px]',
-      style: `min-height: ${props.minHeight}`
+      style: `min-height: ${props.minHeight}`,
+      'data-placeholder': props.placeholder
     },
     handleKeyDown: (view, event) => {
       // 斜杠命令菜单打开时，拦截特定按键
@@ -311,8 +336,9 @@ const editor = useEditor({
   onUpdate: ({ editor }) => {
     const html = editor.isEmpty ? '' : editor.getHTML()
     emit('update:modelValue', html)
-
-    // 检查斜杠命令触发
+  },
+  onTransaction: ({ editor }) => {
+    // 在每次事务（包括第一次输入）时检查斜杠命令
     checkSlashCommand(editor)
   },
   onSelectionUpdate: ({ editor }) => {
@@ -322,8 +348,11 @@ const editor = useEditor({
     }
   },
   onCreate: ({ editor }) => {
-    if (!props.modelValue) {
-      editor.commands.setContent('<p></p>')
+    // 确保空编辑器有正确的初始状态
+    if (!props.modelValue || props.modelValue.trim() === '') {
+      // 设置一个空段落，确保编辑器处于正确状态
+      // 这样第一次输入才能正确触发 onUpdate
+      editor.commands.setContent('<p></p>', false)
     }
   }
 })
@@ -346,9 +375,9 @@ const checkSlashCommand = (editor: any) => {
   const { selection } = state
   const { $from } = selection
 
-  // 检查是否在段落或标题中
+  // 检查是否在段落、标题或列表项中
   const node = $from.parent
-  if (!node || (node.type.name !== 'paragraph' && node.type.name !== 'heading')) {
+  if (!node || (node.type.name !== 'paragraph' && node.type.name !== 'heading' && node.type.name !== 'taskItem')) {
     closeSlashCommand()
     return
   }
@@ -423,9 +452,18 @@ const handleKeydown = (e: KeyboardEvent) => {
 }
 
 // 监听外部值变化
-watch(() => props.modelValue, (newValue) => {
-  if (editor.value && editor.value.getHTML() !== newValue) {
-    editor.value.commands.setContent(newValue || '<p></p>', false)
+watch(() => props.modelValue, (newValue, oldValue) => {
+  // 只有在值真正从外部变化时才更新编辑器
+  // 排除空内容的情况，避免与命令执行冲突
+  if (editor.value && newValue !== oldValue) {
+    const currentHTML = editor.value.getHTML()
+    // 如果新值不为空且与当前值不同，则更新
+    if (newValue && newValue !== currentHTML) {
+      editor.value.commands.setContent(newValue, false)
+    } else if (!newValue && !editor.value.isEmpty) {
+      // 如果新值为空且编辑器不为空，则清空
+      editor.value.commands.clearContent()
+    }
   }
 })
 
@@ -543,9 +581,14 @@ defineExpose({
   @apply outline-none;
 }
 
+/* Placeholder 样式 */
 .editor-content :deep(.ProseMirror p.is-editor-empty:first-child::before) {
   content: attr(data-placeholder);
-  @apply float-left text-gray-400 pointer-events-none h-0;
+  @apply text-gray-400 pointer-events-none float-left h-0;
+}
+
+.editor-content :deep(.ProseMirror:focus p.is-editor-empty:first-child::before) {
+  @apply text-gray-300;
 }
 
 /* 编辑器内容样式 */
@@ -570,6 +613,40 @@ defineExpose({
   @apply my-1;
 }
 
+/* Todo 列表样式 */
+.editor-content :deep(.ProseMirror ul[data-type="taskList"]) {
+  @apply list-none pl-0 my-2;
+}
+
+.editor-content :deep(.ProseMirror ul[data-type="taskList"] li) {
+  @apply flex items-center my-1 gap-2;
+}
+
+.editor-content :deep(.ProseMirror ul[data-type="taskList"] li > label) {
+  @apply flex items-center justify-center flex-shrink-0;
+}
+
+.editor-content :deep(.ProseMirror ul[data-type="taskList"] li > label input[type="checkbox"]) {
+  @apply w-4 h-4 cursor-pointer rounded border-gray-300 text-blue-600 focus:ring-blue-500;
+}
+
+.editor-content :deep(.ProseMirror ul[data-type="taskList"] li > div) {
+  @apply flex-1 leading-relaxed;
+}
+
+.editor-content :deep(.ProseMirror ul[data-type="taskList"] li > div p) {
+  @apply my-0 leading-relaxed;
+}
+
+.editor-content :deep(.ProseMirror ul[data-type="taskList"] li[data-checked="true"] > div) {
+  @apply text-gray-400 line-through;
+}
+
+.editor-content :deep(.ProseMirror ul[data-type="taskList"] li[data-checked="false"] > div) {
+  @apply text-gray-900;
+}
+
+/* 普通列表样式 */
 .editor-content :deep(.ProseMirror ul),
 .editor-content :deep(.ProseMirror ol) {
   @apply pl-6 my-2;
