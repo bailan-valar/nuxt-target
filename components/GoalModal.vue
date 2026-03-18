@@ -24,7 +24,6 @@
             <label>描述</label>
             <RichTextEditor
               v-model="form.description"
-              placeholder="请输入描述"
               :min-height="'80px'"
             />
           </div>

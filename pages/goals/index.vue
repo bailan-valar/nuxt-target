@@ -227,7 +227,7 @@
                 <!-- 项目列 -->
                 <td v-if="shouldShowCell('project', rowIndex)" :rowspan="row.rowspans.project ?? 1"
                   data-column="project"
-                  class="px-3 py-2 align-middle border-r border-gray-200 sticky left-0 z-10 bg-white"
+                  class="px-3 py-2 align-middle border-r border-gray-200 sticky left-0 z-10 bg-white transition-colors hover:bg-blue-50"
                   @contextmenu.prevent="row.project ? handleContextMenu($event, row.project) : null">
                   <div v-if="row.project" class="folder-cell">
                     <div class="folder-info">
@@ -293,8 +293,8 @@
                   <!-- 7天列 -->
                   <td v-for="day in weekDays" :key="day.date"
                     class="px-2 py-2 text-sm text-left border-r border-gray-200">
-                    <GoalCell :goal="getChildGoal(row.mainGoal, 'TASK', day.date, getDeepestFolderId(row))"
-                      :period-type="'TASK'" :period-value="day.date" :compact="true"
+                    <DayGoalCell :goals="getChildGoals(row.mainGoal, 'TASK', day.date, getDeepestFolderId(row))"
+                      :period-type="'TASK'" :period-value="day.date"
                       @add="openAddGoal('TASK', day.date, row)" @edit="openEditGoal" />
                   </td>
                 </template>
@@ -435,6 +435,54 @@ const GoalCell = defineComponent({
           ])
         )
       ) : null
+    ])
+  }
+})
+
+// 日单元格组件 - 用于显示多个任务（换行）
+const DayGoalCell = defineComponent({
+  props: {
+    goals: { type: Array as PropType<any[]>, default: () => [] },
+    periodType: { type: String as PropType<string>, required: true },
+    periodValue: { type: String as PropType<string>, required: true }
+  },
+  emits: ['add', 'edit'],
+  setup(props, { emit }) {
+    const handleGoalClick = (goal: any) => {
+      emit('edit', goal)
+    }
+
+    const handleAddClick = () => {
+      emit('add')
+    }
+
+    return () => h('div', { class: 'day-goal-cell-container flex flex-col' }, [
+      // 显示所有任务
+      props.goals.length > 0
+        ? props.goals.map((goal: any) =>
+            h('div', {
+              class: 'day-goal-item cursor-pointer hover:bg-gray-50 rounded px-2 py-1 transition-colors text-sm',
+              onClick: () => handleGoalClick(goal)
+            }, [
+              h('span', { class: 'text-gray-900' }, goal.title)
+            ])
+          )
+        : h('button', {
+            class: 'add-goal-btn',
+            onClick: handleAddClick
+          }, [
+            h('svg', {
+              class: 'w-4 h-4',
+              fill: 'none',
+              stroke: 'currentColor',
+              viewBox: '0 0 24 24'
+            }, [h('path', {
+              'stroke-linecap': 'round',
+              'stroke-linejoin': 'round',
+              'stroke-width': '2',
+              d: 'M12 4v16m8-8H4'
+            })])
+          ])
     ])
   }
 })
@@ -1117,6 +1165,53 @@ function getChildGoal(parentGoal: any, periodType: string, periodValue: string, 
   return null
 }
 
+// 获取指定日期和文件夹的所有任务（用于日单元格显示多个任务）
+function getChildGoals(parentGoal: any, periodType: string, periodValue: string, folderId?: string): any[] {
+  const foundGoals: any[] = []
+
+  if (parentGoal?.children) {
+    const exactMatches = parentGoal.children.filter((g: any) =>
+      g.periodType === periodType && g.periodValue === periodValue
+    )
+    foundGoals.push(...exactMatches)
+
+    const customGoals = parentGoal.children.filter((g: any) => {
+      if (g.periodType !== 'CUSTOM') return false
+      if (!g.plannedStart || !g.plannedEnd) return false
+
+      const overlaps = doesCustomPeriodOverlapWithView(
+        g.plannedStart,
+        g.plannedEnd,
+        view.value as 'year' | 'month' | 'week',
+        periodValue
+      )
+      return overlaps
+    })
+    foundGoals.push(...customGoals)
+  }
+
+  if (!parentGoal && folderId && periodType === 'TASK') {
+    const orphanTasksInFolder = goals.value.filter((g: any) =>
+      g.periodType === periodType &&
+      g.periodValue === periodValue &&
+      g.folderId === folderId &&
+      !g.parentId
+    )
+    foundGoals.push(...orphanTasksInFolder)
+  }
+
+  if (!folderId && periodType === 'TASK') {
+    const orphanTasks = goals.value.filter((g: any) =>
+      g.periodType === periodType &&
+      g.periodValue === periodValue &&
+      !g.parentId
+    )
+    foundGoals.push(...orphanTasks)
+  }
+
+  return foundGoals
+}
+
 // 获取当前行的最小子节点文件夹ID
 function getDeepestFolderId(row: TypedRow): string | null {
   // 优先级：子项目 > 项目 > 分组 > 场景
@@ -1589,6 +1684,26 @@ const handleSignOut = async () => {
 
 .goal-cell-container {
   @apply flex flex-col gap-1;
+}
+
+.day-goal-cell-container {
+  @apply flex flex-col gap-1;
+}
+
+.day-goal-cell-container .goal-item {
+  @apply flex items-center gap-2 rounded px-2 py-1 cursor-pointer transition-colors duration-150;
+}
+
+.day-goal-cell-container .goal-item:hover {
+  @apply bg-blue-100 shadow-sm;
+}
+
+.day-goal-item {
+  @apply flex items-center gap-2 rounded px-2 py-1 cursor-pointer transition-colors duration-150;
+}
+
+.day-goal-item:hover {
+  @apply bg-blue-100 shadow-sm;
 }
 
 .goal-item {

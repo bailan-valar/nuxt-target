@@ -68,9 +68,9 @@
         </button>
       </div>
 
-      <div class="toolbar-divider"></div>
+      <div class="toolbar-divider" v-if="isFullscreen"></div>
 
-      <div class="toolbar-group">
+      <div class="toolbar-group" v-if="isFullscreen">
         <button
           @click="editor.chain().focus().toggleHeading({ level: 1 }).run()"
           :class="{ 'is-active': editor.isActive('heading', { level: 1 }) }"
@@ -102,9 +102,9 @@
         </button>
       </div>
 
-      <div class="toolbar-divider"></div>
+      <div class="toolbar-divider" v-if="isFullscreen"></div>
 
-      <div class="toolbar-group">
+      <div class="toolbar-group" v-if="isFullscreen">
         <button
           @click="editor.chain().focus().toggleTaskList().run()"
           :class="{ 'is-active': editor.isActive('taskList') }"
@@ -178,6 +178,7 @@
 
       <div class="toolbar-group">
         <button
+          v-if="isFullscreen"
           @click="editor.chain().focus().setHorizontalRule().run()"
           class="toolbar-btn"
           title="分割线"
@@ -253,7 +254,7 @@ import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
-import { watch, onBeforeUnmount, onMounted, onUnmounted, ref, markRaw } from 'vue'
+import { watch, onBeforeUnmount, onMounted, onUnmounted, ref, markRaw, nextTick } from 'vue'
 import SlashCommand from './editor/SlashCommand.vue'
 import { defaultCommands } from '../lib/editor/slash-command'
 import * as icons from './editor/icons'
@@ -267,7 +268,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  placeholder: '请输入内容...',
+  placeholder: '请输入内容，输入 / 可选择格式...',
   editable: true,
   showCharCount: false,
   minHeight: '100px'
@@ -361,9 +362,13 @@ const editor = useEditor({
 const toggleFullscreen = () => {
   isFullscreen.value = !isFullscreen.value
 
-  // 全屏时禁止body滚动
+  // 全屏时禁止body滚动并聚焦编辑器
   if (isFullscreen.value) {
     document.body.style.overflow = 'hidden'
+    // 使用 nextTick 确保 DOM 更新后再聚焦
+    nextTick(() => {
+      editor.value?.chain().focus().run()
+    })
   } else {
     document.body.style.overflow = ''
   }
