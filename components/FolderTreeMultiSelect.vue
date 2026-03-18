@@ -4,13 +4,13 @@
 
     <!-- 选中的文件夹显示 -->
     <div class="selected-display" @click="toggleDropdown">
-      <div class="selected-tags">
+      <div ref="tagsContainer" class="selected-tags">
         <span
-          v-for="folder in selectedFolders"
+          v-for="folder in visibleFolders"
           :key="folder.id"
           :class="['folder-tag', `folder-tag-${folder.type.toLowerCase()}`]"
         >
-          {{ folder.name }}
+          <span>{{ folder.name }}</span>
           <button
             type="button"
             class="remove-btn"
@@ -18,6 +18,9 @@
           >
             ×
           </button>
+        </span>
+        <span v-if="hiddenCount > 0" class="more-tag">
+          +{{ hiddenCount }}
         </span>
         <span v-if="selectedFolders.length === 0" class="placeholder">
           选择文件夹...
@@ -108,6 +111,8 @@ const emit = defineEmits<{
 
 const isOpen = ref(false)
 const selectedIds = ref<string[]>([...props.modelValue])
+const actualVisibleCount = ref(2) // 实际显示的标签数量
+const tagsContainer = ref<HTMLElement | null>(null)
 
 // 展开状态管理（默认折叠）
 const expandedIds = ref<Set<string>>(new Set())
@@ -177,6 +182,19 @@ const selectedFolders = computed(() => {
     .filter(id => !hasSelectedAncestor(id)) // 过滤掉有选中祖先的文件夹
     .map(id => folderMap.value.get(id))
     .filter((f): f is Folder => f !== undefined)
+})
+
+// 最大显示的标签数量
+const MAX_VISIBLE_TAGS = 2
+
+// 可见的文件夹（前N个，动态调整）
+const visibleFolders = computed(() => {
+  return selectedFolders.value.slice(0, actualVisibleCount.value)
+})
+
+// 隐藏的文件夹数量
+const hiddenCount = computed(() => {
+  return Math.max(0, selectedFolders.value.length - actualVisibleCount.value)
 })
 
 // 切换下拉框
@@ -278,10 +296,58 @@ function clearAll() {
   emit('update:modelValue', selectedIds.value)
 }
 
+// 检查是否溢出并调整显示数量
+function checkOverflow() {
+  nextTick(() => {
+    // 如果少于2个文件夹，不需要调整
+    if (selectedFolders.value.length < 2) {
+      actualVisibleCount.value = selectedFolders.value.length
+      return
+    }
+
+    // 尝试显示2个标签
+    actualVisibleCount.value = 2
+
+    // 等待 DOM 更新后检查是否溢出
+    setTimeout(() => {
+      const container = tagsContainer.value
+      if (!container) return
+
+      // 检查是否有标签被省略（文本宽度超过标签宽度）
+      const tags = container.querySelectorAll('.folder-tag')
+      let hasEllipsis = false
+
+      tags.forEach((tag) => {
+        const textSpan = tag.querySelector('span')
+        if (textSpan) {
+          const textWidth = textSpan.scrollWidth
+          const tagWidth = tag.clientWidth
+          // 如果文本宽度超过标签宽度减去按钮宽度，说明有省略
+          if (textWidth > tagWidth - 30) {
+            hasEllipsis = true
+          }
+        }
+      })
+
+      // 如果有任何标签被省略，或者容器整体溢出，只显示1个标签
+      const isOverflowing = container.scrollWidth > container.clientWidth
+      if (hasEllipsis || isOverflowing) {
+        actualVisibleCount.value = 1
+      }
+    }, 10)
+  })
+}
+
 // 监听外部值变化
 watch(() => props.modelValue, (newValue) => {
   selectedIds.value = [...newValue]
-})
+  checkOverflow()
+}, { immediate: true })
+
+// 监听选中的文件夹变化
+watch(selectedFolders, () => {
+  checkOverflow()
+}, { deep: true })
 </script>
 
 <style scoped>
@@ -318,9 +384,11 @@ watch(() => props.modelValue, (newValue) => {
 .selected-tags {
   flex: 1;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.25rem;
   align-items: center;
+  overflow: hidden;
+  min-width: 0;
 }
 
 .folder-tag {
@@ -331,6 +399,15 @@ watch(() => props.modelValue, (newValue) => {
   border-radius: 0.25rem;
   font-size: 0.75rem;
   font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 1;
+  max-width: 120px;
+  overflow: hidden;
+}
+
+.folder-tag span {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* SCENE - 场景 - 蓝色 */
@@ -387,6 +464,19 @@ watch(() => props.modelValue, (newValue) => {
   width: 16px;
   height: 16px;
   justify-content: center;
+}
+
+.more-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: #f3f4f6;
+  color: #6b7280;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .placeholder {

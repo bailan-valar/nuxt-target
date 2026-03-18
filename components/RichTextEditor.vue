@@ -13,6 +13,105 @@
       @close="closeSlashCommand"
     />
 
+    <!-- 链接编辑对话框 -->
+    <Teleport to="body">
+      <div v-if="linkDialogVisible" class="link-dialog-overlay" @click.self="closeLinkDialog">
+        <div class="link-dialog">
+          <div class="link-dialog-header">
+            <h3 class="link-dialog-title">
+              {{ isEditingLink ? '编辑链接' : '插入链接' }}
+            </h3>
+            <button @click="closeLinkDialog" class="link-dialog-close" type="button">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+          <div class="link-dialog-body">
+            <div class="link-input-group">
+              <label for="link-url" class="link-input-label">链接地址</label>
+              <input
+                id="link-url"
+                v-model="linkUrl"
+                type="url"
+                class="link-input"
+                placeholder="https://example.com"
+                @keydown.enter="saveLink"
+              />
+            </div>
+            <div class="link-input-group">
+              <label for="link-text" class="link-input-label">显示文本</label>
+              <input
+                id="link-text"
+                v-model="linkText"
+                type="text"
+                class="link-input"
+                placeholder="链接显示文本"
+                @keydown.enter="saveLink"
+              />
+            </div>
+          </div>
+          <div class="link-dialog-footer">
+            <button
+              v-if="isEditingLink"
+              @click="removeLink"
+              class="link-dialog-btn link-dialog-btn-danger"
+              type="button"
+            >
+              删除链接
+            </button>
+            <div class="link-dialog-actions">
+              <button
+                @click="closeLinkDialog"
+                class="link-dialog-btn link-dialog-btn-secondary"
+                type="button"
+              >
+                取消
+              </button>
+              <button
+                @click="saveLink"
+                class="link-dialog-btn link-dialog-btn-primary"
+                type="button"
+                :disabled="!linkUrl"
+              >
+                确定
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- 目录面板 (仅全屏模式显示) -->
+    <div v-if="isFullscreen && tableOfContents.length > 0" class="table-of-contents">
+      <div class="toc-header">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="8" y1="6" x2="21" y2="6"/>
+          <line x1="8" y1="12" x2="21" y2="12"/>
+          <line x1="8" y1="18" x2="21" y2="18"/>
+          <line x1="3" y1="6" x2="3.01" y2="6"/>
+          <line x1="3" y1="12" x2="3.01" y2="12"/>
+          <line x1="3" y1="18" x2="3.01" y2="18"/>
+        </svg>
+        <span>目录</span>
+      </div>
+      <div class="toc-list">
+        <div
+          v-for="(item, index) in tableOfContents"
+          :key="index"
+          class="toc-item"
+          :class="[
+            `toc-level-${item.level}`,
+            { 'toc-active': activeHeadingIndex === index }
+          ]"
+          @click="scrollToHeading(item.id)"
+        >
+          {{ item.text }}
+        </div>
+      </div>
+    </div>
+
     <!-- 工具栏 -->
     <div v-if="editor" class="editor-toolbar">
       <div class="toolbar-group">
@@ -64,6 +163,23 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="16 18 22 12 16 6"/>
             <polyline points="8 6 2 12 8 18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="toolbar-divider"></div>
+
+      <div class="toolbar-group">
+        <button
+          @click="openLinkDialog"
+          :class="{ 'is-active': editor.isActive('link') }"
+          class="toolbar-btn"
+          title="插入/编辑链接"
+          type="button"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
           </svg>
         </button>
       </div>
@@ -140,11 +256,13 @@
           title="有序列表"
           type="button"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M8 6h13M8 12h13M8 18h13"/>
-            <text x="3" y="7.5" font-size="6" fill="currentColor">1</text>
-            <text x="3" y="13.5" font-size="6" fill="currentColor">2</text>
-            <text x="3" y="19.5" font-size="6" fill="currentColor">3</text>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <text x="2" y="9" font-size="6" fill="currentColor" stroke="none">1</text>
+            <line x1="8" y1="6" x2="21" y2="6"/>
+            <text x="2" y="15" font-size="6" fill="currentColor" stroke="none">2</text>
+            <line x1="8" y1="12" x2="21" y2="12"/>
+            <text x="2" y="21" font-size="6" fill="currentColor" stroke="none">3</text>
+            <line x1="8" y1="18" x2="21" y2="18"/>
           </svg>
         </button>
 
@@ -254,7 +372,8 @@ import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
-import { watch, onBeforeUnmount, onMounted, onUnmounted, ref, markRaw, nextTick } from 'vue'
+import Link from '@tiptap/extension-link'
+import { watch, onBeforeUnmount, onMounted, onUnmounted, ref, markRaw, nextTick, computed } from 'vue'
 import SlashCommand from './editor/SlashCommand.vue'
 import { defaultCommands } from '../lib/editor/slash-command'
 import * as icons from './editor/icons'
@@ -281,11 +400,21 @@ const emit = defineEmits<{
 // 全屏状态
 const isFullscreen = ref(false)
 
+// 目录相关
+const activeHeadingIndex = ref(0)
+const headingIds = ref<Map<string, number>>(new Map())
+
 // 斜杠命令状态
 const slashCommandVisible = ref(false)
 const slashCommandPosition = ref({ top: 0, left: 0 })
 const slashQuery = ref('')
 const slashRange = ref<any>(null)
+
+// 链接编辑状态
+const linkDialogVisible = ref(false)
+const linkUrl = ref('')
+const linkText = ref('')
+const isEditingLink = computed(() => editor.value?.isActive('link') || false)
 
 // 命令列表（带图标组件）
 const slashCommands = ref(
@@ -310,6 +439,12 @@ const editor = useEditor({
     TaskList,
     TaskItem.configure({
       nested: true
+    }),
+    Link.configure({
+      openOnClick: false,
+      HTMLAttributes: {
+        class: 'text-blue-600 underline cursor-pointer hover:text-blue-800'
+      }
     })
   ],
   editorProps: {
@@ -337,6 +472,10 @@ const editor = useEditor({
   onUpdate: ({ editor }) => {
     const html = editor.isEmpty ? '' : editor.getHTML()
     emit('update:modelValue', html)
+    // 更新目录
+    if (isFullscreen.value) {
+      updateTableOfContents()
+    }
   },
   onTransaction: ({ editor }) => {
     // 在每次事务（包括第一次输入）时检查斜杠命令
@@ -368,11 +507,116 @@ const toggleFullscreen = () => {
     // 使用 nextTick 确保 DOM 更新后再聚焦
     nextTick(() => {
       editor.value?.chain().focus().run()
+      updateTableOfContents()
+      setupScrollListener()
     })
   } else {
     document.body.style.overflow = ''
+    removeScrollListener()
   }
 }
+
+// 生成目录
+const tableOfContents = ref<Array<{ id: string; text: string; level: number }>>([])
+
+const updateTableOfContents = () => {
+  if (!editor.value) return
+
+  const headings: Array<{ id: string; text: string; level: number }> = []
+  const doc = editor.value.state.doc
+
+  let headingIndex = 0
+  doc.descendants((node: any, pos: number) => {
+    if (node.type.name === 'heading') {
+      const level = node.attrs.level
+      const text = node.textContent
+      const id = `heading-${headingIndex++}`
+
+      // 存储标题位置用于滚动定位
+      headingIds.value.set(id, pos)
+
+      headings.push({ id, text, level })
+    }
+  })
+
+  tableOfContents.value = headings
+}
+
+// 滚动到指定标题
+const scrollToHeading = (id: string) => {
+  if (!editor.value) return
+
+  const pos = headingIds.value.get(id)
+  if (pos === undefined) return
+
+  // 使用 Tiptap 的滚动到位置功能
+  const view = editor.value.view
+  const coords = view.coordsAtPos(pos)
+
+  // 获取编辑器容器
+  const editorElement = view.dom.closest('.editor-content')
+  if (!editorElement) return
+
+  // 计算滚动位置
+  const scrollTop = coords.top - editorElement.getBoundingClientRect().top - 100
+
+  editorElement.scrollTo({
+    top: scrollTop,
+    behavior: 'smooth'
+  })
+}
+
+// 监听滚动更新活动标题
+let scrollListener: (() => void) | null = null
+
+const setupScrollListener = () => {
+  const editorElement = editor.value?.view.dom.closest('.editor-content')
+  if (!editorElement) return
+
+  scrollListener = () => {
+    if (!editor.value) return
+
+    const containerRect = editorElement.getBoundingClientRect()
+    const containerTop = containerRect.top + 150 // 偏移量，用于确定活动标题
+
+    let activeIndex = 0
+    let minDistance = Infinity
+
+    tableOfContents.value.forEach((item, index) => {
+      const pos = headingIds.value.get(item.id)
+      if (pos === undefined) return
+
+      const coords = editor.value!.view.coordsAtPos(pos)
+      const distance = Math.abs(coords.top - containerTop)
+
+      if (distance < minDistance) {
+        minDistance = distance
+        activeIndex = index
+      }
+    })
+
+    activeHeadingIndex.value = activeIndex
+  }
+
+  editorElement.addEventListener('scroll', scrollListener)
+}
+
+const removeScrollListener = () => {
+  if (scrollListener) {
+    const editorElement = editor.value?.view.dom.closest('.editor-content')
+    if (editorElement) {
+      editorElement.removeEventListener('scroll', scrollListener)
+    }
+    scrollListener = null
+  }
+}
+
+// 监听编辑器内容变化更新目录
+watch(() => [editor.value, isFullscreen.value], () => {
+  if (editor.value && isFullscreen.value) {
+    updateTableOfContents()
+  }
+}, { deep: true })
 
 // 检查斜杠命令触发
 const checkSlashCommand = (editor: any) => {
@@ -427,6 +671,89 @@ const closeSlashCommand = () => {
   slashCommandVisible.value = false
   slashQuery.value = ''
   slashRange.value = null
+}
+
+// 打开链接编辑对话框
+const openLinkDialog = () => {
+  if (!editor.value) return
+
+  if (editor.value.isActive('link')) {
+    // 编辑现有链接
+    const currentLink = editor.value.getAttributes('link')
+    linkUrl.value = currentLink.href || ''
+    linkText.value = editor.value.state.doc.textBetween(
+      editor.value.state.selection.from,
+      editor.value.state.selection.to
+    ) || ''
+  } else {
+    // 新建链接
+    linkUrl.value = ''
+    const selectedText = editor.value.state.doc.textBetween(
+      editor.value.state.selection.from,
+      editor.value.state.selection.to
+    )
+    linkText.value = selectedText || ''
+  }
+
+  linkDialogVisible.value = true
+}
+
+// 关闭链接编辑对话框
+const closeLinkDialog = () => {
+  linkDialogVisible.value = false
+  linkUrl.value = ''
+  linkText.value = ''
+}
+
+// 保存链接
+const saveLink = () => {
+  if (!editor.value || !linkUrl.value) return
+
+  // 如果有显示文本，先设置文本
+  if (linkText.value && !editor.value.isActive('link')) {
+    const selectedText = editor.value.state.doc.textBetween(
+      editor.value.state.selection.from,
+      editor.value.state.selection.to
+    )
+
+    if (selectedText !== linkText.value) {
+      // 如果选中的文本和显示文本不同，替换选中的文本
+      editor.value
+        .chain()
+        .focus()
+        .insertContent(linkText.value)
+        .run()
+      // 选中新插入的文本
+      const { from } = editor.value.state.selection
+      editor.value
+        .chain()
+        .focus()
+        .setTextSelection({ from, to: from + linkText.value.length })
+        .run()
+    }
+  }
+
+  // 设置链接
+  editor.value
+    .chain()
+    .focus()
+    .setLink({ href: linkUrl.value })
+    .run()
+
+  closeLinkDialog()
+}
+
+// 删除链接
+const removeLink = () => {
+  if (!editor.value) return
+
+  editor.value
+    .chain()
+    .focus()
+    .unsetLink()
+    .run()
+
+  closeLinkDialog()
 }
 
 // 处理命令选择
@@ -493,6 +820,8 @@ onUnmounted(() => {
   }
   // 关闭斜杠命令
   closeSlashCommand()
+  // 移除滚动监听
+  removeScrollListener()
 })
 
 // 组件销毁时清理编辑器
@@ -524,12 +853,51 @@ defineExpose({
   @apply fixed inset-0 z-[9999] rounded-none m-0 flex flex-col;
 }
 
+/* 目录面板 (全屏时绝对定位在左侧) */
+.rich-text-editor.fullscreen .table-of-contents {
+  @apply fixed left-0 top-0 bottom-0 w-60 bg-white border-r border-gray-200 overflow-y-auto z-20;
+}
+
+.toc-header {
+  @apply sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-2 text-sm font-semibold text-gray-700 z-10 shadow-sm;
+}
+
+.toc-list {
+  @apply px-3 py-2;
+}
+
+.toc-item {
+  @apply px-3 py-2 text-sm text-gray-600 rounded cursor-pointer hover:bg-gray-100 transition-colors duration-150 truncate;
+}
+
+.toc-item.toc-level-1 {
+  @apply font-semibold;
+}
+
+.toc-item.toc-level-2 {
+  @apply pl-6;
+}
+
+.toc-item.toc-level-3 {
+  @apply pl-10;
+}
+
+.toc-item.toc-active {
+  @apply bg-blue-100 text-blue-700 font-medium;
+}
+
+/* 全屏模式主容器偏移 (为目录留出空间) */
+.rich-text-editor.fullscreen > :not(.table-of-contents) {
+  @apply ml-60;
+}
+
+/* 编辑器容器 (全屏模式下有目录时) */
 .rich-text-editor.fullscreen .editor-content {
   @apply flex-1 overflow-y-auto;
 }
 
 .rich-text-editor.fullscreen .editor-content :deep(.ProseMirror) {
-  @apply min-h-full max-w-4xl mx-auto py-8;
+  @apply min-h-full max-w-4xl mx-auto py-8 px-8;
 }
 
 .rich-text-editor.fullscreen .editor-toolbar {
@@ -712,5 +1080,66 @@ defineExpose({
 
 .char-count {
   @apply text-gray-500;
+}
+
+/* 链接编辑对话框 */
+.link-dialog-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[10000];
+}
+
+.link-dialog {
+  @apply bg-white rounded-lg shadow-xl w-full max-w-md mx-4 overflow-hidden;
+}
+
+.link-dialog-header {
+  @apply flex items-center justify-between px-6 py-4 border-b border-gray-200;
+}
+
+.link-dialog-title {
+  @apply text-lg font-semibold text-gray-900;
+}
+
+.link-dialog-close {
+  @apply text-gray-400 hover:text-gray-600 transition-colors duration-150;
+}
+
+.link-dialog-body {
+  @apply px-6 py-4 space-y-4;
+}
+
+.link-input-group {
+  @apply space-y-2;
+}
+
+.link-input-label {
+  @apply block text-sm font-medium text-gray-700;
+}
+
+.link-input {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+}
+
+.link-dialog-footer {
+  @apply px-6 py-4 bg-gray-50 flex items-center justify-between gap-4;
+}
+
+.link-dialog-actions {
+  @apply flex items-center gap-2 ml-auto;
+}
+
+.link-dialog-btn {
+  @apply px-4 py-2 rounded-md text-sm font-medium transition-colors duration-150;
+}
+
+.link-dialog-btn-secondary {
+  @apply bg-white border border-gray-300 text-gray-700 hover:bg-gray-50;
+}
+
+.link-dialog-btn-primary {
+  @apply bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.link-dialog-btn-danger {
+  @apply bg-red-600 text-white hover:bg-red-700;
 }
 </style>

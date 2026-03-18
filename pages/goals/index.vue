@@ -295,7 +295,10 @@
                     class="px-2 py-2 text-sm text-left border-r border-gray-200">
                     <DayGoalCell :goals="getChildGoals(row.mainGoal, 'TASK', day.date, getDeepestFolderId(row))"
                       :period-type="'TASK'" :period-value="day.date"
-                      @add="openAddGoal('TASK', day.date, row)" @edit="openEditGoal" />
+                      @add="openAddGoal('TASK', day.date, row)"
+                      @edit="openEditGoal"
+                      @drag-start="handleDragStart"
+                      @drop="handleDrop" />
                   </td>
                 </template>
               </tr>
@@ -446,7 +449,7 @@ const DayGoalCell = defineComponent({
     periodType: { type: String as PropType<string>, required: true },
     periodValue: { type: String as PropType<string>, required: true }
   },
-  emits: ['add', 'edit'],
+  emits: ['add', 'edit', 'drag-start', 'drag-over', 'drop'],
   setup(props, { emit }) {
     const handleGoalClick = (goal: any) => {
       emit('edit', goal)
@@ -456,15 +459,62 @@ const DayGoalCell = defineComponent({
       emit('add')
     }
 
-    return () => h('div', { class: 'day-goal-cell-container flex flex-col' }, [
+    const handleDragStart = (event: DragEvent, goal: any) => {
+      if (event.dataTransfer) {
+        event.dataTransfer.setData('text/plain', JSON.stringify({
+          goalId: goal.id,
+          goalTitle: goal.title
+        }))
+        event.dataTransfer.effectAllowed = 'move'
+      }
+      emit('drag-start', goal)
+    }
+
+    const handleDragOver = (event: DragEvent) => {
+      event.preventDefault()
+      if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = 'move'
+      }
+      emit('drag-over', event)
+    }
+
+    const handleDrop = (event: DragEvent) => {
+      event.preventDefault()
+      if (event.dataTransfer) {
+        const data = event.dataTransfer.getData('text/plain')
+        try {
+          const parsed = JSON.parse(data)
+          emit('drop', {
+            goalId: parsed.goalId,
+            targetPeriodType: props.periodType,
+            targetPeriodValue: props.periodValue
+          })
+        } catch (e) {
+          console.error('Failed to parse drop data:', e)
+        }
+      }
+    }
+
+    return () => h('div', {
+      class: 'day-goal-cell-container flex flex-col',
+      onDragover: handleDragOver,
+      onDrop: handleDrop
+    }, [
       // 显示所有任务
       props.goals.length > 0
         ? props.goals.map((goal: any) =>
             h('div', {
-              class: 'day-goal-item cursor-pointer hover:bg-gray-50 rounded px-2 py-1 transition-colors text-sm',
-              onClick: () => handleGoalClick(goal)
+              class: [
+                'day-goal-item cursor-pointer rounded px-2 py-1 transition-colors text-sm',
+                goal.status === 'COMPLETED' ? 'line-through opacity-60 hover:bg-gray-50' : 'hover:bg-gray-50'
+              ],
+              draggable: true,
+              onClick: () => handleGoalClick(goal),
+              onDragstart: (e: DragEvent) => handleDragStart(e, goal)
             }, [
-              h('span', { class: 'text-gray-900' }, goal.title)
+              h('span', {
+                class: goal.status === 'COMPLETED' ? 'text-gray-500' : 'text-gray-900'
+              }, goal.title)
             ])
           )
         : h('button', {
@@ -486,7 +536,6 @@ const DayGoalCell = defineComponent({
     ])
   }
 })
-
 const { signOut } = useAuth()
 const view = ref<'year' | 'month' | 'week'>('week')
 const showModal = ref(false)
@@ -578,7 +627,6 @@ const goalsWithTree = computed(() => {
 
     // 暴露到全局以便调试
     ; (window as any).__DEBUG_goals__ = flatGoals
-    // 调试：输出所有CUSTOM类型的目标  const customGoals = flatGoals.filter((g: any) => g.periodType === 'CUSTOM')  console.log('[goalsWithTree] CUSTOM类型目标数量:', customGoals.length)  customGoals.forEach((g: any) => {    console.log('[goalsWithTree] CUSTOM目标详情:', {      id: g.id,      title: g.title,      folderId: g.folderId,      parentId: g.parentId,      periodType: g.periodType,      periodValue: g.periodValue,      plannedStart: g.plannedStart,      plannedEnd: g.plannedEnd,      status: g.status    })  })
     ; (window as any).__DEBUG_rootGoals__ = rootGoals
     ; (window as any).__DEBUG_folders__ = null // 稍后设置
 
@@ -1246,6 +1294,35 @@ function openEditGoal(goal: any) {
   showModal.value = true
 }
 
+
+// 处理拖拽开始事件
+function handleDragStart(goal: any) {
+}
+
+// 处理拖拽放置事件
+async function handleDrop(data: any) {
+  const { goalId, targetPeriodType, targetPeriodValue } = data
+  
+  try {
+    // 调用API更新目标的计划日期
+    const response = await $fetch(`/api/goals/${goalId}`, {
+      method: 'PATCH',
+      body: {
+        plannedStart: targetPeriodType === 'TASK' ? targetPeriodValue : undefined,
+        plannedEnd: targetPeriodType === 'TASK' ? targetPeriodValue : undefined,
+        periodType: targetPeriodType,
+        periodValue: targetPeriodValue
+      }
+    })
+    
+    if (response.success) {
+      // 刷新数据
+      await refresh()
+    }
+  } catch (error) {
+    console.error('Failed to move goal:', error)
+  }
+}
 // 表格行生成函数
 function generateTypedRows(scene: any): TypedRow[] {
   const result: TypedRow[] = []
