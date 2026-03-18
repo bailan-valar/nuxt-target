@@ -201,12 +201,13 @@
                   v-for="m in 12"
                   :key="m"
                   :class="[
-                    'px-2 py-2 text-left text-xs font-medium uppercase tracking-wider min-w-[60px] border-r border-gray-200',
+                    'px-2 py-2 text-left text-xs font-medium uppercase tracking-wider min-w-[60px] border-r border-gray-200 cursor-pointer hover:bg-gray-100',
                     m === currentMonth && year === currentYear
                       ? '!bg-blue-100 !text-blue-700 font-bold'
                       : '!bg-gray-50 !text-gray-500'
                   ]"
                   :style="m === currentMonth && year === currentYear ? 'background-color: rgb(219 234 254) !important; color: rgb(29 78 216) !important;' : ''"
+                  @click="goToMonthView(m)"
                 >
                   {{ m }}月
                 </th>
@@ -219,12 +220,13 @@
                   v-for="week in monthWeeks"
                   :key="week.index"
                   :class="[
-                    'px-2 py-2 text-left text-xs font-medium uppercase tracking-wider min-w-[80px] border-r border-gray-200',
+                    'px-2 py-2 text-left text-xs font-medium uppercase tracking-wider min-w-[80px] border-r border-gray-200 cursor-pointer hover:bg-gray-100',
                     week.value === currentWeekValue
                       ? '!bg-blue-100 !text-blue-700 font-bold'
                       : '!bg-gray-50 !text-gray-500'
                   ]"
                   :style="week.value === currentWeekValue ? 'background-color: rgb(219 234 254) !important; color: rgb(29 78 216) !important;' : ''"
+                  @click="goToWeekView(week.value)"
                 >
                   <div class="flex flex-col items-start gap-1">
                     <span>第{{ week.index }}周</span>
@@ -473,13 +475,11 @@ function doesCustomPeriodOverlapWithView(
       const weekNumber = parseInt(match[2])
       
       const date = new Date(year, 0, 1)
-      const firstDayOfWeek = date.getDay() || 7
+      const firstDayOfWeek = date.getDay() || 7 // 将周日从0转换为7
       const daysToAdd = (weekNumber - 1) * 7 - (firstDayOfWeek - 1)
       date.setDate(daysToAdd + 1)
       
-      viewStart = new Date(date)
-      viewStart.setHours(0, 0, 0, 0)
-      
+      viewStart = getWeekStart(date)
       viewEnd = new Date(viewStart)
       viewEnd.setDate(viewEnd.getDate() + 6)
       viewEnd.setHours(23, 59, 59, 999)
@@ -783,7 +783,7 @@ const monthWeeks = computed(() => {
 
     weeks.push({
       index: weekIndex,
-      range: `${current.getMonth() + 1}/${current.getDate()}`,
+      range: `${current.getMonth() + 1}/${current.getDate()}-${weekEnd.getMonth() + 1}/${weekEnd.getDate()}`,
       value: formatWeekValue(current)
     })
 
@@ -799,7 +799,7 @@ const monthWeeks = computed(() => {
 // 计算属性：本周的7天
 const weekDays = computed(() => {
   const days: { date: string; weekday: string; day: string }[] = []
-  const weekdays = ['日', '一', '二', '三', '四', '五', '六']
+  const weekdays = ['一', '二', '三', '四', '五', '六', '日']
 
   for (let i = 0; i < 7; i++) {
     const date = new Date(weekStart.value)
@@ -1019,7 +1019,9 @@ function findParentInfo(folderId: string): { scene?: any; group?: any; project?:
 function getWeekStart(date: Date): Date {
   const d = new Date(date)
   const day = d.getDay()
-  d.setDate(d.getDate() - day)
+  // 调整为周一作为一周的开始
+  const diff = day === 0 ? -6 : 1 - day
+  d.setDate(d.getDate() + diff)
   d.setHours(0, 0, 0, 0)
   return d
 }
@@ -1055,6 +1057,32 @@ function isToday(dateStr: string): boolean {
 // 视图切换
 function switchView(newView: 'year' | 'month' | 'week') {
   view.value = newView
+}
+
+// 跳转到指定月份的月视图
+function goToMonthView(monthNumber: number) {
+  month.value = monthNumber
+  view.value = 'month'
+}
+
+// 跳转到指定周的周视图
+function goToWeekView(weekValue: string) {
+  // weekValue 格式: "YYYY-Www"
+  // 解析周值并设置weekStart
+  const match = weekValue.match(/(\d+)-W(\d+)/)
+  if (match) {
+    const year = parseInt(match[1])
+    const weekNumber = parseInt(match[2])
+
+    // 计算该周的第一天(周一)
+    const date = new Date(year, 0, 1) // 1月1日
+    const firstDayOfWeek = date.getDay() || 7 // 将周日从0转换为7
+    const daysToAdd = (weekNumber - 1) * 7 - (firstDayOfWeek - 1)
+    date.setDate(daysToAdd + 1)
+
+    weekStart.value = getWeekStart(date)
+    view.value = 'week'
+  }
 }
 
 // 导航函数
