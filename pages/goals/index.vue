@@ -1183,14 +1183,6 @@ function findFolderById(folders: any[], id: string): any {
 
 // 获取子目标
 function getChildGoal(parentGoal: any, periodType: string, periodValue: string, folderId?: string): any {
-  console.log('[getChildGoal] 查找子目标:', {
-    periodType,
-    periodValue,
-    folderId,
-    hasParentGoal: !!parentGoal,
-    parentGoalId: parentGoal?.id,
-    parentGoalChildren: parentGoal?.children?.length
-  })
 
   if (parentGoal?.children) {
     const exactMatch = parentGoal.children.find((g: any) =>
@@ -1198,27 +1190,14 @@ function getChildGoal(parentGoal: any, periodType: string, periodValue: string, 
     )
 
     if (exactMatch) {
-      console.log('[getChildGoal] 找到精确匹配的目标:', exactMatch.id, exactMatch.title)
       return exactMatch
     }
 
-    console.log('[getChildGoal] 没有精确匹配，查找自定义周期目标...')
     
     const customGoals = parentGoal.children.filter((g: any) => {
-      console.log('[getChildGoal] 检查子目标:', {
-        id: g.id,
-        title: g.title,
-        periodType: g.periodType,
-        periodValue: g.periodValue,
-        hasPlannedStart: !!g.plannedStart,
-        hasPlannedEnd: !!g.plannedEnd,
-        plannedStart: g.plannedStart,
-        plannedEnd: g.plannedEnd
-      })
       
       if (g.periodType !== 'CUSTOM') return false
       if (!g.plannedStart || !g.plannedEnd) {
-        console.log('[getChildGoal] 跳过CUSTOM目标（缺少时间）:', g.id)
         return false
       }
       
@@ -1229,31 +1208,17 @@ function getChildGoal(parentGoal: any, periodType: string, periodValue: string, 
         periodValue
       )
       
-      console.log('[getChildGoal] CUSTOM目标重叠检查:', {
-        goalId: g.id,
-        goalTitle: g.title,
-        plannedStart: g.plannedStart,
-        plannedEnd: g.plannedEnd,
-        viewType: view.value,
-        viewPeriodValue: periodValue,
-        overlaps
-      })
-      
       return overlaps
     })
 
-    console.log('[getChildGoal] 找到自定义周期目标数量:', customGoals.length)
 
     if (customGoals.length > 0) {
-      console.log('[getChildGoal] 返回第一个自定义周期目标:', customGoals[0].id, customGoals[0].title)
       return customGoals[0]
     }
 
-    console.log('[getChildGoal] 没有找到匹配的目标，返回null')
     return null
   }
 
-  console.log('[getChildGoal] 没有父目标或父目标没有children')
 
   if (!parentGoal && folderId && periodType === 'TASK') {
     const orphanTasksInFolder = goals.value.filter((g: any) =>
@@ -1480,28 +1445,13 @@ function getMainGoalForFolder(folderId: string, currentView: string): any {
   // goals.value 现在是根目标数组
   const folderRootGoals = goals.value.filter((g: any) => g.folderId === folderId)
 
-  console.log('[getMainGoalForFolder] 查找主目标', {
-    folderId,
-    currentView,
-    targetType,
-    folderRootGoalsCount: folderRootGoals.length,
-    folderRootGoals: folderRootGoals.map(g => ({
-      id: g.id,
-      title: g.title,
-      periodType: g.periodType,
-      periodValue: g.periodValue
-    }))
-  })
-
   // 查找对应视图类型的主目标（根目标）
   let mainGoal = folderRootGoals.find((g: any) => g.periodType === targetType)
 
   if (mainGoal) {
-    console.log('[getMainGoalForFolder] 找到匹配的主目标', mainGoal.id, mainGoal.title)
     return mainGoal
   }
 
-  console.log('[getMainGoalForFolder] 没有找到匹配的主目标，查找自定义周期目标...')
 
   // 如果没有找到对应视图类型的目标，查找与当前视图重叠的 CUSTOM 目标
   const customGoals = folderRootGoals.filter((g: any) => {
@@ -1526,23 +1476,11 @@ function getMainGoalForFolder(folderId: string, currentView: string): any {
       viewPeriodValue
     )
     
-    console.log('[getMainGoalForFolder] CUSTOM目标重叠检查', {
-      goalId: g.id,
-      goalTitle: g.title,
-      plannedStart: g.plannedStart,
-      plannedEnd: g.plannedEnd,
-      currentView,
-      viewPeriodValue,
-      overlaps
-    })
-    
     return overlaps
   })
 
-  console.log('[getMainGoalForFolder] 找到的自定义周期目标数量', customGoals.length)
 
   if (customGoals.length > 0) {
-    console.log('[getMainGoalForFolder] 返回第一个自定义周期目标作为主目标', customGoals[0].id, customGoals[0].title)
     return customGoals[0]
   }
 
@@ -1551,7 +1489,6 @@ function getMainGoalForFolder(folderId: string, currentView: string): any {
     const monthGoals = folderRootGoals.filter((g: any) => g.periodType === 'MONTH')
     if (monthGoals.length > 0) {
       // 创建一个虚拟年目标，包含这些月度目标作为子目标
-      console.log('[getMainGoalForFolder] 创建虚拟年目标', monthGoals.length, '个月度目标')
       mainGoal = {
         id: `virtual-year-${folderId}`,
         title: '',
@@ -1566,7 +1503,6 @@ function getMainGoalForFolder(folderId: string, currentView: string): any {
   }
 
   // 周视图和月视图：如果没有主目标，返回null（让子目标显示在"-"行中）
-  console.log('[getMainGoalForFolder] 没有找到主目标，返回null')
   return null
 }
 function calculateRowspans(rows: TypedRow[]) {

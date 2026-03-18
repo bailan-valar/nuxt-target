@@ -22,7 +22,11 @@
 
           <div class="field">
             <label>描述</label>
-            <textarea v-model="form.description" rows="2" placeholder="请输入描述"></textarea>
+            <RichTextEditor
+              v-model="form.description"
+              placeholder="请输入描述"
+              :min-height="'80px'"
+            />
           </div>
 
           <FolderSelector
