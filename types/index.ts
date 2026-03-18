@@ -1,5 +1,5 @@
 export type GoalStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'PENDING_VERIFICATION' | 'COMPLETED' | 'ABANDONED'
-export type PeriodType = 'YEAR' | 'MONTH' | 'WEEK' | 'TASK'
+export type PeriodType = 'YEAR' | 'MONTH' | 'WEEK' | 'TASK' | 'CUSTOM'
 
 export type FolderType = 'SCENE' | 'GROUP' | 'PROJECT' | 'SUBPROJECT'
 

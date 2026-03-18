@@ -419,6 +419,95 @@ definePageMeta({
   layout: 'default',
   middleware: 'auth'
 })
+// 自定义周期辅助函数（带调试）
+function doesCustomPeriodOverlapWithView(
+  plannedStart: string,
+  plannedEnd: string,
+  viewType: 'year' | 'month' | 'week',
+  viewPeriodValue: string
+): boolean {
+  console.log('[doesCustomPeriodOverlapWithView] 开始检查', {
+    plannedStart,
+    plannedEnd,
+    viewType,
+    viewPeriodValue
+  })
+  
+  const customStart = new Date(plannedStart)
+  const customEnd = new Date(plannedEnd)
+  
+  let viewStart: Date, viewEnd: Date
+  
+  switch (viewType) {
+    case 'year': {
+      const year = parseInt(viewPeriodValue)
+      viewStart = new Date(year, 0, 1)
+      viewEnd = new Date(year, 11, 31, 23, 59, 59, 999)
+      console.log('[doesCustomPeriodOverlapWithView] 年视图范围', {
+        year,
+        viewStart: viewStart.toISOString(),
+        viewEnd: viewEnd.toISOString()
+      })
+      break
+    }
+    case 'month': {
+      const [year, month] = viewPeriodValue.split('-').map(Number)
+      viewStart = new Date(year, month - 1, 1)
+      viewEnd = new Date(year, month, 0, 23, 59, 59, 999)
+      console.log('[doesCustomPeriodOverlapWithView] 月视图范围', {
+        year,
+        month,
+        viewStart: viewStart.toISOString(),
+        viewEnd: viewEnd.toISOString()
+      })
+      break
+    }
+    case 'week': {
+      const match = viewPeriodValue.match(/(\d+)-W(\d+)/)
+      if (!match) {
+        console.log('[doesCustomPeriodOverlapWithView] 无效的周格式', viewPeriodValue)
+        return false
+      }
+      
+      const year = parseInt(match[1])
+      const weekNumber = parseInt(match[2])
+      
+      const date = new Date(year, 0, 1)
+      const firstDayOfWeek = date.getDay() || 7
+      const daysToAdd = (weekNumber - 1) * 7 - (firstDayOfWeek - 1)
+      date.setDate(daysToAdd + 1)
+      
+      viewStart = new Date(date)
+      viewStart.setHours(0, 0, 0, 0)
+      
+      viewEnd = new Date(viewStart)
+      viewEnd.setDate(viewEnd.getDate() + 6)
+      viewEnd.setHours(23, 59, 59, 999)
+      console.log('[doesCustomPeriodOverlapWithView] 周视图范围', {
+        year,
+        weekNumber,
+        viewStart: viewStart.toISOString(),
+        viewEnd: viewEnd.toISOString()
+      })
+      break
+    }
+    default:
+      console.log('[doesCustomPeriodOverlapWithView] 未知视图类型', viewType)
+      return false
+  }
+  
+  const overlaps = customStart <= viewEnd && customEnd >= viewStart
+  console.log('[doesCustomPeriodOverlapWithView] 重叠检查结果', {
+    customStart: customStart.toISOString(),
+    customEnd: customEnd.toISOString(),
+    viewStart: viewStart.toISOString(),
+    viewEnd: viewEnd.toISOString(),
+    overlaps,
+    comparison: `${customStart.toISOString()} <= ${viewEnd.toISOString()} && ${customEnd.toISOString()} >= ${viewStart.toISOString()}`
+  })
+  
+  return overlaps
+}
 
 // 目标单元格组件
 const GoalCell = defineComponent({
@@ -572,6 +661,7 @@ const goalsWithTree = computed(() => {
 
   // 暴露到全局以便调试
   ;(window as any).__DEBUG_goals__ = flatGoals
+// 调试：输出所有CUSTOM类型的目标  const customGoals = flatGoals.filter((g: any) => g.periodType === 'CUSTOM')  console.log('[goalsWithTree] CUSTOM类型目标数量:', customGoals.length)  customGoals.forEach((g: any) => {    console.log('[goalsWithTree] CUSTOM目标详情:', {      id: g.id,      title: g.title,      folderId: g.folderId,      parentId: g.parentId,      periodType: g.periodType,      periodValue: g.periodValue,      plannedStart: g.plannedStart,      plannedEnd: g.plannedEnd,      status: g.status    })  })
   ;(window as any).__DEBUG_rootGoals__ = rootGoals
   ;(window as any).__DEBUG_folders__ = null // 稍后设置
 
@@ -1065,56 +1155,103 @@ function findFolderById(folders: any[], id: string): any {
 
 // 获取子目标
 function getChildGoal(parentGoal: any, periodType: string, periodValue: string, folderId?: string): any {
-  // 添加调试：在查找 cmmtyfkr 的 TASK 时打印 goals.value 的内容
-  if (folderId === 'cmmtyfkr' && periodType === 'TASK') {
-    
-  }
+  console.log('[getChildGoal] 查找子目标:', {
+    periodType,
+    periodValue,
+    folderId,
+    hasParentGoal: !!parentGoal,
+    parentGoalId: parentGoal?.id,
+    parentGoalChildren: parentGoal?.children?.length
+  })
 
-  // 如果有父目标，先从父目标的children中查找
   if (parentGoal?.children) {
-    const found = parentGoal.children.find((g: any) =>
+    const exactMatch = parentGoal.children.find((g: any) =>
       g.periodType === periodType && g.periodValue === periodValue
     )
 
-    
+    if (exactMatch) {
+      console.log('[getChildGoal] 找到精确匹配的目标:', exactMatch.id, exactMatch.title)
+      return exactMatch
+    }
 
-    // 如果找到了，直接返回；如果找不到，返回null（不要继续查找）
-    return found || null
+    console.log('[getChildGoal] 没有精确匹配，查找自定义周期目标...')
+    
+    const customGoals = parentGoal.children.filter((g: any) => {
+      console.log('[getChildGoal] 检查子目标:', {
+        id: g.id,
+        title: g.title,
+        periodType: g.periodType,
+        periodValue: g.periodValue,
+        hasPlannedStart: !!g.plannedStart,
+        hasPlannedEnd: !!g.plannedEnd,
+        plannedStart: g.plannedStart,
+        plannedEnd: g.plannedEnd
+      })
+      
+      if (g.periodType !== 'CUSTOM') return false
+      if (!g.plannedStart || !g.plannedEnd) {
+        console.log('[getChildGoal] 跳过CUSTOM目标（缺少时间）:', g.id)
+        return false
+      }
+      
+      const overlaps = doesCustomPeriodOverlapWithView(
+        g.plannedStart,
+        g.plannedEnd,
+        view.value as 'year' | 'month' | 'week',
+        periodValue
+      )
+      
+      console.log('[getChildGoal] CUSTOM目标重叠检查:', {
+        goalId: g.id,
+        goalTitle: g.title,
+        plannedStart: g.plannedStart,
+        plannedEnd: g.plannedEnd,
+        viewType: view.value,
+        viewPeriodValue: periodValue,
+        overlaps
+      })
+      
+      return overlaps
+    })
+
+    console.log('[getChildGoal] 找到自定义周期目标数量:', customGoals.length)
+
+    if (customGoals.length > 0) {
+      console.log('[getChildGoal] 返回第一个自定义周期目标:', customGoals[0].id, customGoals[0].title)
+      return customGoals[0]
+    }
+
+    console.log('[getChildGoal] 没有找到匹配的目标，返回null')
+    return null
   }
 
-  // 如果parentGoal为null（孤儿任务行），查找该文件夹下的孤儿任务
+  console.log('[getChildGoal] 没有父目标或父目标没有children')
+
   if (!parentGoal && folderId && periodType === 'TASK') {
     const orphanTasksInFolder = goals.value.filter((g: any) =>
       g.periodType === periodType &&
       g.periodValue === periodValue &&
       g.folderId === folderId &&
-      !g.parentId  // 没有父目标
+      !g.parentId
     )
-
-    
 
     if (orphanTasksInFolder.length > 0) {
       return orphanTasksInFolder[0]
     }
   }
 
-  // 如果folderId为null，查找所有没有父目标的匹配TASK（用于全局查找）
   if (!folderId && periodType === 'TASK') {
     const orphanTasks = goals.value.filter((g: any) =>
       g.periodType === periodType &&
       g.periodValue === periodValue &&
-      !g.parentId  // 没有父目标
+      !g.parentId
     )
 
-    
-
-    // 如果找到了孤儿TASK，返回第一个（实际上应该只有一个）
     if (orphanTasks.length > 0) {
       return orphanTasks[0]
     }
   }
 
-  
   return null
 }
 
@@ -1315,18 +1452,78 @@ function getMainGoalForFolder(folderId: string, currentView: string): any {
   // goals.value 现在是根目标数组
   const folderRootGoals = goals.value.filter((g: any) => g.folderId === folderId)
 
-  
+  console.log('[getMainGoalForFolder] 查找主目标', {
+    folderId,
+    currentView,
+    targetType,
+    folderRootGoalsCount: folderRootGoals.length,
+    folderRootGoals: folderRootGoals.map(g => ({
+      id: g.id,
+      title: g.title,
+      periodType: g.periodType,
+      periodValue: g.periodValue
+    }))
+  })
 
   // 查找对应视图类型的主目标（根目标）
   let mainGoal = folderRootGoals.find((g: any) => g.periodType === targetType)
 
-  
+  if (mainGoal) {
+    console.log('[getMainGoalForFolder] 找到匹配的主目标', mainGoal.id, mainGoal.title)
+    return mainGoal
+  }
+
+  console.log('[getMainGoalForFolder] 没有找到匹配的主目标，查找自定义周期目标...')
+
+  // 如果没有找到对应视图类型的目标，查找与当前视图重叠的 CUSTOM 目标
+  const customGoals = folderRootGoals.filter((g: any) => {
+    if (g.periodType !== 'CUSTOM') return false
+    if (!g.plannedStart || !g.plannedEnd) return false
+    
+    // 获取当前视图的 periodValue
+    let viewPeriodValue: string
+    if (currentView === 'year') {
+      viewPeriodValue = String(year.value)
+    } else if (currentView === 'month') {
+      viewPeriodValue = `${year.value}-${String(month.value).padStart(2, '0')}`
+    } else {
+      // week view
+      viewPeriodValue = currentWeekValue.value
+    }
+    
+    const overlaps = doesCustomPeriodOverlapWithView(
+      g.plannedStart,
+      g.plannedEnd,
+      currentView as 'year' | 'month' | 'week',
+      viewPeriodValue
+    )
+    
+    console.log('[getMainGoalForFolder] CUSTOM目标重叠检查', {
+      goalId: g.id,
+      goalTitle: g.title,
+      plannedStart: g.plannedStart,
+      plannedEnd: g.plannedEnd,
+      currentView,
+      viewPeriodValue,
+      overlaps
+    })
+    
+    return overlaps
+  })
+
+  console.log('[getMainGoalForFolder] 找到的自定义周期目标数量', customGoals.length)
+
+  if (customGoals.length > 0) {
+    console.log('[getMainGoalForFolder] 返回第一个自定义周期目标作为主目标', customGoals[0].id, customGoals[0].title)
+    return customGoals[0]
+  }
 
   // 年视图特殊处理：如果没有年目标，但该文件夹有月度目标，创建一个虚拟的年目标来承载这些月度目标
-  if (currentView === 'year' && !mainGoal) {
+  if (currentView === 'year') {
     const monthGoals = folderRootGoals.filter((g: any) => g.periodType === 'MONTH')
     if (monthGoals.length > 0) {
       // 创建一个虚拟年目标，包含这些月度目标作为子目标
+      console.log('[getMainGoalForFolder] 创建虚拟年目标', monthGoals.length, '个月度目标')
       mainGoal = {
         id: `virtual-year-${folderId}`,
         title: '',
@@ -1336,15 +1533,14 @@ function getMainGoalForFolder(folderId: string, currentView: string): any {
         children: monthGoals,
         isVirtual: true
       }
-      
+      return mainGoal
     }
   }
 
   // 周视图和月视图：如果没有主目标，返回null（让子目标显示在"-"行中）
-  return mainGoal || null
+  console.log('[getMainGoalForFolder] 没有找到主目标，返回null')
+  return null
 }
-
-// 计算rowspan实现向上合并
 function calculateRowspans(rows: TypedRow[]) {
   for (const row of rows) {
     row.rowspans = { scene: 1, group: 1, project: 1, subproject: 1 }

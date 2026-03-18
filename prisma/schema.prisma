@@ -26,6 +26,7 @@ enum PeriodType {
   MONTH
   WEEK
   TASK
+  CUSTOM
 }
 
 enum FolderType {

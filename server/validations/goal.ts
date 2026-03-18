@@ -18,7 +18,7 @@ export const goalBaseSchema = z.object({
  * 周期基础验证 Schema
  */
 export const periodBaseSchema = z.object({
-  periodType: z.enum(['YEAR', 'MONTH', 'WEEK', 'TASK']).optional(),
+  periodType: z.enum(['YEAR', 'MONTH', 'WEEK', 'TASK', 'CUSTOM']).optional(),
   periodValue: z.string().optional()
 })
 

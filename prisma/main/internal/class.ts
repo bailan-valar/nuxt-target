@@ -23,7 +23,7 @@ const config: runtime.GetPrismaClientConfig = {
       "value": "prisma-client"
     },
     "output": {
-      "value": "D:\\Workspace\\canger\\nuxt-target\\nuxt-target\\prisma\\main",
+      "value": "d:\\Workspace\\canger\\nuxt-target\\nuxt-target\\prisma\\main",
       "fromEnvVar": null
     },
     "config": {
@@ -37,7 +37,7 @@ const config: runtime.GetPrismaClientConfig = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "D:\\Workspace\\canger\\nuxt-target\\nuxt-target\\prisma\\schema.prisma",
+    "sourceFilePath": "d:\\Workspace\\canger\\nuxt-target\\nuxt-target\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativePath": "..",
@@ -47,7 +47,6 @@ const config: runtime.GetPrismaClientConfig = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -56,8 +55,8 @@ const config: runtime.GetPrismaClientConfig = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider   = \"prisma-client\"\n  output     = \"./main\"\n  engineType = \"client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id        String   @id @default(cuid())\n  email     String   @unique\n  password  String\n  createdAt DateTime @default(now()) @map(\"created_at\")\n  updatedAt DateTime @updatedAt @map(\"updated_at\")\n  goals     Goal[]\n  folders   Folder[]\n\n  @@map(\"users\")\n}\n\nenum PeriodType {\n  YEAR\n  MONTH\n  WEEK\n  TASK\n}\n\nenum FolderType {\n  SCENE\n  GROUP\n  PROJECT\n  SUBPROJECT\n}\n\nenum GoalStatus {\n  NOT_STARTED\n  IN_PROGRESS\n  PENDING_VERIFICATION\n  COMPLETED\n  ABANDONED\n}\n\nmodel Folder {\n  id          String     @id @default(cuid())\n  userId      String     @map(\"user_id\")\n  parentId    String?    @map(\"parent_id\")\n  name        String\n  type        FolderType\n  description String?    @db.Text\n  icon        String?\n  color       String?\n  sortOrder   Int        @default(0) @map(\"sort_order\")\n  createdAt   DateTime   @default(now()) @map(\"created_at\")\n  updatedAt   DateTime   @updatedAt @map(\"updated_at\")\n\n  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n  parent   Folder?  @relation(\"FolderHierarchy\", fields: [parentId], references: [id], onDelete: Restrict)\n  children Folder[] @relation(\"FolderHierarchy\")\n  goals    Goal[]\n\n  @@index([userId])\n  @@index([parentId])\n  @@map(\"folders\")\n}\n\nmodel Goal {\n  id            String      @id @default(cuid())\n  userId        String      @map(\"user_id\")\n  parentId      String?     @map(\"parent_id\")\n  folderId      String?     @map(\"folder_id\")\n  title         String\n  description   String?\n  status        GoalStatus  @default(NOT_STARTED)\n  periodType    PeriodType? @map(\"period_type\")\n  periodValue   String?     @map(\"period_value\")\n  createdAt     DateTime    @default(now()) @map(\"created_at\")\n  updatedAt     DateTime    @updatedAt @map(\"updated_at\")\n  plannedStart  DateTime?   @map(\"planned_start\")\n  plannedEnd    DateTime?   @map(\"planned_end\")\n  nextExecution DateTime?   @map(\"next_execution\")\n  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)\n  folder        Folder?     @relation(fields: [folderId], references: [id], onDelete: SetNull)\n  parent        Goal?       @relation(\"GoalHierarchy\", fields: [parentId], references: [id], onDelete: Restrict)\n  children      Goal[]      @relation(\"GoalHierarchy\")\n\n  @@index([folderId])\n  @@map(\"goals\")\n}\n",
-  "inlineSchemaHash": "f23974ec2fb275ebf91aa09d99dff2bb87676487b6e5335c8a5099c94b4d93c9",
+  "inlineSchema": "generator client {\n  provider   = \"prisma-client\"\n  output     = \"./main\"\n  engineType = \"client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id        String   @id @default(cuid())\n  email     String   @unique\n  password  String\n  createdAt DateTime @default(now()) @map(\"created_at\")\n  updatedAt DateTime @updatedAt @map(\"updated_at\")\n  goals     Goal[]\n  folders   Folder[]\n\n  @@map(\"users\")\n}\n\nenum PeriodType {\n  YEAR\n  MONTH\n  WEEK\n  TASK\n  CUSTOM\n}\n\nenum FolderType {\n  SCENE\n  GROUP\n  PROJECT\n  SUBPROJECT\n}\n\nenum GoalStatus {\n  NOT_STARTED\n  IN_PROGRESS\n  PENDING_VERIFICATION\n  COMPLETED\n  ABANDONED\n}\n\nmodel Folder {\n  id          String     @id @default(cuid())\n  userId      String     @map(\"user_id\")\n  parentId    String?    @map(\"parent_id\")\n  name        String\n  type        FolderType\n  description String?    @db.Text\n  icon        String?\n  color       String?\n  sortOrder   Int        @default(0) @map(\"sort_order\")\n  createdAt   DateTime   @default(now()) @map(\"created_at\")\n  updatedAt   DateTime   @updatedAt @map(\"updated_at\")\n\n  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n  parent   Folder?  @relation(\"FolderHierarchy\", fields: [parentId], references: [id], onDelete: Restrict)\n  children Folder[] @relation(\"FolderHierarchy\")\n  goals    Goal[]\n\n  @@index([userId])\n  @@index([parentId])\n  @@map(\"folders\")\n}\n\nmodel Goal {\n  id            String      @id @default(cuid())\n  userId        String      @map(\"user_id\")\n  parentId      String?     @map(\"parent_id\")\n  folderId      String?     @map(\"folder_id\")\n  title         String\n  description   String?\n  status        GoalStatus  @default(NOT_STARTED)\n  periodType    PeriodType? @map(\"period_type\")\n  periodValue   String?     @map(\"period_value\")\n  createdAt     DateTime    @default(now()) @map(\"created_at\")\n  updatedAt     DateTime    @updatedAt @map(\"updated_at\")\n  plannedStart  DateTime?   @map(\"planned_start\")\n  plannedEnd    DateTime?   @map(\"planned_end\")\n  nextExecution DateTime?   @map(\"next_execution\")\n  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)\n  folder        Folder?     @relation(fields: [folderId], references: [id], onDelete: SetNull)\n  parent        Goal?       @relation(\"GoalHierarchy\", fields: [parentId], references: [id], onDelete: Restrict)\n  children      Goal[]      @relation(\"GoalHierarchy\")\n\n  @@index([folderId])\n  @@map(\"goals\")\n}\n",
+  "inlineSchemaHash": "66ec63f9c4deb3437c779291c594f60263797effd1b021fca59762da823bfbce",
   "copyEngine": true,
   "runtimeDataModel": {
     "models": {},

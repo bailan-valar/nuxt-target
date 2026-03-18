@@ -8,24 +8,8 @@
 
       <form @submit.prevent="handleSubmit" class="modal-form">
         <div class="form-section">
-          <FolderSelector
-            v-model="form.folderId"
-            label="所属文件夹"
-            :allow_create="true"
-          />
 
-          <div class="field">
-            <label>标题 *</label>
-            <input v-model="form.title" required placeholder="请输入目标标题" />
-          </div>
-
-          <div class="field">
-            <label>年目标</label>
-            <textarea v-model="form.description" rows="2" placeholder="请输入年目标描述"></textarea>
-          </div>
-
-          <div class="field">
-            <label>状态</label>
+          <div class="field title-field">
             <select v-model="form.status" class="status-select">
               <option value="NOT_STARTED">待开始</option>
               <option value="IN_PROGRESS">进行中</option>
@@ -33,7 +17,19 @@
               <option value="COMPLETED">已完成</option>
               <option value="ABANDONED">已放弃</option>
             </select>
+            <input v-model="form.title" required placeholder="* 标题" />
           </div>
+
+          <div class="field">
+            <label>描述</label>
+            <textarea v-model="form.description" rows="2" placeholder="请输入描述"></textarea>
+          </div>
+
+          <FolderSelector
+            v-model="form.folderId"
+            label="所属项目"
+            :allow_create="true"
+          />
 
           <ParentGoalSelector
             v-model="form.parentGoal"
@@ -58,7 +54,6 @@
                 class="time-input"
               />
             </div>
-
             <div class="field">
               <label class="time-label">计划结束</label>
               <input
@@ -68,7 +63,7 @@
                 class="time-input"
               />
             </div>
-
+          </div>
             <div class="field">
               <label class="time-label">下次执行</label>
               <input
@@ -78,7 +73,6 @@
                 class="time-input"
               />
             </div>
-          </div>
         </div>
 
         <div class="actions">
@@ -134,7 +128,7 @@
 </template>
 
 <script setup lang="ts">
-type PeriodType = 'YEAR' | 'MONTH' | 'WEEK' | ''
+type PeriodType = 'YEAR' | 'MONTH' | 'WEEK' | 'TASK' | 'CUSTOM' | ''
 type GoalStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'PENDING_VERIFICATION' | 'COMPLETED' | 'ABANDONED'
 
 interface Goal {
@@ -414,6 +408,22 @@ const handleDelete = async () => {
 .field textarea {
   resize: vertical;
   min-height: 50px;
+}
+
+.title-field {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.title-field .status-select {
+  flex-shrink: 0;
+  width: auto;
+  min-width: 100px;
+}
+
+.title-field input {
+  flex: 1;
 }
 
 .time-section {

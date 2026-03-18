@@ -13,7 +13,8 @@ export const PeriodType = {
   YEAR: 'YEAR',
   MONTH: 'MONTH',
   WEEK: 'WEEK',
-  TASK: 'TASK'
+  TASK: 'TASK',
+  CUSTOM: 'CUSTOM'
 } as const
 
 export type PeriodType = (typeof PeriodType)[keyof typeof PeriodType]
