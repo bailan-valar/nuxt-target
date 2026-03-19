@@ -69,7 +69,7 @@ export const folderSchema = z.object({
  * 排序验证 Schema
  */
 export const sortOrderSchema = z.object({
-  sortOrder: z.number().int().min(0).optional()
+  sortOrder: z.number().int().optional()
 })
 
 /**
