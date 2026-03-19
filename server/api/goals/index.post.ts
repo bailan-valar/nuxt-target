@@ -45,6 +45,7 @@ export default defineEventHandler(async (event) => {
       periodValue: data.periodValue,
       parentId: data.parentId,
       folderId: data.folderId,
+      sortOrder: data.sortOrder ?? 0,
       plannedStart: data.plannedStart ? new Date(data.plannedStart) : null,
       plannedEnd: data.plannedEnd ? new Date(data.plannedEnd) : null,
       nextExecution: data.nextExecution ? new Date(data.nextExecution) : null,

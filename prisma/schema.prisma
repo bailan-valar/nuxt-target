@@ -77,6 +77,7 @@ model Goal {
   status      GoalStatus  @default(NOT_STARTED)
   periodType    PeriodType? @map("period_type")
   periodValue   String?     @map("period_value")
+  sortOrder     Int         @default(0) @map("sort_order")
   createdAt     DateTime    @default(now()) @map("created_at")
   updatedAt     DateTime    @updatedAt @map("updated_at")
   plannedStart  DateTime?   @map("planned_start")

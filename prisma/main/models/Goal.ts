@@ -20,8 +20,18 @@ export type GoalModel = runtime.Types.Result.DefaultSelection<Prisma.$GoalPayloa
 
 export type AggregateGoal = {
   _count: GoalCountAggregateOutputType | null
+  _avg: GoalAvgAggregateOutputType | null
+  _sum: GoalSumAggregateOutputType | null
   _min: GoalMinAggregateOutputType | null
   _max: GoalMaxAggregateOutputType | null
+}
+
+export type GoalAvgAggregateOutputType = {
+  sortOrder: number | null
+}
+
+export type GoalSumAggregateOutputType = {
+  sortOrder: number | null
 }
 
 export type GoalMinAggregateOutputType = {
@@ -34,6 +44,7 @@ export type GoalMinAggregateOutputType = {
   status: $Enums.GoalStatus | null
   periodType: $Enums.PeriodType | null
   periodValue: string | null
+  sortOrder: number | null
   createdAt: Date | null
   updatedAt: Date | null
   plannedStart: Date | null
@@ -51,6 +62,7 @@ export type GoalMaxAggregateOutputType = {
   status: $Enums.GoalStatus | null
   periodType: $Enums.PeriodType | null
   periodValue: string | null
+  sortOrder: number | null
   createdAt: Date | null
   updatedAt: Date | null
   plannedStart: Date | null
@@ -68,6 +80,7 @@ export type GoalCountAggregateOutputType = {
   status: number
   periodType: number
   periodValue: number
+  sortOrder: number
   createdAt: number
   updatedAt: number
   plannedStart: number
@@ -76,6 +89,14 @@ export type GoalCountAggregateOutputType = {
   _all: number
 }
 
+
+export type GoalAvgAggregateInputType = {
+  sortOrder?: true
+}
+
+export type GoalSumAggregateInputType = {
+  sortOrder?: true
+}
 
 export type GoalMinAggregateInputType = {
   id?: true
@@ -87,6 +108,7 @@ export type GoalMinAggregateInputType = {
   status?: true
   periodType?: true
   periodValue?: true
+  sortOrder?: true
   createdAt?: true
   updatedAt?: true
   plannedStart?: true
@@ -104,6 +126,7 @@ export type GoalMaxAggregateInputType = {
   status?: true
   periodType?: true
   periodValue?: true
+  sortOrder?: true
   createdAt?: true
   updatedAt?: true
   plannedStart?: true
@@ -121,6 +144,7 @@ export type GoalCountAggregateInputType = {
   status?: true
   periodType?: true
   periodValue?: true
+  sortOrder?: true
   createdAt?: true
   updatedAt?: true
   plannedStart?: true
@@ -167,6 +191,18 @@ export type GoalAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: GoalAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: GoalSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: GoalMinAggregateInputType
@@ -197,6 +233,8 @@ export type GoalGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   _count?: GoalCountAggregateInputType | true
+  _avg?: GoalAvgAggregateInputType
+  _sum?: GoalSumAggregateInputType
   _min?: GoalMinAggregateInputType
   _max?: GoalMaxAggregateInputType
 }
@@ -211,12 +249,15 @@ export type GoalGroupByOutputType = {
   status: $Enums.GoalStatus
   periodType: $Enums.PeriodType | null
   periodValue: string | null
+  sortOrder: number
   createdAt: Date
   updatedAt: Date
   plannedStart: Date | null
   plannedEnd: Date | null
   nextExecution: Date | null
   _count: GoalCountAggregateOutputType | null
+  _avg: GoalAvgAggregateOutputType | null
+  _sum: GoalSumAggregateOutputType | null
   _min: GoalMinAggregateOutputType | null
   _max: GoalMaxAggregateOutputType | null
 }
@@ -249,6 +290,7 @@ export type GoalWhereInput = {
   status?: Prisma.EnumGoalStatusFilter<"Goal"> | $Enums.GoalStatus
   periodType?: Prisma.EnumPeriodTypeNullableFilter<"Goal"> | $Enums.PeriodType | null
   periodValue?: Prisma.StringNullableFilter<"Goal"> | string | null
+  sortOrder?: Prisma.IntFilter<"Goal"> | number
   createdAt?: Prisma.DateTimeFilter<"Goal"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Goal"> | Date | string
   plannedStart?: Prisma.DateTimeNullableFilter<"Goal"> | Date | string | null
@@ -270,6 +312,7 @@ export type GoalOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   periodType?: Prisma.SortOrderInput | Prisma.SortOrder
   periodValue?: Prisma.SortOrderInput | Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   plannedStart?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -294,6 +337,7 @@ export type GoalWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumGoalStatusFilter<"Goal"> | $Enums.GoalStatus
   periodType?: Prisma.EnumPeriodTypeNullableFilter<"Goal"> | $Enums.PeriodType | null
   periodValue?: Prisma.StringNullableFilter<"Goal"> | string | null
+  sortOrder?: Prisma.IntFilter<"Goal"> | number
   createdAt?: Prisma.DateTimeFilter<"Goal"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Goal"> | Date | string
   plannedStart?: Prisma.DateTimeNullableFilter<"Goal"> | Date | string | null
@@ -315,14 +359,17 @@ export type GoalOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   periodType?: Prisma.SortOrderInput | Prisma.SortOrder
   periodValue?: Prisma.SortOrderInput | Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   plannedStart?: Prisma.SortOrderInput | Prisma.SortOrder
   plannedEnd?: Prisma.SortOrderInput | Prisma.SortOrder
   nextExecution?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.GoalCountOrderByAggregateInput
+  _avg?: Prisma.GoalAvgOrderByAggregateInput
   _max?: Prisma.GoalMaxOrderByAggregateInput
   _min?: Prisma.GoalMinOrderByAggregateInput
+  _sum?: Prisma.GoalSumOrderByAggregateInput
 }
 
 export type GoalScalarWhereWithAggregatesInput = {
@@ -338,6 +385,7 @@ export type GoalScalarWhereWithAggregatesInput = {
   status?: Prisma.EnumGoalStatusWithAggregatesFilter<"Goal"> | $Enums.GoalStatus
   periodType?: Prisma.EnumPeriodTypeNullableWithAggregatesFilter<"Goal"> | $Enums.PeriodType | null
   periodValue?: Prisma.StringNullableWithAggregatesFilter<"Goal"> | string | null
+  sortOrder?: Prisma.IntWithAggregatesFilter<"Goal"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Goal"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Goal"> | Date | string
   plannedStart?: Prisma.DateTimeNullableWithAggregatesFilter<"Goal"> | Date | string | null
@@ -352,6 +400,7 @@ export type GoalCreateInput = {
   status?: $Enums.GoalStatus
   periodType?: $Enums.PeriodType | null
   periodValue?: string | null
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   plannedStart?: Date | string | null
@@ -373,6 +422,7 @@ export type GoalUncheckedCreateInput = {
   status?: $Enums.GoalStatus
   periodType?: $Enums.PeriodType | null
   periodValue?: string | null
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   plannedStart?: Date | string | null
@@ -388,6 +438,7 @@ export type GoalUpdateInput = {
   status?: Prisma.EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
   periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
   periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plannedStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -409,6 +460,7 @@ export type GoalUncheckedUpdateInput = {
   status?: Prisma.EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
   periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
   periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plannedStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -427,6 +479,7 @@ export type GoalCreateManyInput = {
   status?: $Enums.GoalStatus
   periodType?: $Enums.PeriodType | null
   periodValue?: string | null
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   plannedStart?: Date | string | null
@@ -441,6 +494,7 @@ export type GoalUpdateManyMutationInput = {
   status?: Prisma.EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
   periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
   periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plannedStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -458,6 +512,7 @@ export type GoalUncheckedUpdateManyInput = {
   status?: Prisma.EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
   periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
   periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plannedStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -490,11 +545,16 @@ export type GoalCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   periodType?: Prisma.SortOrder
   periodValue?: Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   plannedStart?: Prisma.SortOrder
   plannedEnd?: Prisma.SortOrder
   nextExecution?: Prisma.SortOrder
+}
+
+export type GoalAvgOrderByAggregateInput = {
+  sortOrder?: Prisma.SortOrder
 }
 
 export type GoalMaxOrderByAggregateInput = {
@@ -507,6 +567,7 @@ export type GoalMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   periodType?: Prisma.SortOrder
   periodValue?: Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   plannedStart?: Prisma.SortOrder
@@ -524,11 +585,16 @@ export type GoalMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   periodType?: Prisma.SortOrder
   periodValue?: Prisma.SortOrder
+  sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   plannedStart?: Prisma.SortOrder
   plannedEnd?: Prisma.SortOrder
   nextExecution?: Prisma.SortOrder
+}
+
+export type GoalSumOrderByAggregateInput = {
+  sortOrder?: Prisma.SortOrder
 }
 
 export type GoalCreateNestedManyWithoutUserInput = {
@@ -692,6 +758,7 @@ export type GoalCreateWithoutUserInput = {
   status?: $Enums.GoalStatus
   periodType?: $Enums.PeriodType | null
   periodValue?: string | null
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   plannedStart?: Date | string | null
@@ -711,6 +778,7 @@ export type GoalUncheckedCreateWithoutUserInput = {
   status?: $Enums.GoalStatus
   periodType?: $Enums.PeriodType | null
   periodValue?: string | null
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   plannedStart?: Date | string | null
@@ -758,6 +826,7 @@ export type GoalScalarWhereInput = {
   status?: Prisma.EnumGoalStatusFilter<"Goal"> | $Enums.GoalStatus
   periodType?: Prisma.EnumPeriodTypeNullableFilter<"Goal"> | $Enums.PeriodType | null
   periodValue?: Prisma.StringNullableFilter<"Goal"> | string | null
+  sortOrder?: Prisma.IntFilter<"Goal"> | number
   createdAt?: Prisma.DateTimeFilter<"Goal"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Goal"> | Date | string
   plannedStart?: Prisma.DateTimeNullableFilter<"Goal"> | Date | string | null
@@ -772,6 +841,7 @@ export type GoalCreateWithoutFolderInput = {
   status?: $Enums.GoalStatus
   periodType?: $Enums.PeriodType | null
   periodValue?: string | null
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   plannedStart?: Date | string | null
@@ -791,6 +861,7 @@ export type GoalUncheckedCreateWithoutFolderInput = {
   status?: $Enums.GoalStatus
   periodType?: $Enums.PeriodType | null
   periodValue?: string | null
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   plannedStart?: Date | string | null
@@ -832,6 +903,7 @@ export type GoalCreateWithoutChildrenInput = {
   status?: $Enums.GoalStatus
   periodType?: $Enums.PeriodType | null
   periodValue?: string | null
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   plannedStart?: Date | string | null
@@ -852,6 +924,7 @@ export type GoalUncheckedCreateWithoutChildrenInput = {
   status?: $Enums.GoalStatus
   periodType?: $Enums.PeriodType | null
   periodValue?: string | null
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   plannedStart?: Date | string | null
@@ -871,6 +944,7 @@ export type GoalCreateWithoutParentInput = {
   status?: $Enums.GoalStatus
   periodType?: $Enums.PeriodType | null
   periodValue?: string | null
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   plannedStart?: Date | string | null
@@ -890,6 +964,7 @@ export type GoalUncheckedCreateWithoutParentInput = {
   status?: $Enums.GoalStatus
   periodType?: $Enums.PeriodType | null
   periodValue?: string | null
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   plannedStart?: Date | string | null
@@ -926,6 +1001,7 @@ export type GoalUpdateWithoutChildrenInput = {
   status?: Prisma.EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
   periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
   periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plannedStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -946,6 +1022,7 @@ export type GoalUncheckedUpdateWithoutChildrenInput = {
   status?: Prisma.EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
   periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
   periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plannedStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -978,6 +1055,7 @@ export type GoalCreateManyUserInput = {
   status?: $Enums.GoalStatus
   periodType?: $Enums.PeriodType | null
   periodValue?: string | null
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   plannedStart?: Date | string | null
@@ -992,6 +1070,7 @@ export type GoalUpdateWithoutUserInput = {
   status?: Prisma.EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
   periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
   periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plannedStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1011,6 +1090,7 @@ export type GoalUncheckedUpdateWithoutUserInput = {
   status?: Prisma.EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
   periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
   periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plannedStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1028,6 +1108,7 @@ export type GoalUncheckedUpdateManyWithoutUserInput = {
   status?: Prisma.EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
   periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
   periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plannedStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1044,6 +1125,7 @@ export type GoalCreateManyFolderInput = {
   status?: $Enums.GoalStatus
   periodType?: $Enums.PeriodType | null
   periodValue?: string | null
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   plannedStart?: Date | string | null
@@ -1058,6 +1140,7 @@ export type GoalUpdateWithoutFolderInput = {
   status?: Prisma.EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
   periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
   periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plannedStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1077,6 +1160,7 @@ export type GoalUncheckedUpdateWithoutFolderInput = {
   status?: Prisma.EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
   periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
   periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plannedStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1094,6 +1178,7 @@ export type GoalUncheckedUpdateManyWithoutFolderInput = {
   status?: Prisma.EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
   periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
   periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plannedStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1110,6 +1195,7 @@ export type GoalCreateManyParentInput = {
   status?: $Enums.GoalStatus
   periodType?: $Enums.PeriodType | null
   periodValue?: string | null
+  sortOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   plannedStart?: Date | string | null
@@ -1124,6 +1210,7 @@ export type GoalUpdateWithoutParentInput = {
   status?: Prisma.EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
   periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
   periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plannedStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1143,6 +1230,7 @@ export type GoalUncheckedUpdateWithoutParentInput = {
   status?: Prisma.EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
   periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
   periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plannedStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1160,6 +1248,7 @@ export type GoalUncheckedUpdateManyWithoutParentInput = {
   status?: Prisma.EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
   periodType?: Prisma.NullableEnumPeriodTypeFieldUpdateOperationsInput | $Enums.PeriodType | null
   periodValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plannedStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1208,6 +1297,7 @@ export type GoalSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   status?: boolean
   periodType?: boolean
   periodValue?: boolean
+  sortOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   plannedStart?: boolean
@@ -1230,6 +1320,7 @@ export type GoalSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   status?: boolean
   periodType?: boolean
   periodValue?: boolean
+  sortOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   plannedStart?: boolean
@@ -1250,6 +1341,7 @@ export type GoalSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   status?: boolean
   periodType?: boolean
   periodValue?: boolean
+  sortOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   plannedStart?: boolean
@@ -1270,6 +1362,7 @@ export type GoalSelectScalar = {
   status?: boolean
   periodType?: boolean
   periodValue?: boolean
+  sortOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   plannedStart?: boolean
@@ -1277,7 +1370,7 @@ export type GoalSelectScalar = {
   nextExecution?: boolean
 }
 
-export type GoalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "parentId" | "folderId" | "title" | "description" | "status" | "periodType" | "periodValue" | "createdAt" | "updatedAt" | "plannedStart" | "plannedEnd" | "nextExecution", ExtArgs["result"]["goal"]>
+export type GoalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "parentId" | "folderId" | "title" | "description" | "status" | "periodType" | "periodValue" | "sortOrder" | "createdAt" | "updatedAt" | "plannedStart" | "plannedEnd" | "nextExecution", ExtArgs["result"]["goal"]>
 export type GoalInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   folder?: boolean | Prisma.Goal$folderArgs<ExtArgs>
@@ -1314,6 +1407,7 @@ export type $GoalPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     status: $Enums.GoalStatus
     periodType: $Enums.PeriodType | null
     periodValue: string | null
+    sortOrder: number
     createdAt: Date
     updatedAt: Date
     plannedStart: Date | null
@@ -1755,6 +1849,7 @@ export interface GoalFieldRefs {
   readonly status: Prisma.FieldRef<"Goal", 'GoalStatus'>
   readonly periodType: Prisma.FieldRef<"Goal", 'PeriodType'>
   readonly periodValue: Prisma.FieldRef<"Goal", 'String'>
+  readonly sortOrder: Prisma.FieldRef<"Goal", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Goal", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Goal", 'DateTime'>
   readonly plannedStart: Prisma.FieldRef<"Goal", 'DateTime'>

@@ -108,6 +108,7 @@ export const GoalScalarFieldEnum = {
   status: 'status',
   periodType: 'periodType',
   periodValue: 'periodValue',
+  sortOrder: 'sortOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   plannedStart: 'plannedStart',

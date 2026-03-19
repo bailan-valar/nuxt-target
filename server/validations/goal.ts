@@ -66,6 +66,13 @@ export const folderSchema = z.object({
 })
 
 /**
+ * 排序验证 Schema
+ */
+export const sortOrderSchema = z.object({
+  sortOrder: z.number().int().min(0).optional()
+})
+
+/**
  * 时间规划基础验证 Schema (不包含refinement，用于partial)
  */
 export const timePlanningBaseSchema = z.object({
@@ -104,6 +111,7 @@ export const createGoalSchema = goalBaseSchema
   .and(parentGoalSchema)
   .and(folderSchema)
   .and(timePlanningSchema)
+  .and(sortOrderSchema)
 
 /**
  * 更新目标验证 Schema
@@ -114,3 +122,4 @@ export const updateGoalSchema = goalBaseSchema
   .and(parentGoalSchema)
   .and(folderSchema.partial())
   .and(timePlanningBaseSchema.partial())
+  .and(sortOrderSchema)

@@ -41,11 +41,15 @@ export default defineEventHandler(async (event) => {
           title: true,
           status: true,
           periodType: true,
-          periodValue: true
+          periodValue: true,
+          sortOrder: true
         }
       }
     },
-    orderBy: { createdAt: 'desc' }
+    orderBy: [
+      { sortOrder: 'asc' },
+      { createdAt: 'desc' }
+    ]
   })
 
   return { success: true, data: goals }

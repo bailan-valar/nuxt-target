@@ -23,6 +23,12 @@
           ]">
             周
           </button>
+          <button @click="switchView('day')" :class="[
+            'px-3 py-1.5 text-sm font-medium rounded-md transition-colors',
+            view === 'day' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+          ]">
+            日
+          </button>
         </div>
 
       </div>
@@ -85,6 +91,23 @@
             </div>
           </div>
 
+          <!-- 日视图：日期选择 -->
+          <div v-else-if="view === 'day'" class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
+              <button @click="prevDay" class="p-1 hover:bg-gray-100 rounded transition-colors" title="上一日">
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <span class="text-lg font-semibold text-gray-900 min-w-[200px] text-center">{{ daySelected }}</span>
+              <button @click="nextDay" class="p-1 hover:bg-gray-100 rounded transition-colors" title="下一日">
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
 
           <!-- 快捷按钮 -->
           <button @click="goToToday"
@@ -120,7 +143,7 @@
     </div>
 
     <!-- 表格视图 -->
-    <div v-else class="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+    <div v-else-if="view !== 'day'" class="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
       <div class="overflow-x-auto overflow-y-hidden relative">
         <table class="min-w-full divide-x divide-y divide-gray-200">
           <thead class="bg-gray-50 sticky top-0 z-30">
@@ -308,6 +331,16 @@
       </div>
     </div>
 
+    <!-- 日视图：列表形式 -->
+    <div v-else-if="view === 'day'" class="space-y-4">
+      <DayViewList
+        :goals="dayViewGoals"
+        @edit="openEditGoal"
+        @add="openAddDayViewGoal"
+        @reorder="handleReorderGoals"
+      />
+    </div>
+
     <!-- 右键菜单 -->
     <FolderContextMenu :show="showContextMenu" :x="contextMenuPosition.x" :y="contextMenuPosition.y"
       @edit="handleEditFolder" @add-subfolder="handleAddSubfolder" @move="handleMoveFolder" @delete="handleDeleteFolder"
@@ -332,7 +365,7 @@ definePageMeta({
 function doesCustomPeriodOverlapWithView(
   plannedStart: string,
   plannedEnd: string,
-  viewType: 'year' | 'month' | 'week',
+  viewType: 'year' | 'month' | 'week' | 'day',
   viewPeriodValue: string
 ): boolean {
   const customStart = new Date(plannedStart)
@@ -370,6 +403,12 @@ function doesCustomPeriodOverlapWithView(
       viewStart = getWeekStart(date)
       viewEnd = new Date(viewStart)
       viewEnd.setDate(viewEnd.getDate() + 6)
+      viewEnd.setHours(23, 59, 59, 999)
+      break
+    }
+    case 'day': {
+      viewStart = new Date(viewPeriodValue)
+      viewEnd = new Date(viewPeriodValue)
       viewEnd.setHours(23, 59, 59, 999)
       break
     }
@@ -537,7 +576,7 @@ const DayGoalCell = defineComponent({
   }
 })
 const { signOut } = useAuth()
-const view = ref<'year' | 'month' | 'week'>('week')
+const view = ref<'year' | 'month' | 'week' | 'day'>('week')
 const showModal = ref(false)
 
 // 筛选状态
@@ -564,6 +603,7 @@ const today = ref(new Date())
 const year = ref(today.value.getFullYear())
 const month = ref(today.value.getMonth() + 1)
 const weekStart = ref(getWeekStart(today.value))
+const daySelected = ref(formatDateStr(today.value))
 
 // 当前月份和年份（用于高亮显示）
 const currentMonth = computed(() => today.value.getMonth() + 1)
@@ -778,6 +818,63 @@ const weekDays = computed(() => {
   }
 
   return days
+})
+
+// 日视图：获取当天的所有目标
+const dayViewGoals = computed(() => {
+  const allGoals: any[] = []
+  const selectedDate = new Date(daySelected.value)
+  const selectedDateEnd = new Date(daySelected.value)
+  selectedDateEnd.setHours(23, 59, 59, 999)
+
+  // 检查目标是否与当天重叠
+  const isOverlappingWithDay = (goal: any): boolean => {
+    // TASK 类型：检查 periodValue
+    if (goal.periodType === 'TASK') {
+      return goal.periodValue === daySelected.value
+    }
+
+    // 检查计划时间是否与当天重叠
+    const hasOverlappingPlan = goal.plannedStart && goal.plannedEnd && (() => {
+      const start = new Date(goal.plannedStart)
+      const end = new Date(goal.plannedEnd)
+      return start <= selectedDateEnd && end >= selectedDate
+    })()
+
+    if (hasOverlappingPlan) {
+      // 检查下一次执行时间
+      if (goal.nextExecution) {
+        const nextExec = new Date(goal.nextExecution)
+        return nextExec <= selectedDateEnd
+      }
+      return true
+    }
+
+    return false
+  }
+
+  // 递归收集所有满足条件的目标
+  const collectGoals = (goalsList: any[], parent: any | null = null) => {
+    goalsList.forEach((goal: any) => {
+      if (isOverlappingWithDay(goal)) {
+        const folder = findFolderById(folders.value, goal.folderId)
+        allGoals.push({
+          ...goal,
+          folder,
+          parent
+        })
+      }
+
+      // 递归检查子目标
+      if (goal.children && goal.children.length > 0) {
+        collectGoals(goal.children, goal)
+      }
+    })
+  }
+
+  collectGoals(goals.value)
+
+  return allGoals
 })
 
 // 表格数据（按类型组织）
@@ -1020,7 +1117,7 @@ function isToday(dateStr: string): boolean {
 }
 
 // 视图切换
-function switchView(newView: 'year' | 'month' | 'week') {
+function switchView(newView: 'year' | 'month' | 'week' | 'day') {
   view.value = newView
 }
 
@@ -1082,6 +1179,19 @@ function goToToday() {
   year.value = today.value.getFullYear()
   month.value = today.value.getMonth() + 1
   weekStart.value = getWeekStart(today.value)
+  daySelected.value = formatDateStr(today.value)
+}
+
+function prevDay() {
+  const date = new Date(daySelected.value)
+  date.setDate(date.getDate() - 1)
+  daySelected.value = formatDateStr(date)
+}
+
+function nextDay() {
+  const date = new Date(daySelected.value)
+  date.setDate(date.getDate() + 1)
+  daySelected.value = formatDateStr(date)
 }
 
 // 清除筛选
@@ -1146,6 +1256,7 @@ function findFolderById(folders: any[], id: string): any {
   return null
 }
 
+// 根据ID查找目标
 // 获取子目标
 function getChildGoal(parentGoal: any, periodType: string, periodValue: string, folderId?: string): any {
 
@@ -1169,7 +1280,7 @@ function getChildGoal(parentGoal: any, periodType: string, periodValue: string, 
       const overlaps = doesCustomPeriodOverlapWithView(
         g.plannedStart,
         g.plannedEnd,
-        view.value as 'year' | 'month' | 'week',
+        view.value as 'year' | 'month' | 'week' | 'day',
         periodValue
       )
 
@@ -1230,7 +1341,7 @@ function getChildGoals(parentGoal: any, periodType: string, periodValue: string,
       const overlaps = doesCustomPeriodOverlapWithView(
         g.plannedStart,
         g.plannedEnd,
-        view.value as 'year' | 'month' | 'week',
+        view.value as 'year' | 'month' | 'week' | 'day',
         periodValue
       )
       return overlaps
@@ -1286,6 +1397,39 @@ function openAddGoal(periodType: string, periodValue: string, row?: TypedRow) {
 
   goalModalDefaults.value = defaults
   showModal.value = true
+}
+
+// 打开日视图添加目标模态框
+function openAddDayViewGoal() {
+  const defaults: any = {
+    folderId: null,
+    periodType: 'TASK',
+    periodValue: daySelected.value
+  }
+  goalModalDefaults.value = defaults
+  showModal.value = true
+}
+
+// 处理目标重新排序
+async function handleReorderGoals(goalIds: string[]) {
+  try {
+    // 批量更新目标的排序
+    const updates = goalIds.map((id, index) => {
+      return $fetch(`/api/goals/${id}`, {
+        method: 'PATCH',
+        body: {
+          sortOrder: index
+        }
+      })
+    })
+
+    await Promise.all(updates)
+
+    // 刷新数据
+    await refresh()
+  } catch (error) {
+    console.error('Failed to reorder goals:', error)
+  }
 }
 
 // 打开编辑目标模态框

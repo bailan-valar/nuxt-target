@@ -80,6 +80,7 @@ export default defineEventHandler(async (event) => {
       ...(data.periodValue !== undefined && { periodValue: data.periodValue }),
       ...(data.parentId !== undefined && { parentId: data.parentId }),
       ...(data.folderId !== undefined && { folderId: data.folderId }),
+      ...(data.sortOrder !== undefined && { sortOrder: data.sortOrder }),
       ...(data.plannedStart !== undefined && { plannedStart: data.plannedStart ? new Date(data.plannedStart) : null }),
       ...(data.plannedEnd !== undefined && { plannedEnd: data.plannedEnd ? new Date(data.plannedEnd) : null }),
       ...(data.nextExecution !== undefined && { nextExecution: data.nextExecution ? new Date(data.nextExecution) : null })
