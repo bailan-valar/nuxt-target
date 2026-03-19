@@ -145,11 +145,25 @@ const ProfileIcon = defineComponent({
   }
 })
 
+const NotesIcon = defineComponent({
+  render() {
+    return h('svg', { fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' }, [
+      h('path', {
+        strokeLinecap: 'round',
+        strokeLinejoin: 'round',
+        strokeWidth: '2',
+        d: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'
+      })
+    ])
+  }
+})
+
 const menuItems = computed(() => [
   { path: '/', label: '首页', icon: DashboardIcon },
   { section: '管理' },
   { path: '/goals', label: '目标管理', icon: GoalsIcon },
   { path: '/folders', label: '文件夹管理', icon: FoldersIcon },
+  { path: '/notes', label: '笔记管理', icon: NotesIcon },
  // { path: '/tasks', label: '任务管理', icon: TasksIcon },
 //  { path: '/analytics', label: '数据分析', icon: AnalyticsIcon },
   { section: '系统' },

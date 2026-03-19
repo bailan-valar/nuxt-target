@@ -124,6 +124,14 @@ const TasksIcon = defineComponent({
   `
 })
 
+const NotesIcon = defineComponent({
+  template: `
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+    </svg>
+  `
+})
+
 const AnalyticsIcon = defineComponent({
   template: `
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -146,6 +154,7 @@ const menuItems = computed(() => [
   { section: '管理' },
   { path: '/goals', label: '目标管理', icon: GoalsIcon, badge: '新' },
   { path: '/tasks', label: '任务管理', icon: TasksIcon },
+  { path: '/notes', label: '笔记管理', icon: NotesIcon },
   { path: '/analytics', label: '数据分析', icon: AnalyticsIcon },
   { section: '系统' },
   { path: '/settings', label: '系统设置', icon: SettingsIcon }

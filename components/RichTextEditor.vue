@@ -83,6 +83,59 @@
       </div>
     </Teleport>
 
+    <!-- 链接悬停工具条 -->
+    <Teleport to="body">
+      <div
+        v-if="linkToolbarVisible"
+        class="link-hover-toolbar"
+        :style="{
+          top: `${linkToolbarPosition.top}px`,
+          left: `${linkToolbarPosition.left}px`
+        }"
+        @mouseenter="handleToolbarMouseEnter"
+        @mouseleave="handleToolbarMouseLeave"
+      >
+        <div class="link-toolbar-content">
+          <a
+            v-if="linkToolbarUrl"
+            :href="linkToolbarUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="link-toolbar-btn"
+            title="打开链接"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2 2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15 3 21 3 21 9"/>
+              <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+          </a>
+          <button
+            @click="editHoveredLink"
+            class="link-toolbar-btn"
+            title="编辑链接"
+            type="button"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </button>
+          <button
+            @click="removeHoveredLink"
+            class="link-toolbar-btn link-toolbar-btn-danger"
+            title="删除链接"
+            type="button"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </Teleport>
+
     <!-- 目录面板 (仅全屏模式显示) -->
     <div v-if="isFullscreen && tableOfContents.length > 0" class="table-of-contents">
       <div class="toc-header">
@@ -416,6 +469,13 @@ const linkUrl = ref('')
 const linkText = ref('')
 const isEditingLink = computed(() => editor.value?.isActive('link') || false)
 
+// 链接悬停工具条状态
+const linkToolbarVisible = ref(false)
+const linkToolbarPosition = ref({ top: 0, left: 0 })
+const linkToolbarUrl = ref('')
+const hoveredLinkPos = ref<{ from: number; to: number } | null>(null)
+let linkToolbarHideTimer: ReturnType<typeof setTimeout> | null = null
+
 // 命令列表（带图标组件）
 const slashCommands = ref(
   defaultCommands.map(cmd => ({
@@ -430,6 +490,13 @@ const editor = useEditor({
     StarterKit.configure({
       heading: {
         levels: [1, 2, 3]
+      },
+      // 配置 StarterKit 中的 Link 扩展
+      link: {
+        openOnClick: false,
+        HTMLAttributes: {
+          class: 'text-blue-600 underline cursor-pointer hover:text-blue-800'
+        }
       }
     }),
     Placeholder.configure({
@@ -439,12 +506,6 @@ const editor = useEditor({
     TaskList,
     TaskItem.configure({
       nested: true
-    }),
-    Link.configure({
-      openOnClick: false,
-      HTMLAttributes: {
-        class: 'text-blue-600 underline cursor-pointer hover:text-blue-800'
-      }
     })
   ],
   editorProps: {
@@ -476,6 +537,8 @@ const editor = useEditor({
     if (isFullscreen.value) {
       updateTableOfContents()
     }
+    // 隐藏链接工具条
+    linkToolbarVisible.value = false
   },
   onTransaction: ({ editor }) => {
     // 在每次事务（包括第一次输入）时检查斜杠命令
@@ -486,6 +549,8 @@ const editor = useEditor({
     if (!editor.state.selection.empty) {
       closeSlashCommand()
     }
+    // 选择变化时隐藏链接工具条
+    linkToolbarVisible.value = false
   },
   onCreate: ({ editor }) => {
     // 确保空编辑器有正确的初始状态
@@ -520,92 +585,111 @@ const toggleFullscreen = () => {
 const tableOfContents = ref<Array<{ id: string; text: string; level: number }>>([])
 
 const updateTableOfContents = () => {
-  if (!editor.value) return
+  if (!editor.value || !editor.value.state) return
 
-  const headings: Array<{ id: string; text: string; level: number }> = []
-  const doc = editor.value.state.doc
+  try {
+    const headings: Array<{ id: string; text: string; level: number }> = []
+    const doc = editor.value.state.doc
 
-  let headingIndex = 0
-  doc.descendants((node: any, pos: number) => {
-    if (node.type.name === 'heading') {
-      const level = node.attrs.level
-      const text = node.textContent
-      const id = `heading-${headingIndex++}`
+    let headingIndex = 0
+    doc.descendants((node: any, pos: number) => {
+      if (node.type.name === 'heading') {
+        const level = node.attrs.level
+        const text = node.textContent
+        const id = `heading-${headingIndex++}`
 
-      // 存储标题位置用于滚动定位
-      headingIds.value.set(id, pos)
+        // 存储标题位置用于滚动定位
+        headingIds.value.set(id, pos)
 
-      headings.push({ id, text, level })
-    }
-  })
+        headings.push({ id, text, level })
+      }
+    })
 
-  tableOfContents.value = headings
+    tableOfContents.value = headings
+  } catch (error) {
+    console.warn('Failed to update table of contents:', error)
+  }
 }
 
 // 滚动到指定标题
 const scrollToHeading = (id: string) => {
   if (!editor.value) return
 
-  const pos = headingIds.value.get(id)
-  if (pos === undefined) return
+  try {
+    const pos = headingIds.value.get(id)
+    if (pos === undefined) return
 
-  // 使用 Tiptap 的滚动到位置功能
-  const view = editor.value.view
-  const coords = view.coordsAtPos(pos)
+    // 使用 Tiptap 的滚动到位置功能
+    const view = editor.value.view
+    if (!view || !view.dom) return
 
-  // 获取编辑器容器
-  const editorElement = view.dom.closest('.editor-content')
-  if (!editorElement) return
+    const coords = view.coordsAtPos(pos)
 
-  // 计算滚动位置
-  const scrollTop = coords.top - editorElement.getBoundingClientRect().top - 100
+    // 获取编辑器容器
+    const editorElement = view.dom.closest('.editor-content')
+    if (!editorElement) return
 
-  editorElement.scrollTo({
-    top: scrollTop,
-    behavior: 'smooth'
-  })
+    // 计算滚动位置
+    const scrollTop = coords.top - editorElement.getBoundingClientRect().top - 100
+
+    editorElement.scrollTo({
+      top: scrollTop,
+      behavior: 'smooth'
+    })
+  } catch (error) {
+    console.warn('Failed to scroll to heading:', error)
+  }
 }
 
 // 监听滚动更新活动标题
 let scrollListener: (() => void) | null = null
 
 const setupScrollListener = () => {
-  const editorElement = editor.value?.view.dom.closest('.editor-content')
-  if (!editorElement) return
+  try {
+    const editorElement = editor.value?.view?.dom?.closest('.editor-content')
+    if (!editorElement) return
 
-  scrollListener = () => {
-    if (!editor.value) return
+    scrollListener = () => {
+      if (!editor.value) return
 
-    const containerRect = editorElement.getBoundingClientRect()
-    const containerTop = containerRect.top + 150 // 偏移量，用于确定活动标题
+      const containerRect = editorElement.getBoundingClientRect()
+      const containerTop = containerRect.top + 150 // 偏移量，用于确定活动标题
 
-    let activeIndex = 0
-    let minDistance = Infinity
+      let activeIndex = 0
+      let minDistance = Infinity
 
-    tableOfContents.value.forEach((item, index) => {
-      const pos = headingIds.value.get(item.id)
-      if (pos === undefined) return
+      tableOfContents.value.forEach((item, index) => {
+        const pos = headingIds.value.get(item.id)
+        if (pos === undefined) return
 
-      const coords = editor.value!.view.coordsAtPos(pos)
-      const distance = Math.abs(coords.top - containerTop)
+        const coords = editor.value!.view.coordsAtPos(pos)
+        const distance = Math.abs(coords.top - containerTop)
 
-      if (distance < minDistance) {
-        minDistance = distance
-        activeIndex = index
-      }
-    })
+        if (distance < minDistance) {
+          minDistance = distance
+          activeIndex = index
+        }
+      })
 
-    activeHeadingIndex.value = activeIndex
+      activeHeadingIndex.value = activeIndex
+    }
+
+    editorElement.addEventListener('scroll', scrollListener)
+  } catch (error) {
+    console.warn('Failed to setup scroll listener:', error)
   }
-
-  editorElement.addEventListener('scroll', scrollListener)
 }
 
 const removeScrollListener = () => {
   if (scrollListener) {
-    const editorElement = editor.value?.view.dom.closest('.editor-content')
-    if (editorElement) {
-      editorElement.removeEventListener('scroll', scrollListener)
+    try {
+      const editorElement = editor.value?.view?.dom?.closest('.editor-content')
+      if (editorElement) {
+        editorElement.removeEventListener('scroll', scrollListener)
+      }
+    } catch (error) {
+      // 编辑器可能已被销毁，忽略错误
+      console.warn('Failed to remove scroll listener:', error)
     }
     scrollListener = null
   }
@@ -620,50 +704,57 @@ watch(() => [editor.value, isFullscreen.value], () => {
 
 // 检查斜杠命令触发
 const checkSlashCommand = (editor: any) => {
-  const { state } = editor
-  const { selection } = state
-  const { $from } = selection
+  if (!editor || !editor.state || !editor.view) return
 
-  // 检查是否在段落、标题或列表项中
-  const node = $from.parent
-  if (!node || (node.type.name !== 'paragraph' && node.type.name !== 'heading' && node.type.name !== 'taskItem')) {
+  try {
+    const { state } = editor
+    const { selection } = state
+    const { $from } = selection
+
+    // 检查是否在段落、标题或列表项中
+    const node = $from.parent
+    if (!node || (node.type.name !== 'paragraph' && node.type.name !== 'heading' && node.type.name !== 'taskItem')) {
+      closeSlashCommand()
+      return
+    }
+
+    // 获取当前行的文本
+    const text = node.textContent
+    const pos = $from.parentOffset
+
+    // 查找最后一个斜杠
+    const lastSlashIndex = text.lastIndexOf('/', pos)
+
+    if (lastSlashIndex === -1) {
+      closeSlashCommand()
+      return
+    }
+
+    // 检查斜杠后是否只有空格
+    const afterSlash = text.slice(lastSlashIndex + 1, pos)
+    if (afterSlash.includes('\n')) {
+      closeSlashCommand()
+      return
+    }
+
+    // 显示斜杠命令
+    slashQuery.value = afterSlash
+    slashRange.value = {
+      from: $from.start() + lastSlashIndex,
+      to: $from.start() + pos
+    }
+
+    // 计算菜单位置
+    const coords = editor.view.coordsAtPos($from.start() + lastSlashIndex)
+    slashCommandPosition.value = {
+      top: coords.bottom + 8,
+      left: coords.left
+    }
+    slashCommandVisible.value = true
+  } catch (error) {
+    console.warn('Failed to check slash command:', error)
     closeSlashCommand()
-    return
   }
-
-  // 获取当前行的文本
-  const text = node.textContent
-  const pos = $from.parentOffset
-
-  // 查找最后一个斜杠
-  const lastSlashIndex = text.lastIndexOf('/', pos)
-
-  if (lastSlashIndex === -1) {
-    closeSlashCommand()
-    return
-  }
-
-  // 检查斜杠后是否只有空格
-  const afterSlash = text.slice(lastSlashIndex + 1, pos)
-  if (afterSlash.includes('\n')) {
-    closeSlashCommand()
-    return
-  }
-
-  // 显示斜杠命令
-  slashQuery.value = afterSlash
-  slashRange.value = {
-    from: $from.start() + lastSlashIndex,
-    to: $from.start() + pos
-  }
-
-  // 计算菜单位置
-  const coords = editor.view.coordsAtPos($from.start() + lastSlashIndex)
-  slashCommandPosition.value = {
-    top: coords.bottom + 8,
-    left: coords.left
-  }
-  slashCommandVisible.value = true
 }
 
 // 关闭斜杠命令
@@ -696,6 +787,8 @@ const openLinkDialog = () => {
   }
 
   linkDialogVisible.value = true
+  // 隐藏链接工具条
+  linkToolbarVisible.value = false
 }
 
 // 关闭链接编辑对话框
@@ -709,36 +802,53 @@ const closeLinkDialog = () => {
 const saveLink = () => {
   if (!editor.value || !linkUrl.value) return
 
-  // 如果有显示文本，先设置文本
-  if (linkText.value && !editor.value.isActive('link')) {
+  const chain = editor.value.chain().focus()
+
+  // 如果有显示文本
+  if (linkText.value) {
     const selectedText = editor.value.state.doc.textBetween(
       editor.value.state.selection.from,
       editor.value.state.selection.to
     )
 
+    // 如果选中的文本和显示文本不同，需要更新文本
     if (selectedText !== linkText.value) {
-      // 如果选中的文本和显示文本不同，替换选中的文本
-      editor.value
-        .chain()
-        .focus()
-        .insertContent(linkText.value)
-        .run()
-      // 选中新插入的文本
-      const { from } = editor.value.state.selection
-      editor.value
-        .chain()
-        .focus()
-        .setTextSelection({ from, to: from + linkText.value.length })
-        .run()
+      if (editor.value.isActive('link')) {
+        // 编辑现有链接：先删除链接，保留文本
+        chain.unsetLink()
+
+        // 如果选中的文本和新的显示文本不同，替换文本
+        if (selectedText !== linkText.value) {
+          chain.insertContentAt(
+            {
+              from: editor.value.state.selection.from,
+              to: editor.value.state.selection.to
+            },
+            linkText.value
+          )
+        }
+
+        // 选中新的文本
+        const from = editor.value.state.selection.from
+        chain
+          .setTextSelection({ from, to: from + linkText.value.length })
+          .setLink({ href: linkUrl.value })
+          .run()
+      } else {
+        // 新建链接：插入新文本并设置链接
+        chain
+          .insertContent(linkText.value)
+          .setLink({ href: linkUrl.value })
+          .run()
+      }
+
+      closeLinkDialog()
+      return
     }
   }
 
-  // 设置链接
-  editor.value
-    .chain()
-    .focus()
-    .setLink({ href: linkUrl.value })
-    .run()
+  // 设置链接（没有显示文本或文本相同）
+  chain.setLink({ href: linkUrl.value }).run()
 
   closeLinkDialog()
 }
@@ -756,24 +866,166 @@ const removeLink = () => {
   closeLinkDialog()
 }
 
+// 检测鼠标是否在链接上
+const handleMousemove = (event: MouseEvent) => {
+  if (!editor.value || !editor.value.view || !editor.value.state) return
+
+  try {
+    const target = event.target as HTMLElement
+    const linkElement = target.closest('a')
+
+    if (linkElement && editor.value.view.dom.contains(linkElement)) {
+      // 清除延迟隐藏定时器
+      if (linkToolbarHideTimer) {
+        clearTimeout(linkToolbarHideTimer)
+        linkToolbarHideTimer = null
+      }
+
+      // 获取链接位置和属性
+      const linkHref = linkElement.getAttribute('href')
+      const rect = linkElement.getBoundingClientRect()
+
+      // 在 Tiptap 文档中找到对应的位置
+      const pos = editor.value.view.posAtDOM(linkElement, 0)
+      if (pos === null) return
+
+      // 获取链接节点的结束位置
+      const node = editor.value.state.doc.nodeAt(pos)
+      if (!node) return
+
+      // 工具条尺寸估算
+      const toolbarWidth = 170 // 3个按钮 + 间距
+      const toolbarHeight = 44
+
+      // 计算初始位置
+      let top = rect.bottom + 8
+      let left = rect.left + (rect.width / 2) - (toolbarWidth / 2)
+
+      // 边界检测
+      const viewportWidth = window.innerWidth
+      const viewportHeight = window.innerHeight
+
+      // 确保不超出右边界
+      if (left + toolbarWidth > viewportWidth - 10) {
+        left = viewportWidth - toolbarWidth - 10
+      }
+
+      // 确保不超出左边界
+      if (left < 10) {
+        left = 10
+      }
+
+      // 如果下方空间不足，显示在链接上方
+      if (top + toolbarHeight > viewportHeight - 10) {
+        top = rect.top - toolbarHeight - 8
+      }
+
+      // 工具条 Teleport 到 body，使用相对于视口的绝对位置
+      linkToolbarVisible.value = true
+      linkToolbarUrl.value = linkHref || ''
+      linkToolbarPosition.value = { top, left }
+      hoveredLinkPos.value = {
+        from: pos,
+        to: pos + node.nodeSize
+      }
+    } else {
+      // 鼠标不在链接上，延迟隐藏工具条以避免闪烁
+      if (linkToolbarHideTimer) {
+        clearTimeout(linkToolbarHideTimer)
+      }
+
+      linkToolbarHideTimer = setTimeout(() => {
+        linkToolbarVisible.value = false
+        linkToolbarUrl.value = ''
+        hoveredLinkPos.value = null
+      }, 250) // 100ms 延迟
+    }
+  } catch (error) {
+    console.warn('Failed to handle mouse move:', error)
+  }
+}
+
+// 编辑悬停的链接
+const editHoveredLink = () => {
+  if (!editor.value || !hoveredLinkPos.value) return
+
+  // 选中的链接
+  editor.value
+    .chain()
+    .focus()
+    .setTextSelection(hoveredLinkPos.value)
+    .run()
+
+  // 打开链接编辑对话框
+  openLinkDialog()
+
+  // 隐藏工具条
+  linkToolbarVisible.value = false
+}
+
+// 删除悬停的链接
+const removeHoveredLink = () => {
+  if (!editor.value || !hoveredLinkPos.value) return
+
+  // 选中的链接并删除
+  editor.value
+    .chain()
+    .focus()
+    .setTextSelection(hoveredLinkPos.value)
+    .unsetLink()
+    .run()
+
+  // 隐藏工具条
+  linkToolbarVisible.value = false
+  hoveredLinkPos.value = null
+}
+
+// 工具条鼠标进入事件
+const handleToolbarMouseEnter = () => {
+  // 清除隐藏定时器，保持工具条显示
+  if (linkToolbarHideTimer) {
+    clearTimeout(linkToolbarHideTimer)
+    linkToolbarHideTimer = null
+  }
+}
+
+// 工具条鼠标离开事件
+const handleToolbarMouseLeave = () => {
+  // 延迟隐藏工具条
+  if (linkToolbarHideTimer) {
+    clearTimeout(linkToolbarHideTimer)
+  }
+
+  linkToolbarHideTimer = setTimeout(() => {
+    linkToolbarVisible.value = false
+    linkToolbarUrl.value = ''
+    hoveredLinkPos.value = null
+  }, 100)
+}
+
 // 处理命令选择
 const handleCommandSelect = (command: any) => {
-  if (!editor.value || !slashRange.value) return
+  if (!editor.value || !slashRange.value || !editor.value.view || !editor.value.state) return
 
-  const { from, to } = slashRange.value
+  try {
+    const { from, to } = slashRange.value
 
-  // 删除斜杠和查询文本
-  editor.value.view.dispatch(
-    editor.value.state.tr.delete(from, to)
-  )
+    // 删除斜杠和查询文本
+    editor.value.view.dispatch(
+      editor.value.state.tr.delete(from, to)
+    )
 
-  // 执行命令
-  command.command({
-    editor: editor.value,
-    range: { from, to }
-  })
+    // 执行命令
+    command.command({
+      editor: editor.value,
+      range: { from, to }
+    })
 
-  closeSlashCommand()
+    closeSlashCommand()
+  } catch (error) {
+    console.warn('Failed to execute command:', error)
+    closeSlashCommand()
+  }
 }
 
 // ESC键退出全屏
@@ -809,6 +1061,13 @@ watch(() => props.editable, (newValue) => {
 // 组件挂载时添加键盘监听
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown)
+  // 添加鼠标移动监听，用于检测链接悬停
+  // 使用 nextTick 确保编辑器已完全挂载
+  nextTick(() => {
+    if (editor.value && editor.value.view && editor.value.view.dom) {
+      editor.value.view.dom.addEventListener('mousemove', handleMousemove)
+    }
+  })
 })
 
 // 组件卸载时移除键盘监听
@@ -822,12 +1081,30 @@ onUnmounted(() => {
   closeSlashCommand()
   // 移除滚动监听
   removeScrollListener()
+  // 移除鼠标移动监听（安全检查）
+  try {
+    if (editor.value && editor.value.view && editor.value.view.dom) {
+      editor.value.view.dom.removeEventListener('mousemove', handleMousemove)
+    }
+  } catch (error) {
+    // 编辑器可能已被销毁，忽略错误
+    console.warn('Failed to remove mousemove listener:', error)
+  }
+  // 清除链接工具条定时器
+  if (linkToolbarHideTimer) {
+    clearTimeout(linkToolbarHideTimer)
+  }
 })
 
 // 组件销毁时清理编辑器
 onBeforeUnmount(() => {
-  if (editor.value) {
-    editor.value.destroy()
+  try {
+    if (editor.value && !editor.value.isDestroyed) {
+      editor.value.destroy()
+    }
+  } catch (error) {
+    // 编辑器可能已经被销毁，忽略错误
+    console.warn('Failed to destroy editor:', error)
   }
 })
 
@@ -840,6 +1117,21 @@ defineExpose({
 </script>
 
 <style scoped>
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.15s ease-out;
+}
+
 .rich-text-editor {
   @apply border border-gray-300 rounded-lg overflow-hidden transition-colors duration-150;
 }
@@ -1141,5 +1433,22 @@ defineExpose({
 
 .link-dialog-btn-danger {
   @apply bg-red-600 text-white hover:bg-red-700;
+}
+
+/* 链接悬停工具条 */
+.link-hover-toolbar {
+  @apply fixed z-[10001] animate-fade-in;
+}
+
+.link-toolbar-content {
+  @apply flex items-center gap-1 bg-gray-900 rounded-lg shadow-lg px-2 py-1.5;
+}
+
+.link-toolbar-btn {
+  @apply w-8 h-8 flex items-center justify-center rounded text-gray-300 hover:text-white hover:bg-gray-700 transition-colors duration-150;
+}
+
+.link-toolbar-btn-danger {
+  @apply hover:bg-red-600;
 }
 </style>

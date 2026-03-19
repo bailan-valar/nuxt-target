@@ -56,3 +56,8 @@ export type Folder = Prisma.FolderModel
  * 
  */
 export type Goal = Prisma.GoalModel
+/**
+ * Model Note
+ * 
+ */
+export type Note = Prisma.NoteModel

@@ -114,6 +114,12 @@
             class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
             今天
           </button>
+
+          <button @click="openAddDayViewGoal" class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
         </div>
       </div>
 
@@ -576,7 +582,7 @@ const DayGoalCell = defineComponent({
   }
 })
 const { signOut } = useAuth()
-const view = ref<'year' | 'month' | 'week' | 'day'>('week')
+const view = ref<'year' | 'month' | 'week' | 'day'>('day')
 const showModal = ref(false)
 
 // 筛选状态
@@ -834,20 +840,36 @@ const dayViewGoals = computed(() => {
       return goal.periodValue === daySelected.value
     }
 
-    // 检查计划时间是否与当天重叠
-    const hasOverlappingPlan = goal.plannedStart && goal.plannedEnd && (() => {
+    // 检查计划时间
+    if (goal.plannedStart && goal.plannedEnd) {
+      // 有开始和结束日期：检查是否与当天重叠
       const start = new Date(goal.plannedStart)
       const end = new Date(goal.plannedEnd)
-      return start <= selectedDateEnd && end >= selectedDate
-    })()
+      const hasOverlap = start <= selectedDateEnd && end >= selectedDate
 
-    if (hasOverlappingPlan) {
-      // 检查下一次执行时间
-      if (goal.nextExecution) {
-        const nextExec = new Date(goal.nextExecution)
-        return nextExec <= selectedDateEnd
+      if (hasOverlap) {
+        // 检查下一次执行时间
+        if (goal.nextExecution) {
+          const nextExec = new Date(goal.nextExecution)
+          return nextExec <= selectedDateEnd
+        }
+        return true
       }
-      return true
+      return false
+    } else if (goal.plannedStart && !goal.plannedEnd) {
+      // 只有开始日期，没有结束日期：检查开始日期是否 <= 今天
+      const start = new Date(goal.plannedStart)
+      const isStarted = start <= selectedDateEnd
+
+      if (isStarted) {
+        // 检查下一次执行时间
+        if (goal.nextExecution) {
+          const nextExec = new Date(goal.nextExecution)
+          return nextExec <= selectedDateEnd
+        }
+        return true
+      }
+      return false
     }
 
     return false

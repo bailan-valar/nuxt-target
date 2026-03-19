@@ -17,6 +17,7 @@ model User {
   updatedAt DateTime @updatedAt @map("updated_at")
   goals     Goal[]
   folders   Folder[]
+  notes     Note[]
 
   @@map("users")
 }
@@ -61,6 +62,7 @@ model Folder {
   parent      Folder?     @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
   children    Folder[]    @relation("FolderHierarchy")
   goals       Goal[]
+  notes       Note[]
 
   @@index([userId])
   @@index([parentId])
@@ -90,4 +92,25 @@ model Goal {
 
   @@index([folderId])
   @@map("goals")
+}
+
+model Note {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  folderId    String?  @map("folder_id")
+  title       String
+  content     String?  @db.Text
+  tags        String[] @default([])
+  isPinned    Boolean  @default(false) @map("is_pinned")
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  folder      Folder?  @relation(fields: [folderId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([folderId])
+  @@index([isPinned])
+  @@map("notes")
 }
