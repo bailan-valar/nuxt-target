@@ -1,0 +1,25 @@
+/* 全局样式重置 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  margin: 0;
+  padding: 0;
+  line-height: 1.15;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* 确保所有固定定位元素没有 margin */
+*[style*="position: fixed"],
+.modal-overlay,
+.confirm-dialog-overlay {
+  margin: 0 !important;
+}
