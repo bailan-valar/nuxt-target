@@ -12,13 +12,18 @@ export default defineEventHandler(async (event) => {
     }
 
     const query = getQuery(event)
+    const folderIds = query.folderIds as string[] | undefined
     const folderId = query.folderId as string | undefined
 
     const where: any = {
       userId: userId
     }
 
-    if (folderId) {
+    if (folderIds && folderIds.length > 0) {
+      where.folderId = {
+        in: folderIds
+      }
+    } else if (folderId) {
       where.folderId = folderId
     }
 
@@ -34,7 +39,6 @@ export default defineEventHandler(async (event) => {
         }
       },
       orderBy: [
-        { isPinned: 'desc' },
         { sortOrder: 'asc' },
         { updatedAt: 'desc' }
       ]

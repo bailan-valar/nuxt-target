@@ -40,6 +40,7 @@ export type NoteMinAggregateOutputType = {
   folderId: string | null
   title: string | null
   content: string | null
+  icon: string | null
   isPinned: boolean | null
   sortOrder: number | null
   createdAt: Date | null
@@ -52,6 +53,7 @@ export type NoteMaxAggregateOutputType = {
   folderId: string | null
   title: string | null
   content: string | null
+  icon: string | null
   isPinned: boolean | null
   sortOrder: number | null
   createdAt: Date | null
@@ -65,6 +67,7 @@ export type NoteCountAggregateOutputType = {
   title: number
   content: number
   tags: number
+  icon: number
   isPinned: number
   sortOrder: number
   createdAt: number
@@ -87,6 +90,7 @@ export type NoteMinAggregateInputType = {
   folderId?: true
   title?: true
   content?: true
+  icon?: true
   isPinned?: true
   sortOrder?: true
   createdAt?: true
@@ -99,6 +103,7 @@ export type NoteMaxAggregateInputType = {
   folderId?: true
   title?: true
   content?: true
+  icon?: true
   isPinned?: true
   sortOrder?: true
   createdAt?: true
@@ -112,6 +117,7 @@ export type NoteCountAggregateInputType = {
   title?: true
   content?: true
   tags?: true
+  icon?: true
   isPinned?: true
   sortOrder?: true
   createdAt?: true
@@ -212,6 +218,7 @@ export type NoteGroupByOutputType = {
   title: string
   content: string | null
   tags: string[]
+  icon: string | null
   isPinned: boolean
   sortOrder: number
   createdAt: Date
@@ -248,6 +255,7 @@ export type NoteWhereInput = {
   title?: Prisma.StringFilter<"Note"> | string
   content?: Prisma.StringNullableFilter<"Note"> | string | null
   tags?: Prisma.StringNullableListFilter<"Note">
+  icon?: Prisma.StringNullableFilter<"Note"> | string | null
   isPinned?: Prisma.BoolFilter<"Note"> | boolean
   sortOrder?: Prisma.IntFilter<"Note"> | number
   createdAt?: Prisma.DateTimeFilter<"Note"> | Date | string
@@ -263,6 +271,7 @@ export type NoteOrderByWithRelationInput = {
   title?: Prisma.SortOrder
   content?: Prisma.SortOrderInput | Prisma.SortOrder
   tags?: Prisma.SortOrder
+  icon?: Prisma.SortOrderInput | Prisma.SortOrder
   isPinned?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -281,6 +290,7 @@ export type NoteWhereUniqueInput = Prisma.AtLeast<{
   title?: Prisma.StringFilter<"Note"> | string
   content?: Prisma.StringNullableFilter<"Note"> | string | null
   tags?: Prisma.StringNullableListFilter<"Note">
+  icon?: Prisma.StringNullableFilter<"Note"> | string | null
   isPinned?: Prisma.BoolFilter<"Note"> | boolean
   sortOrder?: Prisma.IntFilter<"Note"> | number
   createdAt?: Prisma.DateTimeFilter<"Note"> | Date | string
@@ -296,6 +306,7 @@ export type NoteOrderByWithAggregationInput = {
   title?: Prisma.SortOrder
   content?: Prisma.SortOrderInput | Prisma.SortOrder
   tags?: Prisma.SortOrder
+  icon?: Prisma.SortOrderInput | Prisma.SortOrder
   isPinned?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -317,6 +328,7 @@ export type NoteScalarWhereWithAggregatesInput = {
   title?: Prisma.StringWithAggregatesFilter<"Note"> | string
   content?: Prisma.StringNullableWithAggregatesFilter<"Note"> | string | null
   tags?: Prisma.StringNullableListFilter<"Note">
+  icon?: Prisma.StringNullableWithAggregatesFilter<"Note"> | string | null
   isPinned?: Prisma.BoolWithAggregatesFilter<"Note"> | boolean
   sortOrder?: Prisma.IntWithAggregatesFilter<"Note"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Note"> | Date | string
@@ -328,6 +340,7 @@ export type NoteCreateInput = {
   title: string
   content?: string | null
   tags?: Prisma.NoteCreatetagsInput | string[]
+  icon?: string | null
   isPinned?: boolean
   sortOrder?: number
   createdAt?: Date | string
@@ -343,6 +356,7 @@ export type NoteUncheckedCreateInput = {
   title: string
   content?: string | null
   tags?: Prisma.NoteCreatetagsInput | string[]
+  icon?: string | null
   isPinned?: boolean
   sortOrder?: number
   createdAt?: Date | string
@@ -354,6 +368,7 @@ export type NoteUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.NoteUpdatetagsInput | string[]
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -369,6 +384,7 @@ export type NoteUncheckedUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.NoteUpdatetagsInput | string[]
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -382,6 +398,7 @@ export type NoteCreateManyInput = {
   title: string
   content?: string | null
   tags?: Prisma.NoteCreatetagsInput | string[]
+  icon?: string | null
   isPinned?: boolean
   sortOrder?: number
   createdAt?: Date | string
@@ -393,6 +410,7 @@ export type NoteUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.NoteUpdatetagsInput | string[]
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -406,6 +424,7 @@ export type NoteUncheckedUpdateManyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.NoteUpdatetagsInput | string[]
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -437,6 +456,7 @@ export type NoteCountOrderByAggregateInput = {
   title?: Prisma.SortOrder
   content?: Prisma.SortOrder
   tags?: Prisma.SortOrder
+  icon?: Prisma.SortOrder
   isPinned?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -453,6 +473,7 @@ export type NoteMaxOrderByAggregateInput = {
   folderId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   content?: Prisma.SortOrder
+  icon?: Prisma.SortOrder
   isPinned?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -465,6 +486,7 @@ export type NoteMinOrderByAggregateInput = {
   folderId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   content?: Prisma.SortOrder
+  icon?: Prisma.SortOrder
   isPinned?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -577,6 +599,7 @@ export type NoteCreateWithoutUserInput = {
   title: string
   content?: string | null
   tags?: Prisma.NoteCreatetagsInput | string[]
+  icon?: string | null
   isPinned?: boolean
   sortOrder?: number
   createdAt?: Date | string
@@ -590,6 +613,7 @@ export type NoteUncheckedCreateWithoutUserInput = {
   title: string
   content?: string | null
   tags?: Prisma.NoteCreatetagsInput | string[]
+  icon?: string | null
   isPinned?: boolean
   sortOrder?: number
   createdAt?: Date | string
@@ -632,6 +656,7 @@ export type NoteScalarWhereInput = {
   title?: Prisma.StringFilter<"Note"> | string
   content?: Prisma.StringNullableFilter<"Note"> | string | null
   tags?: Prisma.StringNullableListFilter<"Note">
+  icon?: Prisma.StringNullableFilter<"Note"> | string | null
   isPinned?: Prisma.BoolFilter<"Note"> | boolean
   sortOrder?: Prisma.IntFilter<"Note"> | number
   createdAt?: Prisma.DateTimeFilter<"Note"> | Date | string
@@ -643,6 +668,7 @@ export type NoteCreateWithoutFolderInput = {
   title: string
   content?: string | null
   tags?: Prisma.NoteCreatetagsInput | string[]
+  icon?: string | null
   isPinned?: boolean
   sortOrder?: number
   createdAt?: Date | string
@@ -656,6 +682,7 @@ export type NoteUncheckedCreateWithoutFolderInput = {
   title: string
   content?: string | null
   tags?: Prisma.NoteCreatetagsInput | string[]
+  icon?: string | null
   isPinned?: boolean
   sortOrder?: number
   createdAt?: Date | string
@@ -694,6 +721,7 @@ export type NoteCreateManyUserInput = {
   title: string
   content?: string | null
   tags?: Prisma.NoteCreatetagsInput | string[]
+  icon?: string | null
   isPinned?: boolean
   sortOrder?: number
   createdAt?: Date | string
@@ -705,6 +733,7 @@ export type NoteUpdateWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.NoteUpdatetagsInput | string[]
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -718,6 +747,7 @@ export type NoteUncheckedUpdateWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.NoteUpdatetagsInput | string[]
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -730,6 +760,7 @@ export type NoteUncheckedUpdateManyWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.NoteUpdatetagsInput | string[]
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -742,6 +773,7 @@ export type NoteCreateManyFolderInput = {
   title: string
   content?: string | null
   tags?: Prisma.NoteCreatetagsInput | string[]
+  icon?: string | null
   isPinned?: boolean
   sortOrder?: number
   createdAt?: Date | string
@@ -753,6 +785,7 @@ export type NoteUpdateWithoutFolderInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.NoteUpdatetagsInput | string[]
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -766,6 +799,7 @@ export type NoteUncheckedUpdateWithoutFolderInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.NoteUpdatetagsInput | string[]
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -778,6 +812,7 @@ export type NoteUncheckedUpdateManyWithoutFolderInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tags?: Prisma.NoteUpdatetagsInput | string[]
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -793,6 +828,7 @@ export type NoteSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   title?: boolean
   content?: boolean
   tags?: boolean
+  icon?: boolean
   isPinned?: boolean
   sortOrder?: boolean
   createdAt?: boolean
@@ -808,6 +844,7 @@ export type NoteSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   title?: boolean
   content?: boolean
   tags?: boolean
+  icon?: boolean
   isPinned?: boolean
   sortOrder?: boolean
   createdAt?: boolean
@@ -823,6 +860,7 @@ export type NoteSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   title?: boolean
   content?: boolean
   tags?: boolean
+  icon?: boolean
   isPinned?: boolean
   sortOrder?: boolean
   createdAt?: boolean
@@ -838,13 +876,14 @@ export type NoteSelectScalar = {
   title?: boolean
   content?: boolean
   tags?: boolean
+  icon?: boolean
   isPinned?: boolean
   sortOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type NoteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "folderId" | "title" | "content" | "tags" | "isPinned" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["note"]>
+export type NoteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "folderId" | "title" | "content" | "tags" | "icon" | "isPinned" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["note"]>
 export type NoteInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   folder?: boolean | Prisma.Note$folderArgs<ExtArgs>
@@ -871,6 +910,7 @@ export type $NotePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     title: string
     content: string | null
     tags: string[]
+    icon: string | null
     isPinned: boolean
     sortOrder: number
     createdAt: Date
@@ -1306,6 +1346,7 @@ export interface NoteFieldRefs {
   readonly title: Prisma.FieldRef<"Note", 'String'>
   readonly content: Prisma.FieldRef<"Note", 'String'>
   readonly tags: Prisma.FieldRef<"Note", 'String[]'>
+  readonly icon: Prisma.FieldRef<"Note", 'String'>
   readonly isPinned: Prisma.FieldRef<"Note", 'Boolean'>
   readonly sortOrder: Prisma.FieldRef<"Note", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Note", 'DateTime'>

@@ -160,13 +160,22 @@ const contextMenu = ref({
   goal: null as Goal | null
 })
 
-// 按 sortOrder 排序的目标
+// 按 sortOrder 排序的目标（数值越大排名越前，已完成的放最后）
 const sortedGoals = computed(() => {
   const goals = [...props.goals]
   return goals.sort((a, b) => {
+    // 首先按状态排序：未完成在前，已完成在后
+    if (a.status === 'COMPLETED' && b.status !== 'COMPLETED') {
+      return 1
+    }
+    if (a.status !== 'COMPLETED' && b.status === 'COMPLETED') {
+      return -1
+    }
+
+    // 状态相同时，按 sortOrder 降序排列
     const orderA = a.sortOrder ?? 0
     const orderB = b.sortOrder ?? 0
-    return orderA - orderB
+    return orderB - orderA  // 降序：大值在前
   })
 })
 

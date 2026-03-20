@@ -344,6 +344,8 @@
         @edit="openEditGoal"
         @add="openAddDayViewGoal"
         @reorder="handleReorderGoals"
+        @moveToTop="handleMoveToTop"
+        @delete="handleDeleteGoal"
       />
     </div>
 
@@ -1435,12 +1437,12 @@ function openAddDayViewGoal() {
 // 处理目标重新排序
 async function handleReorderGoals(goalIds: string[]) {
   try {
-    // 批量更新目标的排序
+    // 批量更新目标的排序（数值越大排名越前）
     const updates = goalIds.map((id, index) => {
       return $fetch(`/api/goals/${id}`, {
         method: 'PATCH',
         body: {
-          sortOrder: index
+          sortOrder: goalIds.length - 1 - index
         }
       })
     })
@@ -1451,6 +1453,45 @@ async function handleReorderGoals(goalIds: string[]) {
     await refresh()
   } catch (error) {
     console.error('Failed to reorder goals:', error)
+  }
+}
+
+// 处理将目标移动到最前
+async function handleMoveToTop(goal: any) {
+  try {
+    // 获取当天所有目标，找到最大的 sortOrder
+    const currentGoals = dayViewGoals.value
+    const maxSortOrder = Math.max(...currentGoals.map((g: any) => g.sortOrder ?? 0))
+
+    // 将目标设置为比最大值还大的值（数值越大排名越前）
+    await $fetch(`/api/goals/${goal.id}`, {
+      method: 'PATCH',
+      body: {
+        sortOrder: maxSortOrder + 1
+      }
+    })
+
+    // 刷新数据
+    await refresh()
+  } catch (error) {
+    console.error('Failed to move goal to top:', error)
+  }
+}
+
+// 处理删除目标
+async function handleDeleteGoal(goal: any) {
+  const confirmed = confirm(`确定要删除目标"${goal.title}"吗？`)
+  if (!confirmed) return
+
+  try {
+    await $fetch(`/api/goals/${goal.id}`, {
+      method: 'DELETE'
+    })
+
+    // 刷新数据
+    await refresh()
+  } catch (error: any) {
+    alert(error.data?.message || '删除失败')
   }
 }
 

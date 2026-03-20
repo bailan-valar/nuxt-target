@@ -101,6 +101,7 @@ model Note {
   title       String
   content     String?  @db.Text
   tags        String[] @default([])
+  icon        String?  @default("📄")
   isPinned    Boolean  @default(false) @map("is_pinned")
   sortOrder   Int      @default(0) @map("sort_order")
   createdAt   DateTime @default(now()) @map("created_at")

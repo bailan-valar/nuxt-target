@@ -127,6 +127,7 @@ export const NoteScalarFieldEnum = {
   title: 'title',
   content: 'content',
   tags: 'tags',
+  icon: 'icon',
   isPinned: 'isPinned',
   sortOrder: 'sortOrder',
   createdAt: 'createdAt',

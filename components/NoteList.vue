@@ -2,6 +2,12 @@
   <div class="note-list">
     <div class="note-list-header">
       <h2 class="note-list-title">我的笔记</h2>
+      <FolderTreeMultiSelect
+        v-model="selectedFolderIds"
+        class="w-[200px] ml-3"
+        @update:model-value="loadNotes"
+      />
+      <div class="flex-1"></div>
       <button
         @click="handleCreate"
         class="btn-primary"
@@ -13,24 +19,6 @@
         </svg>
         新建笔记
       </button>
-    </div>
-
-    <!-- 文件夹筛选 -->
-    <div class="note-list-filters">
-      <select
-        v-model="selectedFolderId"
-        class="folder-select"
-        @change="loadNotes"
-      >
-        <option value="">全部文件夹</option>
-        <option
-          v-for="folder in folders"
-          :key="folder.id"
-          :value="folder.id"
-        >
-          {{ folder.name }}
-        </option>
-      </select>
     </div>
 
     <!-- 加载中 -->
@@ -58,7 +46,7 @@
     </div>
 
     <!-- 笔记卡片列表 -->
-    <div v-else class="note-list-cards">
+    <div v-else ref="noteListRef" class="note-list-cards">
       <div
         v-for="note in sortedNotes"
         :key="note.id"
@@ -66,9 +54,14 @@
         :class="{ 'note-card-pinned': note.isPinned }"
         @click="handleEdit(note)"
       >
-        <div class="note-card-header">
-          <h3 class="note-card-title">{{ note.title }}</h3>
-          <div class="note-card-actions">
+        <div class="note-card-icon">
+          {{ note.icon || '📄' }}
+        </div>
+
+        <div class="note-card-content">
+          <div class="note-card-header">
+            <h3 class="note-card-title">{{ note.title }}</h3>
+            <div class="note-card-actions">
             <button
               @click.stop="togglePin(note)"
               class="note-card-action"
@@ -120,14 +113,15 @@
             </span>
           </div>
         </div>
+        </div>
       </div>
     </div>
 
     <!-- 笔记编辑对话框 -->
-    <NoteForm
+    <NoteEditorNotion
       v-if="showForm"
       :note="currentNote"
-      :folder-id="selectedFolderId"
+      :folder-ids="selectedFolderIds"
       @close="closeForm"
       @save="handleSave"
     />
@@ -135,38 +129,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import NoteForm from './NoteForm.vue'
-
-interface Folder {
-  id: string
-  name: string
-}
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
+import FolderTreeMultiSelect from './FolderTreeMultiSelect.vue'
+import NoteEditorNotion from './NoteEditorNotion.vue'
+import Sortable from 'sortablejs'
 
 interface Note {
   id: string
   title: string
   content: string | null
   tags: string[]
+  icon?: string | null
   isPinned: boolean
+  sortOrder: number
   folder: { id: string; name: string } | null
   updatedAt: string
 }
 
 const notes = ref<Note[]>([])
-const folders = ref<Folder[]>([])
 const loading = ref(false)
 const error = ref('')
-const selectedFolderId = ref('')
+const selectedFolderIds = ref<string[]>([])
 const showForm = ref(false)
 const currentNote = ref<Note | null>(null)
+const noteListRef = ref<HTMLElement | null>(null)
+let sortableInstance: Sortable | null = null
 
 const sortedNotes = computed(() => {
   return [...notes.value].sort((a, b) => {
-    if (a.isPinned !== b.isPinned) {
-      return a.isPinned ? -1 : 1
-    }
-    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    // 使用sortOrder作为主要排序字段（升序）
+    return a.sortOrder - b.sortOrder
   })
 })
 
@@ -176,8 +168,10 @@ const loadNotes = async () => {
 
   try {
     const params = new URLSearchParams()
-    if (selectedFolderId.value) {
-      params.append('folderId', selectedFolderId.value)
+    if (selectedFolderIds.value.length > 0) {
+      selectedFolderIds.value.forEach(id => {
+        params.append('folderIds', id)
+      })
     }
 
     const response = await $fetch<any>(`/api/notes?${params.toString()}`)
@@ -191,18 +185,6 @@ const loadNotes = async () => {
     error.value = err.message || '加载失败'
   } finally {
     loading.value = false
-  }
-}
-
-const loadFolders = async () => {
-  try {
-    const response = await $fetch<any>('/api/folders')
-
-    if (response.success) {
-      folders.value = response.data
-    }
-  } catch (err) {
-    console.error('加载文件夹失败:', err)
   }
 }
 
@@ -228,11 +210,8 @@ const closeForm = () => {
 
 const togglePin = async (note: Note) => {
   try {
-    await $fetch<any>(`/api/notes/${note.id}`, {
-      method: 'PUT',
-      body: {
-        isPinned: !note.isPinned
-      }
+    await $fetch<any>(`/api/notes/${note.id}/pin`, {
+      method: 'PUT'
     })
 
     await loadNotes()
@@ -284,9 +263,68 @@ const formatDate = (dateString: string): string => {
   }
 }
 
+// 初始化拖拽排序
+const initSortable = () => {
+  if (sortableInstance) {
+    sortableInstance.destroy()
+  }
+
+  nextTick(() => {
+    if (noteListRef.value) {
+      sortableInstance = Sortable.create(noteListRef.value, {
+        animation: 150,
+        ghostClass: 'note-card-ghost',
+        dragClass: 'note-card-drag',
+        onEnd: async (evt: any) => {
+          const { oldIndex, newIndex } = evt
+
+          if (oldIndex === undefined || newIndex === undefined || oldIndex === newIndex) {
+            return
+          }
+
+          // 重新排序笔记数组
+          const newNotes = [...sortedNotes.value]
+          const [movedNote] = newNotes.splice(oldIndex, 1)
+          if (!movedNote) return
+
+          newNotes.splice(newIndex, 0, movedNote)
+
+          // 计算新的sortOrder值
+          const notesWithNewOrder = newNotes.map((note, index) => ({
+            id: note.id,
+            sortOrder: index
+          }))
+
+          try {
+            await $fetch<any>('/api/notes/reorder', {
+              method: 'PUT',
+              body: {
+                notes: notesWithNewOrder
+              }
+            })
+
+            // 重新加载笔记列表
+            await loadNotes()
+          } catch (err: any) {
+            error.value = err.message || '排序失败'
+            // 如果失败，重新加载以恢复原状
+            await loadNotes()
+          }
+        }
+      })
+    }
+  })
+}
+
+// 监听笔记列表变化，重新初始化拖拽
+watch([notes, loading], () => {
+  if (!loading.value && notes.value.length > 0) {
+    initSortable()
+  }
+})
+
 onMounted(() => {
   loadNotes()
-  loadFolders()
 })
 </script>
 
@@ -315,10 +353,6 @@ onMounted(() => {
   @apply flex items-center gap-4;
 }
 
-.folder-select {
-  @apply px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
-}
-
 .note-list-loading,
 .note-list-error,
 .note-list-empty {
@@ -334,27 +368,43 @@ onMounted(() => {
 }
 
 .note-list-cards {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4;
+  @apply flex flex-col gap-3;
 }
 
 .note-card {
-  @apply bg-white border border-gray-200 rounded-lg p-4 cursor-pointer hover:shadow-md hover:border-blue-300 transition-all duration-150;
+  @apply bg-white border border-gray-200 rounded-lg p-4 cursor-move hover:shadow-md hover:border-blue-300 transition-all duration-150 flex items-start gap-4;
 }
 
 .note-card-pinned {
   @apply border-l-4 border-l-blue-600;
 }
 
+.note-card-ghost {
+  @apply opacity-50 bg-gray-100;
+}
+
+.note-card-drag {
+  @apply shadow-xl scale-105;
+}
+
+.note-card-icon {
+  @apply text-3xl flex-shrink-0;
+}
+
+.note-card-content {
+  @apply flex-1 min-w-0;
+}
+
 .note-card-header {
-  @apply flex items-start justify-between gap-2 mb-2;
+  @apply flex items-start justify-between gap-2 min-w-0;
 }
 
 .note-card-title {
-  @apply text-lg font-semibold text-gray-900 flex-1 truncate;
+  @apply text-base font-semibold text-gray-900 truncate;
 }
 
 .note-card-actions {
-  @apply flex items-center gap-1;
+  @apply flex items-center gap-1 flex-shrink-0;
 }
 
 .note-card-action {
@@ -366,11 +416,11 @@ onMounted(() => {
 }
 
 .note-card-preview {
-  @apply text-sm text-gray-600 mb-4 line-clamp-3;
+  @apply text-sm text-gray-600 line-clamp-2 mt-2;
 }
 
 .note-card-footer {
-  @apply flex items-center justify-between gap-2;
+  @apply flex flex-col items-start gap-2 mt-2;
 }
 
 .note-card-tags {
@@ -382,20 +432,20 @@ onMounted(() => {
 }
 
 .note-card-meta {
-  @apply flex items-center gap-2 text-xs text-gray-500;
+  @apply flex flex-col items-start gap-1 text-xs text-gray-500;
 }
 
 .note-card-folder {
-  @apply flex items-center gap-1;
+  @apply flex items-center gap-1 font-medium;
 }
 
 .note-card-date {
   @apply whitespace-nowrap;
 }
 
-.line-clamp-3 {
+.line-clamp-2 {
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

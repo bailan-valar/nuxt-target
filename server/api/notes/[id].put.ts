@@ -6,7 +6,8 @@ const updateNoteSchema = z.object({
   content: z.string().optional(),
   folderId: z.string().nullable().optional(),
   tags: z.array(z.string()).optional(),
-  isPinned: z.boolean().optional()
+  isPinned: z.boolean().optional(),
+  sortOrder: z.number().optional()
 })
 
 export default defineEventHandler(async (event) => {

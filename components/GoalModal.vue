@@ -2,98 +2,174 @@
   <div v-if="show" class="modal-overlay" @click.self="$emit('close')">
     <div class="modal">
       <div class="modal-header">
-        <h2>{{ goal?.id ? '编辑目标' : '新增目标' }}</h2>
-        <button class="close-btn" @click="$emit('close')">×</button>
+        <div class="header-left">
+          <button class="close-btn" @click="$emit('close')">←</button>
+          <span class="header-title">{{ goal?.id ? '编辑目标' : '新增目标' }}</span>
+        </div>
+        <div class="header-actions">
+          <button
+            v-if="goal?.id"
+            type="button"
+            class="btn-icon btn-delete"
+            :disabled="deleting"
+            @click="showDeleteConfirm = true"
+            title="删除"
+          >
+            🗑️
+          </button>
+          <button type="submit" class="btn-save" form="goal-form" :disabled="loading">
+            {{ loading ? '保存中...' : '完成' }}
+          </button>
+        </div>
       </div>
 
-      <form @submit.prevent="handleSubmit" class="modal-form">
-        <div class="form-section">
+      <form id="goal-form" @submit.prevent="handleSubmit" class="modal-content">
+        <!-- 左列：编辑器区域 -->
+        <div class="editor-column">
+          <div class="cover-area"></div>
 
-          <div class="field title-field">
-            <select v-model="form.status" class="status-select">
-              <option value="NOT_STARTED">待开始</option>
-              <option value="IN_PROGRESS">进行中</option>
-              <option value="PENDING_VERIFICATION">待验证</option>
-              <option value="COMPLETED">已完成</option>
-              <option value="ABANDONED">已放弃</option>
-            </select>
-            <input v-model="form.title" required placeholder="* 标题" />
-          </div>
+          <div class="editor-content">
+            <!-- 图标选择器 -->
+            <div class="icon-picker">
+              <button type="button" class="icon-btn" @click="showEmojiPicker = !showEmojiPicker">
+                <span v-if="form.icon" class="icon">{{ form.icon }}</span>
+                <span v-else class="icon-placeholder">📄</span>
+              </button>
+              <!-- 简单的 emoji 选择器 -->
+              <div v-if="showEmojiPicker" class="emoji-picker">
+                <button v-for="emoji in commonEmojis" :key="emoji" type="button" class="emoji-option" @click="form.icon = emoji; showEmojiPicker = false">
+                  {{ emoji }}
+                </button>
+              </div>
+            </div>
 
-          <div class="field">
-            <label>描述</label>
-            <RichTextEditor
-              v-model="form.description"
-              :min-height="'80px'"
+            <!-- 标题编辑器 -->
+            <input
+              v-model="form.title"
+              class="title-input"
+              placeholder="无标题"
+              required
             />
+
+            <!-- 内容编辑器 -->
+            <div class="content-editor">
+              <RichTextEditor
+                v-model="form.description"
+                :min-height="'120px'"
+                :placeholder="'添加描述...'"
+              />
+            </div>
           </div>
-
-          <FolderSelector
-            v-model="form.folderId"
-            label="所属项目"
-            :allow_create="true"
-          />
-
-          <ParentGoalSelector
-            v-model="form.parentGoal"
-            :exclude-goal-id="goal?.id"
-          />
-
-          <PeriodSelector
-            v-model:period-type="form.periodType"
-            v-model:period-value="form.periodValue"
-          />
         </div>
 
-        <div class="form-section time-section">
-          <div class="section-title">时间规划</div>
-          <div class="time-grid">
-            <div class="field">
-              <label class="time-label">计划开始</label>
+        <!-- 右列：属性编辑器 -->
+        <div class="properties-column">
+          <div class="properties-header">
+            <span class="properties-title">属性</span>
+            <button type="button" class="btn-add-property" title="添加属性">+</button>
+          </div>
+
+          <div class="properties-list">
+            <!-- 状态 -->
+            <div class="property-item">
+              <div class="property-label">
+                <span class="property-icon">📊</span>
+                <span>状态</span>
+              </div>
+              <select v-model="form.status" class="property-value">
+                <option value="NOT_STARTED">待开始</option>
+                <option value="IN_PROGRESS">进行中</option>
+                <option value="PENDING_VERIFICATION">待验证</option>
+                <option value="COMPLETED">已完成</option>
+                <option value="ABANDONED">已放弃</option>
+              </select>
+            </div>
+
+            <!-- 所属项目 -->
+            <div class="property-item">
+              <div class="property-label">
+                <span class="property-icon">📁</span>
+                <span>项目</span>
+              </div>
+              <div class="property-value">
+                <FolderSelector
+                  v-model="form.folderId"
+                  :label="''"
+                  :allow_create="true"
+                />
+              </div>
+            </div>
+
+            <!-- 父目标 -->
+            <div class="property-item">
+              <div class="property-label">
+                <span class="property-icon">🎯</span>
+                <span>父目标</span>
+              </div>
+              <div class="property-value">
+                <ParentGoalSelector
+                  v-model="form.parentGoal"
+                  :exclude-goal-id="goal?.id"
+                />
+              </div>
+            </div>
+
+            <!-- 周期 -->
+            <div class="property-item">
+              <div class="property-label">
+                <span class="property-icon">🔄</span>
+                <span>周期</span>
+              </div>
+              <div class="property-value">
+                <PeriodSelector
+                  v-model:period-type="form.periodType"
+                  v-model:period-value="form.periodValue"
+                />
+              </div>
+            </div>
+
+            <!-- 计划开始 -->
+            <div class="property-item">
+              <div class="property-label">
+                <span class="property-icon">📅</span>
+                <span>计划开始</span>
+              </div>
               <input
                 v-model="form.plannedStart"
                 type="datetime-local"
                 step="1"
-                class="time-input"
+                class="property-value"
               />
             </div>
-            <div class="field">
-              <label class="time-label">计划结束</label>
+
+            <!-- 计划结束 -->
+            <div class="property-item">
+              <div class="property-label">
+                <span class="property-icon">🏁</span>
+                <span>计划结束</span>
+              </div>
               <input
                 v-model="form.plannedEnd"
                 type="datetime-local"
                 step="1"
-                class="time-input"
+                class="property-value"
               />
             </div>
-          </div>
-            <div class="field">
-              <label class="time-label">下次执行</label>
+
+            <!-- 下次执行 -->
+            <div class="property-item">
+              <div class="property-label">
+                <span class="property-icon">⏰</span>
+                <span>下次执行</span>
+              </div>
               <input
                 v-model="form.nextExecution"
                 type="datetime-local"
                 step="1"
-                class="time-input"
+                class="property-value"
               />
             </div>
-        </div>
-
-        <div class="actions">
-          <!-- 删除按钮（仅在编辑模式显示） -->
-          <button
-            v-if="goal?.id"
-            type="button"
-            class="btn-delete"
-            :disabled="deleting"
-            @click="showDeleteConfirm = true"
-          >
-            删除
-          </button>
-
-          <button type="button" class="btn-secondary" @click="$emit('close')">取消</button>
-          <button type="submit" class="btn-primary" :disabled="loading">
-            {{ loading ? '保存中...' : '保存' }}
-          </button>
+          </div>
         </div>
       </form>
     </div>
@@ -131,7 +207,7 @@
 </template>
 
 <script setup lang="ts">
-type PeriodType = 'YEAR' | 'MONTH' | 'WEEK' | 'TASK' | 'CUSTOM' | ''
+type PeriodType = 'YEAR' | 'MONTH' | 'WEEK' | 'TASK' | 'CUSTOM'
 type GoalStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'PENDING_VERIFICATION' | 'COMPLETED' | 'ABANDONED'
 
 interface Goal {
@@ -146,6 +222,7 @@ interface Goal {
   nextExecution: string | null
   parent?: Goal | null
   children?: Goal[]
+  icon?: string | null
 }
 
 const props = defineProps<{
@@ -170,17 +247,26 @@ const form = reactive({
   title: '',
   description: '',
   status: 'NOT_STARTED' as GoalStatus,
-  periodType: '' as PeriodType,
+  periodType: '' as PeriodType | '',
   periodValue: '',
   plannedStart: '',
   plannedEnd: '',
   nextExecution: '',
-  parentGoal: null as Goal | null
+  parentGoal: null as Goal | null,
+  icon: ''
 })
 
 const loading = ref(false)
 const deleting = ref(false)
 const showDeleteConfirm = ref(false)
+const showEmojiPicker = ref(false)
+
+// 常用 emoji 列表
+const commonEmojis = [
+  '🎯', '📋', '📝', '✅', '⭐', '🔥', '💡', '🚀',
+  '🎨', '🎵', '📚', '💻', '🏃', '🧘', '💪', '🎉',
+  '🌟', '💎', '🔮', '🌈', '⚡', '🌊', '🔔', '📌'
+]
 
 // 辅助函数：将 ISO 8601 字符串转换为 datetime-local 格式
 const isoToDateTimeLocal = (isoString: string | null | undefined): string => {
@@ -207,6 +293,7 @@ watch(() => props.goal, (g) => {
     form.plannedEnd = isoToDateTimeLocal(g.plannedEnd)
     form.nextExecution = isoToDateTimeLocal(g.nextExecution)
     form.parentGoal = g.parent || null
+    form.icon = g.icon || ''
   } else {
     form.folderId = null
     form.title = ''
@@ -218,6 +305,7 @@ watch(() => props.goal, (g) => {
     form.plannedEnd = ''
     form.nextExecution = ''
     form.parentGoal = null
+    form.icon = ''
   }
 }, { immediate: true })
 
@@ -250,11 +338,12 @@ const handleSubmit = async () => {
       title: form.title,
       description: form.description || undefined,
       status: form.status,
-      parentId: form.parentGoal?.id || null
+      parentId: form.parentGoal?.id || null,
+      icon: form.icon || undefined
     }
 
-    // 只有在有周期类型时才添加周期字段（排除空字符串）
-    if (form.periodType && form.periodType !== '') {
+    // 只有在有周期类型时才添加周期字段
+    if (form.periodType) {
       body.periodType = form.periodType
       body.periodValue = form.periodValue
     }
@@ -307,265 +396,421 @@ const handleDelete = async () => {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  margin: 0;
+  background: rgba(0, 0, 0, 0.3);
   display: flex;
-  align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   z-index: 1000;
-  padding: 1rem;
 }
 
 .modal {
   background: white;
-  border-radius: 12px;
+  border-radius: 0;
   width: 100%;
-  max-width: 480px;
-  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  max-width: 900px;
+  height: 100%;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.875rem 1.125rem;
+  padding: 0.75rem 1rem;
   border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+  height: 48px;
 }
 
-.modal-header h2 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #111827;
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .close-btn {
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 0.375rem 0.625rem;
   border: none;
-  background: #f3f4f6;
-  border-radius: 6px;
+  background: transparent;
+  border-radius: 4px;
   font-size: 1.125rem;
-  color: #6b7280;
+  color: #374151;
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .close-btn:hover {
-  background: #e5e7eb;
-  color: #111827;
+  background: #f3f4f6;
 }
 
-.modal-form {
-  padding: 1.125rem;
-  max-height: calc(100vh - 200px);
-  overflow-y: auto;
-}
-
-.form-section {
-  margin-bottom: 0.875rem;
-}
-
-.form-section:last-child {
-  margin-bottom: 0;
-}
-
-.field {
-  margin-bottom: 0.625rem;
-}
-
-.field:last-child {
-  margin-bottom: 0;
-}
-
-.field label {
-  display: block;
-  margin-bottom: 0.25rem;
-  font-size: 0.8125rem;
+.header-title {
+  font-size: 0.875rem;
   font-weight: 500;
   color: #374151;
 }
 
-.field input,
-.field textarea,
-.field select {
-  width: 100%;
-  padding: 0.5rem 0.625rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 0.8125rem;
-  transition: border-color 0.15s, box-shadow 0.15s;
-  background: white;
-}
-
-.field input:focus,
-.field textarea:focus,
-.field select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.field textarea {
-  resize: vertical;
-  min-height: 50px;
-}
-
-.title-field {
+.header-actions {
   display: flex;
-  gap: 0.5rem;
   align-items: center;
-}
-
-.title-field .status-select {
-  flex-shrink: 0;
-  width: auto;
-  min-width: 100px;
-}
-
-.title-field input {
-  flex: 1;
-}
-
-.time-section {
-  padding: 0.75rem;
-  background: #f9fafb;
-  border-radius: 8px;
-}
-
-.section-title {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.625rem;
-}
-
-.time-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
   gap: 0.5rem;
-  overflow: hidden;
 }
 
-.time-grid .field {
-  margin-bottom: 0;
-}
-
-.time-label {
-  font-size: 0.75rem;
-  margin-bottom: 0.188rem;
-}
-
-.time-input {
-  font-size: 0.75rem;
-  padding: 0.375rem 0.5rem;
-  min-width: 0;
-}
-
-@media (max-width: 480px) {
-  .time-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.actions {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: flex-end;
-  margin-top: 1rem;
-  padding-top: 0.875rem;
-  border-top: 1px solid #e5e7eb;
-}
-
-.actions button {
-  padding: 0.5rem 1rem;
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
   border: none;
-  border-radius: 6px;
+  background: transparent;
+  border-radius: 4px;
+  font-size: 1.125rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-icon:hover {
+  background: #f3f4f6;
+}
+
+.btn-delete {
+  color: #e03e3e;
+}
+
+.btn-save {
+  padding: 0.4375rem 0.875rem;
+  border: none;
+  background: #2383e2;
+  color: white;
+  border-radius: 4px;
   font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s;
 }
 
-.btn-secondary {
-  background: #f3f4f6;
-  color: #374151;
+.btn-save:hover:not(:disabled) {
+  background: #1a6fb8;
 }
 
-.btn-secondary:hover {
-  background: #e5e7eb;
-}
-
-.btn-primary {
-  background: #3b82f6;
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: #2563eb;
-}
-
-.actions button:disabled {
+.btn-save:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.btn-delete {
-  background: #fff;
-  color: #ef4444;
-  border: 1px solid #fecaca;
-  margin-right: auto;
+.modal-content {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  overflow: hidden;
 }
 
-.btn-delete:hover:not(:disabled) {
-  background: #fef2f2;
-  border-color: #f87171;
+.editor-column {
+  overflow-y: auto;
+  border-right: 1px solid #e5e7eb;
 }
 
-.btn-danger {
-  background: #ef4444;
-  color: white;
-  border: 1px solid #ef4444;
+.editor-column::-webkit-scrollbar {
+  width: 8px;
 }
 
-.btn-danger:hover:not(:disabled) {
-  background: #dc2626;
-  border-color: #dc2626;
+.editor-column::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.editor-column::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+.editor-column::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+.cover-area {
+  height: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transition: height 0.2s;
+}
+
+.editor-content {
+  padding: 2.5rem 3rem;
+  max-width: 900px;
+}
+
+.icon-picker {
+  position: relative;
+  margin-bottom: 0.5rem;
+}
+
+.icon-btn {
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.icon-btn:hover {
+  transform: scale(1.1);
+}
+
+.icon {
+  font-size: 4rem;
+  line-height: 1;
+}
+
+.icon-placeholder {
+  font-size: 4rem;
+  opacity: 0.3;
+}
+
+.emoji-picker {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 0.25rem;
+  padding: 0.5rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+}
+
+.emoji-option {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.emoji-option:hover {
+  background: #f3f4f6;
+}
+
+.title-input {
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+.title-input:focus {
+  outline: none;
+}
+
+.title-input::placeholder {
+  color: #9ca3af;
+}
+
+.content-editor {
+  min-height: 200px;
+}
+
+.properties-column {
+  overflow-y: auto;
+  background: #f7f6f3;
+}
+
+.properties-column::-webkit-scrollbar {
+  width: 8px;
+}
+
+.properties-column::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.properties-column::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+.properties-column::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+.properties-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.properties-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #787774;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.btn-add-property {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  font-size: 1rem;
+  color: #787774;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-add-property:hover {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.properties-list {
+  padding: 0.75rem 0;
+}
+
+.property-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.375rem 1rem;
+  transition: background 0.15s;
+}
+
+.property-item:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.property-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100px;
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  color: #787774;
+}
+
+.property-icon {
+  font-size: 1rem;
+}
+
+.property-value {
+  flex: 1;
+  padding: 0.375rem 0.625rem;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  background: transparent;
+  transition: all 0.15s;
+}
+
+.property-value:hover {
+  background: white;
+  border-color: #e5e7eb;
+}
+
+.property-value:focus {
+  outline: none;
+  background: white;
+  border-color: #2383e2;
+}
+
+.property-value select {
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.property-value select:focus {
+  outline: none;
+}
+
+@media (max-width: 768px) {
+  .modal {
+    max-width: 100%;
+  }
+
+  .modal-content {
+    grid-template-columns: 1fr;
+  }
+
+  .properties-column {
+    display: none;
+  }
+
+  .editor-content {
+    padding: 1.5rem;
+  }
+
+  .title-input {
+    font-size: 2rem;
+  }
 }
 
 /* 删除确认弹框样式 */
 .confirm-dialog-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1001;
   padding: 1rem;
+  animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .confirm-dialog {
   background: white;
-  border-radius: 12px;
+  border-radius: 8px;
   width: 100%;
   max-width: 400px;
-  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
-  animation: dialogSlideIn 0.2s ease-out;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  animation: scaleIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@keyframes dialogSlideIn {
+@keyframes scaleIn {
   from {
     opacity: 0;
-    transform: scale(0.95) translateY(-10px);
+    transform: scale(0.95);
   }
   to {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: scale(1);
   }
 }
 
@@ -576,7 +821,7 @@ const handleDelete = async () => {
 
 .confirm-dialog-header h3 {
   margin: 0;
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #111827;
 }
@@ -594,7 +839,7 @@ const handleDelete = async () => {
 
 .warning-text {
   margin-top: 0.5rem !important;
-  color: #ef4444 !important;
+  color: #e03e3e !important;
   font-size: 0.8125rem !important;
 }
 
@@ -607,12 +852,30 @@ const handleDelete = async () => {
 }
 
 .confirm-dialog-footer button {
-  padding: 0.5rem 1rem;
+  padding: 0.5625rem 1rem;
   border: none;
-  border-radius: 6px;
-  font-size: 0.8125rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s;
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.btn-secondary:hover {
+  background: #e5e7eb;
+}
+
+.btn-danger {
+  background: #e03e3e;
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #c72e2e;
 }
 </style>
