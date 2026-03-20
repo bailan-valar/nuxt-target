@@ -10,6 +10,10 @@ export default defineNuxtConfig({
   nitro: {
     prerender: {
       autoSubfolderIndex: false
+    },
+    // Cloudflare Workers 配置
+    experimental: {
+      wasm: true
     }
   },
   vite: {

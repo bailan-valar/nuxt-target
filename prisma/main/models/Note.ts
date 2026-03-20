@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-import type * as runtime from "@prisma/client/runtime/client"
+import type * as runtime from "@prisma/client/runtime/library"
 import type * as $Enums from "../enums"
 import type * as Prisma from "../internal/prismaNamespace"
 
@@ -40,6 +40,7 @@ export type NoteMinAggregateOutputType = {
   folderId: string | null
   title: string | null
   content: string | null
+  tags: string | null
   icon: string | null
   isPinned: boolean | null
   sortOrder: number | null
@@ -53,6 +54,7 @@ export type NoteMaxAggregateOutputType = {
   folderId: string | null
   title: string | null
   content: string | null
+  tags: string | null
   icon: string | null
   isPinned: boolean | null
   sortOrder: number | null
@@ -90,6 +92,7 @@ export type NoteMinAggregateInputType = {
   folderId?: true
   title?: true
   content?: true
+  tags?: true
   icon?: true
   isPinned?: true
   sortOrder?: true
@@ -103,6 +106,7 @@ export type NoteMaxAggregateInputType = {
   folderId?: true
   title?: true
   content?: true
+  tags?: true
   icon?: true
   isPinned?: true
   sortOrder?: true
@@ -217,7 +221,7 @@ export type NoteGroupByOutputType = {
   folderId: string | null
   title: string
   content: string | null
-  tags: string[]
+  tags: string
   icon: string | null
   isPinned: boolean
   sortOrder: number
@@ -254,7 +258,7 @@ export type NoteWhereInput = {
   folderId?: Prisma.StringNullableFilter<"Note"> | string | null
   title?: Prisma.StringFilter<"Note"> | string
   content?: Prisma.StringNullableFilter<"Note"> | string | null
-  tags?: Prisma.StringNullableListFilter<"Note">
+  tags?: Prisma.StringFilter<"Note"> | string
   icon?: Prisma.StringNullableFilter<"Note"> | string | null
   isPinned?: Prisma.BoolFilter<"Note"> | boolean
   sortOrder?: Prisma.IntFilter<"Note"> | number
@@ -289,7 +293,7 @@ export type NoteWhereUniqueInput = Prisma.AtLeast<{
   folderId?: Prisma.StringNullableFilter<"Note"> | string | null
   title?: Prisma.StringFilter<"Note"> | string
   content?: Prisma.StringNullableFilter<"Note"> | string | null
-  tags?: Prisma.StringNullableListFilter<"Note">
+  tags?: Prisma.StringFilter<"Note"> | string
   icon?: Prisma.StringNullableFilter<"Note"> | string | null
   isPinned?: Prisma.BoolFilter<"Note"> | boolean
   sortOrder?: Prisma.IntFilter<"Note"> | number
@@ -327,7 +331,7 @@ export type NoteScalarWhereWithAggregatesInput = {
   folderId?: Prisma.StringNullableWithAggregatesFilter<"Note"> | string | null
   title?: Prisma.StringWithAggregatesFilter<"Note"> | string
   content?: Prisma.StringNullableWithAggregatesFilter<"Note"> | string | null
-  tags?: Prisma.StringNullableListFilter<"Note">
+  tags?: Prisma.StringWithAggregatesFilter<"Note"> | string
   icon?: Prisma.StringNullableWithAggregatesFilter<"Note"> | string | null
   isPinned?: Prisma.BoolWithAggregatesFilter<"Note"> | boolean
   sortOrder?: Prisma.IntWithAggregatesFilter<"Note"> | number
@@ -339,7 +343,7 @@ export type NoteCreateInput = {
   id?: string
   title: string
   content?: string | null
-  tags?: Prisma.NoteCreatetagsInput | string[]
+  tags?: string
   icon?: string | null
   isPinned?: boolean
   sortOrder?: number
@@ -355,7 +359,7 @@ export type NoteUncheckedCreateInput = {
   folderId?: string | null
   title: string
   content?: string | null
-  tags?: Prisma.NoteCreatetagsInput | string[]
+  tags?: string
   icon?: string | null
   isPinned?: boolean
   sortOrder?: number
@@ -367,7 +371,7 @@ export type NoteUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tags?: Prisma.NoteUpdatetagsInput | string[]
+  tags?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -383,7 +387,7 @@ export type NoteUncheckedUpdateInput = {
   folderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tags?: Prisma.NoteUpdatetagsInput | string[]
+  tags?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -397,7 +401,7 @@ export type NoteCreateManyInput = {
   folderId?: string | null
   title: string
   content?: string | null
-  tags?: Prisma.NoteCreatetagsInput | string[]
+  tags?: string
   icon?: string | null
   isPinned?: boolean
   sortOrder?: number
@@ -409,7 +413,7 @@ export type NoteUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tags?: Prisma.NoteUpdatetagsInput | string[]
+  tags?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -423,7 +427,7 @@ export type NoteUncheckedUpdateManyInput = {
   folderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tags?: Prisma.NoteUpdatetagsInput | string[]
+  tags?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -439,14 +443,6 @@ export type NoteListRelationFilter = {
 
 export type NoteOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
-}
-
-export type StringNullableListFilter<$PrismaModel = never> = {
-  equals?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel> | null
-  has?: string | Prisma.StringFieldRefInput<$PrismaModel> | null
-  hasEvery?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
-  hasSome?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
-  isEmpty?: boolean
 }
 
 export type NoteCountOrderByAggregateInput = {
@@ -473,6 +469,7 @@ export type NoteMaxOrderByAggregateInput = {
   folderId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   content?: Prisma.SortOrder
+  tags?: Prisma.SortOrder
   icon?: Prisma.SortOrder
   isPinned?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
@@ -486,6 +483,7 @@ export type NoteMinOrderByAggregateInput = {
   folderId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   content?: Prisma.SortOrder
+  tags?: Prisma.SortOrder
   icon?: Prisma.SortOrder
   isPinned?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
@@ -581,15 +579,6 @@ export type NoteUncheckedUpdateManyWithoutFolderNestedInput = {
   deleteMany?: Prisma.NoteScalarWhereInput | Prisma.NoteScalarWhereInput[]
 }
 
-export type NoteCreatetagsInput = {
-  set: string[]
-}
-
-export type NoteUpdatetagsInput = {
-  set?: string[]
-  push?: string | string[]
-}
-
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
 }
@@ -598,7 +587,7 @@ export type NoteCreateWithoutUserInput = {
   id?: string
   title: string
   content?: string | null
-  tags?: Prisma.NoteCreatetagsInput | string[]
+  tags?: string
   icon?: string | null
   isPinned?: boolean
   sortOrder?: number
@@ -612,7 +601,7 @@ export type NoteUncheckedCreateWithoutUserInput = {
   folderId?: string | null
   title: string
   content?: string | null
-  tags?: Prisma.NoteCreatetagsInput | string[]
+  tags?: string
   icon?: string | null
   isPinned?: boolean
   sortOrder?: number
@@ -627,7 +616,6 @@ export type NoteCreateOrConnectWithoutUserInput = {
 
 export type NoteCreateManyUserInputEnvelope = {
   data: Prisma.NoteCreateManyUserInput | Prisma.NoteCreateManyUserInput[]
-  skipDuplicates?: boolean
 }
 
 export type NoteUpsertWithWhereUniqueWithoutUserInput = {
@@ -655,7 +643,7 @@ export type NoteScalarWhereInput = {
   folderId?: Prisma.StringNullableFilter<"Note"> | string | null
   title?: Prisma.StringFilter<"Note"> | string
   content?: Prisma.StringNullableFilter<"Note"> | string | null
-  tags?: Prisma.StringNullableListFilter<"Note">
+  tags?: Prisma.StringFilter<"Note"> | string
   icon?: Prisma.StringNullableFilter<"Note"> | string | null
   isPinned?: Prisma.BoolFilter<"Note"> | boolean
   sortOrder?: Prisma.IntFilter<"Note"> | number
@@ -667,7 +655,7 @@ export type NoteCreateWithoutFolderInput = {
   id?: string
   title: string
   content?: string | null
-  tags?: Prisma.NoteCreatetagsInput | string[]
+  tags?: string
   icon?: string | null
   isPinned?: boolean
   sortOrder?: number
@@ -681,7 +669,7 @@ export type NoteUncheckedCreateWithoutFolderInput = {
   userId: string
   title: string
   content?: string | null
-  tags?: Prisma.NoteCreatetagsInput | string[]
+  tags?: string
   icon?: string | null
   isPinned?: boolean
   sortOrder?: number
@@ -696,7 +684,6 @@ export type NoteCreateOrConnectWithoutFolderInput = {
 
 export type NoteCreateManyFolderInputEnvelope = {
   data: Prisma.NoteCreateManyFolderInput | Prisma.NoteCreateManyFolderInput[]
-  skipDuplicates?: boolean
 }
 
 export type NoteUpsertWithWhereUniqueWithoutFolderInput = {
@@ -720,7 +707,7 @@ export type NoteCreateManyUserInput = {
   folderId?: string | null
   title: string
   content?: string | null
-  tags?: Prisma.NoteCreatetagsInput | string[]
+  tags?: string
   icon?: string | null
   isPinned?: boolean
   sortOrder?: number
@@ -732,7 +719,7 @@ export type NoteUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tags?: Prisma.NoteUpdatetagsInput | string[]
+  tags?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -746,7 +733,7 @@ export type NoteUncheckedUpdateWithoutUserInput = {
   folderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tags?: Prisma.NoteUpdatetagsInput | string[]
+  tags?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -759,7 +746,7 @@ export type NoteUncheckedUpdateManyWithoutUserInput = {
   folderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tags?: Prisma.NoteUpdatetagsInput | string[]
+  tags?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -772,7 +759,7 @@ export type NoteCreateManyFolderInput = {
   userId: string
   title: string
   content?: string | null
-  tags?: Prisma.NoteCreatetagsInput | string[]
+  tags?: string
   icon?: string | null
   isPinned?: boolean
   sortOrder?: number
@@ -784,7 +771,7 @@ export type NoteUpdateWithoutFolderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tags?: Prisma.NoteUpdatetagsInput | string[]
+  tags?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -798,7 +785,7 @@ export type NoteUncheckedUpdateWithoutFolderInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tags?: Prisma.NoteUpdatetagsInput | string[]
+  tags?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -811,7 +798,7 @@ export type NoteUncheckedUpdateManyWithoutFolderInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tags?: Prisma.NoteUpdatetagsInput | string[]
+  tags?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -909,7 +896,7 @@ export type $NotePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     folderId: string | null
     title: string
     content: string | null
-    tags: string[]
+    tags: string
     icon: string | null
     isPinned: boolean
     sortOrder: number
@@ -1345,7 +1332,7 @@ export interface NoteFieldRefs {
   readonly folderId: Prisma.FieldRef<"Note", 'String'>
   readonly title: Prisma.FieldRef<"Note", 'String'>
   readonly content: Prisma.FieldRef<"Note", 'String'>
-  readonly tags: Prisma.FieldRef<"Note", 'String[]'>
+  readonly tags: Prisma.FieldRef<"Note", 'String'>
   readonly icon: Prisma.FieldRef<"Note", 'String'>
   readonly isPinned: Prisma.FieldRef<"Note", 'Boolean'>
   readonly sortOrder: Prisma.FieldRef<"Note", 'Int'>
@@ -1580,7 +1567,6 @@ export type NoteCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * The data used to create many Notes.
    */
   data: Prisma.NoteCreateManyInput | Prisma.NoteCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**
@@ -1599,7 +1585,6 @@ export type NoteCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions
    * The data used to create many Notes.
    */
   data: Prisma.NoteCreateManyInput | Prisma.NoteCreateManyInput[]
-  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

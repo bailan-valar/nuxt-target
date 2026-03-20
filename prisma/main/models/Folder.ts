@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-import type * as runtime from "@prisma/client/runtime/client"
+import type * as runtime from "@prisma/client/runtime/library"
 import type * as $Enums from "../enums"
 import type * as Prisma from "../internal/prismaNamespace"
 
@@ -708,7 +708,6 @@ export type FolderCreateOrConnectWithoutUserInput = {
 
 export type FolderCreateManyUserInputEnvelope = {
   data: Prisma.FolderCreateManyUserInput | Prisma.FolderCreateManyUserInput[]
-  skipDuplicates?: boolean
 }
 
 export type FolderUpsertWithWhereUniqueWithoutUserInput = {
@@ -820,7 +819,6 @@ export type FolderCreateOrConnectWithoutParentInput = {
 
 export type FolderCreateManyParentInputEnvelope = {
   data: Prisma.FolderCreateManyParentInput | Prisma.FolderCreateManyParentInput[]
-  skipDuplicates?: boolean
 }
 
 export type FolderUpsertWithoutChildrenInput = {
@@ -1980,7 +1978,6 @@ export type FolderCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * The data used to create many Folders.
    */
   data: Prisma.FolderCreateManyInput | Prisma.FolderCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**
@@ -1999,7 +1996,6 @@ export type FolderCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensio
    * The data used to create many Folders.
    */
   data: Prisma.FolderCreateManyInput | Prisma.FolderCreateManyInput[]
-  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

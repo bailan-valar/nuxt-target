@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-import type * as runtime from "@prisma/client/runtime/client"
+import type * as runtime from "@prisma/client/runtime/library"
 import type * as $Enums from "../enums"
 import type * as Prisma from "../internal/prismaNamespace"
 
@@ -794,7 +794,6 @@ export type GoalCreateOrConnectWithoutUserInput = {
 
 export type GoalCreateManyUserInputEnvelope = {
   data: Prisma.GoalCreateManyUserInput | Prisma.GoalCreateManyUserInput[]
-  skipDuplicates?: boolean
 }
 
 export type GoalUpsertWithWhereUniqueWithoutUserInput = {
@@ -877,7 +876,6 @@ export type GoalCreateOrConnectWithoutFolderInput = {
 
 export type GoalCreateManyFolderInputEnvelope = {
   data: Prisma.GoalCreateManyFolderInput | Prisma.GoalCreateManyFolderInput[]
-  skipDuplicates?: boolean
 }
 
 export type GoalUpsertWithWhereUniqueWithoutFolderInput = {
@@ -980,7 +978,6 @@ export type GoalCreateOrConnectWithoutParentInput = {
 
 export type GoalCreateManyParentInputEnvelope = {
   data: Prisma.GoalCreateManyParentInput | Prisma.GoalCreateManyParentInput[]
-  skipDuplicates?: boolean
 }
 
 export type GoalUpsertWithoutChildrenInput = {
@@ -2084,7 +2081,6 @@ export type GoalCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * The data used to create many Goals.
    */
   data: Prisma.GoalCreateManyInput | Prisma.GoalCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**
@@ -2103,7 +2099,6 @@ export type GoalCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions
    * The data used to create many Goals.
    */
   data: Prisma.GoalCreateManyInput | Prisma.GoalCreateManyInput[]
-  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

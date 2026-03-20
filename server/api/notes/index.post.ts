@@ -1,5 +1,6 @@
 import { getPrisma } from '~/server/utils/db'
 import { z } from 'zod'
+import { serializeTags, normalizeTags } from '~/server/utils/tags'
 
 const createNoteSchema = z.object({
   title: z.string().min(1, '标题不能为空').max(200, '标题最多200个字符'),
@@ -55,9 +56,16 @@ export default defineEventHandler(async (event) => {
 
     const nextSortOrder = (maxSortOrder?.sortOrder ?? -1) + 1
 
+    // 序列化 tags 为 JSON 字符串
+    const normalizedTags = normalizeTags(validatedData.tags)
+
     const note = await prisma.note.create({
       data: {
-        ...validatedData,
+        title: validatedData.title,
+        content: validatedData.content,
+        folderId: validatedData.folderId,
+        tags: serializeTags(normalizedTags),
+        isPinned: validatedData.isPinned,
         userId: userId,
         sortOrder: nextSortOrder
       },
@@ -71,9 +79,13 @@ export default defineEventHandler(async (event) => {
       }
     })
 
+    // 返回时反序列化 tags
     return {
       success: true,
-      data: note
+      data: {
+        ...note,
+        tags: normalizedTags
+      }
     }
   } catch (error) {
     if (error instanceof z.ZodError && error.errors && error.errors.length > 0) {

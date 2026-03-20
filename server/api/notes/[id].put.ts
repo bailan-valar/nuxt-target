@@ -1,5 +1,6 @@
 import { getPrisma } from '~/server/utils/db'
 import { z } from 'zod'
+import { serializeTags, normalizeTags } from '~/server/utils/tags'
 
 const updateNoteSchema = z.object({
   title: z.string().min(1, '标题不能为空').max(200, '标题最多200个字符').optional(),
@@ -63,9 +64,20 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    // 准备更新数据，处理 tags 序列化
+    const updateData: any = {}
+    if (validatedData.title !== undefined) updateData.title = validatedData.title
+    if (validatedData.content !== undefined) updateData.content = validatedData.content
+    if (validatedData.folderId !== undefined) updateData.folderId = validatedData.folderId
+    if (validatedData.isPinned !== undefined) updateData.isPinned = validatedData.isPinned
+    if (validatedData.sortOrder !== undefined) updateData.sortOrder = validatedData.sortOrder
+    if (validatedData.tags !== undefined) {
+      updateData.tags = serializeTags(normalizeTags(validatedData.tags))
+    }
+
     const note = await prisma.note.update({
       where: { id },
-      data: validatedData,
+      data: updateData,
       include: {
         folder: {
           select: {
@@ -76,9 +88,13 @@ export default defineEventHandler(async (event) => {
       }
     })
 
+    // 返回时反序列化 tags
     return {
       success: true,
-      data: note
+      data: {
+        ...note,
+        tags: note.tags ? JSON.parse(note.tags) : []
+      }
     }
   } catch (error) {
     if (error instanceof z.ZodError && error.errors && error.errors.length > 0) {

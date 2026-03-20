@@ -1,4 +1,5 @@
 import { getPrisma } from '~/server/utils/db'
+import { deserializeNotesTags } from '~/server/utils/tags'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -44,9 +45,12 @@ export default defineEventHandler(async (event) => {
       ]
     })
 
+    // 反序列化 tags
+    const notesWithDeserializedTags = deserializeNotesTags(notes)
+
     return {
       success: true,
-      data: notes
+      data: notesWithDeserializedTags
     }
   } catch (error) {
     console.error('获取笔记列表失败:', error)
