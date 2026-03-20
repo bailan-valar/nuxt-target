@@ -71,6 +71,21 @@
             </div>
           </div>
 
+          <div class="header-center">
+            <button
+              v-if="!showProperties"
+              @click="showProperties = true"
+              class="header-btn"
+              type="button"
+              title="显示属性"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <line x1="9" y1="3" x2="9" y2="21"/>
+              </svg>
+            </button>
+          </div>
+
           <div class="header-right">
             <div class="save-status">
               <span v-if="saving" class="save-saving">保存中...</span>
@@ -131,8 +146,37 @@
             />
           </div>
 
-          <!-- 属性面板 -->
-          <div v-if="showProperties" class="properties-panel">
+          <!-- 分隔线 -->
+          <div class="page-divider"></div>
+
+          <!-- 富文本编辑器 -->
+          <NotionEditor
+            v-model="noteContent"
+            :placeholder="'输入 \'/\' 选择格式，或开始编写内容...'"
+            :min-height="'400px'"
+            @update:modelValue="onContentChange"
+          />
+        </div>
+      </div>
+
+      <!-- 右侧属性编辑栏 -->
+      <div v-if="showProperties" class="notion-properties">
+        <div class="properties-header">
+          <div class="properties-title">属性</div>
+          <button
+            @click="showProperties = false"
+            class="properties-close-btn"
+            type="button"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="properties-content">
+          <div class="property-section">
             <div class="property-item">
               <div class="property-label">文件夹</div>
               <select
@@ -196,17 +240,6 @@
               </div>
             </div>
           </div>
-
-          <!-- 分隔线 -->
-          <div class="page-divider"></div>
-
-          <!-- 富文本编辑器 -->
-          <NotionEditor
-            v-model="noteContent"
-            :placeholder="'输入 \'/\' 选择格式，或开始编写内容...'"
-            :min-height="'400px'"
-            @update:modelValue="onContentChange"
-          />
         </div>
       </div>
     </div>
@@ -512,6 +545,10 @@ onUnmounted(() => {
   @apply flex items-center gap-2;
 }
 
+.header-center {
+  @apply flex items-center gap-2;
+}
+
 .header-right {
   @apply flex items-center gap-3;
 }
@@ -599,31 +636,54 @@ onUnmounted(() => {
   z-index: 2;
 }
 
-/* 属性面板 */
-.properties-panel {
-  @apply mb-6 p-4 bg-gray-50 rounded-lg space-y-4;
-  position: relative;
-  z-index: 1;
+/* 分隔线 */
+.page-divider {
+  @apply border-t border-gray-200 my-8;
+}
+
+/* 右侧属性编辑栏 */
+.notion-properties {
+  @apply w-80 bg-gray-50 border-l border-gray-200 flex flex-col flex-shrink-0;
+}
+
+.properties-header {
+  @apply flex items-center justify-between px-4 py-3 border-b border-gray-200;
+}
+
+.properties-title {
+  @apply text-sm font-semibold text-gray-700;
+}
+
+.properties-close-btn {
+  @apply text-gray-400 hover:text-gray-600 transition-colors duration-150;
+}
+
+.properties-content {
+  @apply flex-1 overflow-y-auto p-4;
+}
+
+.property-section {
+  @apply space-y-4;
 }
 
 .property-item {
-  @apply flex items-center gap-4;
+  @apply flex flex-col gap-2;
 }
 
 .property-label {
-  @apply w-20 text-sm font-medium text-gray-600 flex-shrink-0;
+  @apply text-xs font-semibold text-gray-600 uppercase tracking-wide;
 }
 
 .property-select {
-  @apply flex-1 px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500;
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white;
 }
 
 .property-value {
-  @apply flex-1 text-sm text-gray-700;
+  @apply text-sm text-gray-700;
 }
 
 .property-tags {
-  @apply flex-1 flex items-center gap-2 flex-wrap;
+  @apply flex flex-col gap-2;
 }
 
 .tags-list {
@@ -639,15 +699,16 @@ onUnmounted(() => {
 }
 
 .tag-input {
-  @apply flex-1 min-w-[120px] px-2 py-1 text-sm focus:outline-none;
-}
-
-/* 分隔线 */
-.page-divider {
-  @apply border-t border-gray-200 my-8;
+  @apply w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500;
 }
 
 /* 响应式 */
+@media (max-width: 1024px) {
+  .notion-properties {
+    @apply fixed right-0 top-0 bottom-0 z-20;
+  }
+}
+
 @media (max-width: 768px) {
   .notion-sidebar {
     @apply fixed left-0 top-0 bottom-0 z-10;
@@ -659,6 +720,10 @@ onUnmounted(() => {
 
   .page-title {
     @apply text-3xl;
+  }
+
+  .notion-properties {
+    @apply w-full;
   }
 }
 </style>

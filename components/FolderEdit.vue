@@ -211,15 +211,42 @@ const getAvailableChildTypes = (parentType: FolderType | null): FolderType[] => 
     return ['SCENE']
   }
 
-  const parentLevel = getTypeLevel(parentType)
-  const nextLevel = parentLevel + 1
+  // 业务规则：
+  // - 场景(SCENE)下可创建：分组(GROUP)、项目(PROJECT)、子项目(SUBPROJECT)，默认为项目
+  // - 分组(GROUP)下可创建：项目(PROJECT)、子项目(SUBPROJECT)，默认为项目
+  // - 项目(PROJECT)下可创建：子项目(SUBPROJECT)，默认为子项目
+  // - 子项目(SUBPROJECT)下不可创建任何文件夹
 
-  if (nextLevel >= TYPE_HIERARCHY.length) {
-    // 已经是最后一级，不能创建子文件夹
-    return []
+  switch (parentType) {
+    case 'SCENE':
+      return ['GROUP', 'PROJECT', 'SUBPROJECT']
+    case 'GROUP':
+      return ['PROJECT', 'SUBPROJECT']
+    case 'PROJECT':
+      return ['SUBPROJECT']
+    case 'SUBPROJECT':
+      return []
+    default:
+      return []
+  }
+}
+
+// 根据父文件夹类型获取默认的子类型
+const getDefaultChildType = (parentType: FolderType | null): FolderType => {
+  if (!parentType) {
+    return 'SCENE'
   }
 
-  return [TYPE_HIERARCHY[nextLevel]]
+  // 业务规则：场景和分组下默认为项目，项目下默认为子项目
+  switch (parentType) {
+    case 'SCENE':
+    case 'GROUP':
+      return 'PROJECT'
+    case 'PROJECT':
+      return 'SUBPROJECT'
+    default:
+      return 'SCENE'
+  }
 }
 
 // 获取当前类型允许的父类型
@@ -269,13 +296,18 @@ const typeHint = computed(() => {
     return ''
   }
 
-  const childTypes = getAvailableChildTypes(parent.type)
+  const childTypes = getAvailableChildTypes(parent.type as FolderType)
   if (childTypes.length === 0) {
-    return `${FOLDER_TYPES[parent.type].label}不能创建子文件夹`
+    return `${FOLDER_TYPES[parent.type as FolderType].label}不能创建子文件夹`
   }
 
-  const childType = childTypes[0]
-  return `${FOLDER_TYPES[parent.type].label}下只能创建${FOLDER_TYPES[childType].label}`
+  if (childTypes.length === 1) {
+    return `${FOLDER_TYPES[parent.type as FolderType].label}下只能创建${FOLDER_TYPES[childTypes[0]].label}`
+  }
+
+  // 多个选项时，显示所有选项并用顿号分隔
+  const typeLabels = childTypes.map(t => FOLDER_TYPES[t].label).join('、')
+  return `${FOLDER_TYPES[parent.type as FolderType].label}下可创建：${typeLabels}`
 })
 
 // 允许的父类型
@@ -306,6 +338,27 @@ const availableParents = computed(() => {
     // 检查类型是否允许
     return allowedTypes.includes(folder.type)
   })
+})
+
+// 监听父文件夹变化，自动设置默认类型
+watch(() => formData.value.parentId, (newParentId) => {
+  // 如果不是编辑模式（新建文件夹），才自动设置默认类型
+  if (!isEditing.value) {
+    if (newParentId) {
+      const parent = props.availableParents.find(f => f.id === newParentId)
+      if (parent) {
+        const defaultType = getDefaultChildType(parent.type)
+        const availableTypes = getAvailableChildTypes(parent.type)
+        // 只有当当前类型不在可用类型列表中时，才设置默认类型
+        if (!availableTypes.includes(formData.value.type)) {
+          formData.value.type = defaultType
+        }
+      }
+    } else {
+      // 没有父文件夹，默认为场景
+      formData.value.type = 'SCENE'
+    }
+  }
 })
 
 // 监听类型变化，自动调整父文件夹

@@ -18,15 +18,24 @@ function getAvailableChildTypes(parentType: FolderType | null): FolderType[] {
     return ['SCENE']
   }
 
-  const parentLevel = getTypeLevel(parentType)
-  const nextLevel = parentLevel + 1
+  // 业务规则：
+  // - 场景(SCENE)下可创建：分组(GROUP)、项目(PROJECT)、子项目(SUBPROJECT)，默认为项目
+  // - 分组(GROUP)下可创建：项目(PROJECT)、子项目(SUBPROJECT)，默认为项目
+  // - 项目(PROJECT)下可创建：子项目(SUBPROJECT)，默认为子项目
+  // - 子项目(SUBPROJECT)下不可创建任何文件夹
 
-  if (nextLevel >= TYPE_HIERARCHY.length) {
-    // 已经是最后一级，不能创建子文件夹
-    return []
+  switch (parentType) {
+    case 'SCENE':
+      return ['GROUP', 'PROJECT', 'SUBPROJECT']
+    case 'GROUP':
+      return ['PROJECT', 'SUBPROJECT']
+    case 'PROJECT':
+      return ['SUBPROJECT']
+    case 'SUBPROJECT':
+      return []
+    default:
+      return []
   }
-
-  return [TYPE_HIERARCHY[nextLevel]]
 }
 
 export default defineEventHandler(async (event) => {
@@ -74,9 +83,20 @@ export default defineEventHandler(async (event) => {
       }
       const parentTypeName = typeNames[parentFolder.type as keyof typeof typeNames]
       const childTypeName = typeNames[data.type as keyof typeof typeNames]
+
+      // 如果没有可用的子类型
+      if (availableTypes.length === 0) {
+        throw createError({
+          statusCode: 400,
+          message: `${parentTypeName}下不能创建任何子文件夹`
+        })
+      }
+
+      // 构建可用的类型列表字符串
+      const availableTypeNames = availableTypes.map(t => typeNames[t]).join('、')
       throw createError({
         statusCode: 400,
-        message: `${parentTypeName}下不能创建${childTypeName}，只能创建${typeNames[availableTypes[0] as keyof typeof typeNames]}`
+        message: `${parentTypeName}下不能创建${childTypeName}，只能创建：${availableTypeNames}`
       })
     }
   } else {

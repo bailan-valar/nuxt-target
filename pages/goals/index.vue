@@ -125,7 +125,10 @@
 
     </div>
 
-    <GoalModal :show="showModal" :goal="selectedGoal" :defaults="goalModalDefaults" @close="handleCloseGoalModal"
+    <!-- <GoalModal :show="showModal" :goal="selectedGoal" :defaults="goalModalDefaults" @close="handleCloseGoalModal"
+      @saved="handleSaved" /> -->
+
+    <GoalEditDrawer :show="showModal" :goal="selectedGoal" :defaults="goalModalDefaults" @close="handleCloseGoalModal"
       @saved="handleSaved" />
 
     <!-- 加载状态 -->
@@ -1495,9 +1498,10 @@ async function handleDeleteGoal(goal: any) {
   }
 }
 
-// 打开编辑目标模态框
+// 打开目标编辑抽屉
 function openEditGoal(goal: any) {
   selectedGoal.value = goal
+  goalModalDefaults.value = null // 编辑模式，不需要默认值
   showModal.value = true
 }
 

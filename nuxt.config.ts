@@ -7,6 +7,11 @@ export default defineNuxtConfig({
   runtimeConfig: {
     databaseUrl: process.env.DATABASE_URL
   },
+  nitro: {
+    prerender: {
+      autoSubfolderIndex: false
+    }
+  },
   vite: {
     server: {
       allowedHosts: ['.trycloudflare.com', '.loca.lt']
